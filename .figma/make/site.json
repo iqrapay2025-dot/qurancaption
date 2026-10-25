@@ -1,0 +1,11 @@
+{
+  "title": "Quran Caption Studio",
+  "description": "Create and preview Quran-inspired captions with a responsive Arabic-friendly editor, helping creators prepare polished content for social media.",
+  "robots": {
+    "index": true
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
