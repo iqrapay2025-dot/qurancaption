@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { getVerses } from "./server";
 
 let origKey: string | undefined;
@@ -9,11 +9,25 @@ beforeEach(() => {
   origRequire = process.env.UMMAH_REQUIRE_KEY;
   delete process.env.UMMAH_API_KEY;
   delete process.env.UMMAH_REQUIRE_KEY;
+  vi.stubGlobal("fetch", vi.fn(async () => ({
+    status: 200,
+    ok: true,
+    json: async () => ({
+      success: true,
+      data: {
+        verses: [
+          { verse_key: "1:1", ayah: 1, arabic: "بسمِ الله الرحمن الرحيم", translations: {} },
+          { verse_key: "1:2", ayah: 2, arabic: "الحمد لله رب العالمين", translations: {} },
+        ],
+      },
+    }),
+  })));
 });
 
 afterEach(() => {
   if (origKey === undefined) delete process.env.UMMAH_API_KEY; else process.env.UMMAH_API_KEY = origKey;
   if (origRequire === undefined) delete process.env.UMMAH_REQUIRE_KEY; else process.env.UMMAH_REQUIRE_KEY = origRequire;
+  vi.unstubAllGlobals();
 });
 
 describe("UMMAH_REQUIRE_KEY", () => {
@@ -26,5 +40,6 @@ describe("UMMAH_REQUIRE_KEY", () => {
     process.env.UMMAH_REQUIRE_KEY = "false";
     const result = await getVerses(1, 1, 2, []);
     expect(result.verses.length).toBeGreaterThan(0);
+    expect(fetch).toHaveBeenCalled();
   });
 });

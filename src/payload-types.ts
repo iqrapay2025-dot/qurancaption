@@ -463,6 +463,7 @@ export interface BillingEvent {
   id: number;
   eventId: string;
   type?: string | null;
+  reason?: string | null;
   createdBy?:
     | ({
         relationTo: 'admins';
@@ -771,6 +772,7 @@ export interface ProjectsSelect<T extends boolean = true> {
 export interface BillingEventsSelect<T extends boolean = true> {
   eventId?: T;
   type?: T;
+  reason?: T;
   createdBy?: T;
   updatedBy?: T;
   updatedAt?: T;

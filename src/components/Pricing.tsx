@@ -3,7 +3,7 @@
 import { Check } from "lucide-react";
 import { useState } from "react";
 import { appFetch, type AppUser } from "../lib/app/client";
-import { PRO_PRICE_USD } from "../lib/app/plans";
+import { PRO_PRICE_NGN } from "../lib/app/plans";
 import AccountMenu from "./AccountMenu";
 import { Logo, ThemeToggle } from "./shared";
 
@@ -56,7 +56,7 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
           </div>
 
           <div className="flex flex-col rounded-md border-2 border-accent bg-card p-7">
-            <div className="flex items-baseline justify-between"><h2 className="text-xl font-bold">Pro</h2><p><span className="text-4xl font-bold">${PRO_PRICE_USD}</span><span className="text-sm text-muted-foreground"> /month</span></p></div>
+            <div className="flex items-baseline justify-between"><h2 className="text-xl font-bold">Pro</h2><p><span className="text-4xl font-bold">₦{PRO_PRICE_NGN.toLocaleString()}</span><span className="text-sm text-muted-foreground"> /month</span></p></div>
             <ul className="mt-6 flex-1 space-y-3">{PRO.map((i) => <li key={i} className="flex gap-3 text-sm text-muted-foreground"><Check size={18} className="mt-0.5 shrink-0 text-gold" />{i}</li>)}</ul>
 
             {isPro ? (

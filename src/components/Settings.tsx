@@ -3,7 +3,7 @@
 import { CreditCard, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { appFetch, type AppUser } from "../lib/app/client";
-import { FREE_LIMITS, PRO_PRICE_USD } from "../lib/app/plans";
+import { FREE_LIMITS, PRO_PRICE_NGN } from "../lib/app/plans";
 import AccountMenu from "./AccountMenu";
 import { Logo, ThemeToggle } from "./shared";
 
@@ -86,7 +86,7 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
 
             <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
               <dt className="text-muted-foreground">Plan</dt>
-              <dd className="font-semibold">{pro ? `Pro · $${PRO_PRICE_USD}/month` : "Free"}</dd>
+              <dd className="font-semibold">{pro ? `Pro · ₦${PRO_PRICE_NGN.toLocaleString()}/month` : "Free"}</dd>
               {pro && providerName && (<><dt className="text-muted-foreground">Paid with</dt><dd>{providerName}</dd></>)}
               {pro && b?.proUntil && (<><dt className="text-muted-foreground">{b.cancelAtPeriodEnd ? "Pro ends on" : "Renews on"}</dt><dd>{fmtDate(b.proUntil)}</dd></>)}
               {!pro && (<><dt className="text-muted-foreground">Includes</dt><dd>Up to {FREE_LIMITS.projects} saved projects · up to {FREE_LIMITS.verses} verses per export</dd></>)}

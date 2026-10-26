@@ -3,7 +3,7 @@
 import { Check, Sparkles, X } from "lucide-react";
 import { useEffect } from "react";
 import type { Upgrade } from "../lib/app/client";
-import { FREE_LIMITS, PRO_PRICE_USD } from "../lib/app/plans";
+import { FREE_LIMITS, PRO_PRICE_NGN } from "../lib/app/plans";
 
 const COPY: Record<Upgrade["code"], { title: string; body: string }> = {
   project_limit: { title: "You've filled your 3 free projects", body: `Free accounts keep up to ${FREE_LIMITS.projects} saved projects. Delete one you no longer need, or go Pro for unlimited projects.` },
@@ -32,7 +32,7 @@ export default function UpgradeDialog({ upgrade, signedIn, onClose, onPlans }: {
           {["Unlimited projects and verses", "Custom style presets", "Priority support"].map((i) => <li key={i} className="flex gap-2.5"><Check size={16} className="mt-0.5 shrink-0 text-primary" />{i}</li>)}
         </ul>
         <div className="mt-6 flex flex-col gap-2 sm:flex-row-reverse">
-          <button onClick={onPlans} className="flex-1 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">{signedIn ? `See Pro · $${PRO_PRICE_USD}/month` : "See plans"}</button>
+          <button onClick={onPlans} className="flex-1 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">{signedIn ? `See Pro · ₦${PRO_PRICE_NGN.toLocaleString()}/month` : "See plans"}</button>
           <button onClick={onClose} className="flex-1 rounded-sm border border-border px-4 py-2.5 text-sm font-medium hover:bg-secondary">Not now</button>
         </div>
       </div>

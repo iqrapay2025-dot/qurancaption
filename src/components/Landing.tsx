@@ -1,7 +1,8 @@
 "use client";
 
 import { ArrowRight, Check, Download, ListChecks, Palette } from "lucide-react";
-import { PRO_PRICE_USD } from "../lib/app/plans";
+import Link from "next/link";
+import { PRO_PRICE_NGN } from "../lib/app/plans";
 import type { AppUser } from "../lib/app/client";
 import AccountMenu from "./AccountMenu";
 import { Logo, ThemeToggle } from "./shared";
@@ -35,10 +36,10 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
         <div className="mx-auto grid h-16 max-w-6xl grid-cols-[1fr_auto] items-center px-5 md:h-[72px] md:grid-cols-[1fr_auto_1fr] md:px-8">
           <div><Logo /></div>
           <nav className="hidden items-center gap-8 text-sm font-medium md:flex">
-            <a href="#top" className="hover:text-gold">Home</a>
-            <a href="#how" className="hover:text-gold">How it works</a>
-            <a href="#editors" className="hover:text-gold">Editors</a>
-            <a href="#pricing" className="hover:text-gold">Pricing</a>
+            <Link href="/home" className="hover:text-gold">Home</Link>
+            <Link href="/how-it-works" className="hover:text-gold">How it works</Link>
+            <Link href="/editors" className="hover:text-gold">Editors</Link>
+            <Link href="/pricing" className="hover:text-gold">Pricing</Link>
           </nav>
           <div className="flex items-center justify-end gap-3">
             <ThemeToggle dark={dark} toggle={toggleTheme} />
@@ -49,7 +50,7 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
         </div>
       </header>
 
-      <section id="top" className="relative overflow-hidden bg-muted">
+      <section id="top" className="scroll-mt-20 relative overflow-hidden bg-muted">
         <Mosque />
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 py-14 md:grid-cols-2 md:px-8 md:py-20">
           <div className="md:pr-6">
@@ -84,7 +85,7 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
         </div>
       </section>
 
-      <section id="how" className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-24">
+      <section id="how" className="scroll-mt-20 mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-24">
         <h2 className="mx-auto max-w-lg text-center text-3xl leading-tight font-bold tracking-tight sm:text-4xl">Three steps to a timed caption file</h2>
         <ol className="mt-12 grid gap-6 md:grid-cols-3">
           {steps.map((s, i) => (
@@ -100,7 +101,7 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
         </ol>
       </section>
 
-      <section id="editors" className="bg-navy text-white">
+      <section id="editors" className="scroll-mt-20 bg-navy text-white">
         <div className="mx-auto max-w-4xl px-5 py-16 text-center md:px-8">
           <h2 className="text-2xl leading-tight font-bold sm:text-3xl">Works with any editor that imports subtitles.</h2>
           <ul className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -112,12 +113,12 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
         </div>
       </section>
 
-      <section id="pricing" className="mx-auto max-w-4xl px-5 py-16 md:px-8 md:py-24">
+      <section id="pricing" className="scroll-mt-20 mx-auto max-w-4xl px-5 py-16 md:px-8 md:py-24">
         <h2 className="text-center text-3xl leading-tight font-bold tracking-tight sm:text-4xl">Free to begin, Pro when you grow</h2>
         <div className="mt-12 grid gap-6 md:grid-cols-2">
           {[
             { name: "Free", price: "$0", items: ["Up to 3 saved projects", "SRT and VTT export", "Up to 20 verses per export", "Preview, style and sync tools"], pro: false },
-            { name: "Pro", price: `$${PRO_PRICE_USD}`, items: ["Unlimited projects and verses", "SRT and VTT export", "Custom style presets", "Priority support"], pro: true },
+            { name: "Pro", price: `₦${PRO_PRICE_NGN.toLocaleString()}`, items: ["Unlimited projects and verses", "SRT and VTT export", "Custom style presets", "Priority support"], pro: true },
           ].map((p) => (
             <div key={p.name} className={`rounded-md bg-card p-7 transition-shadow hover:shadow-lg ${p.pro ? "border-2 border-accent" : "border border-border"}`}>
               <div className="flex items-baseline justify-between">

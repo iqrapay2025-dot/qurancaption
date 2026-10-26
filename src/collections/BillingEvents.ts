@@ -7,6 +7,7 @@ export const BillingEvents: CollectionConfig = {
   fields: [
     { name: 'eventId', type: 'text', required: true, unique: true, index: true },
     { name: 'type', type: 'text' },
+    { name: 'reason', type: 'text' },
   ],
   versions: false,
 }

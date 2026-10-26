@@ -26,7 +26,7 @@ vi.mock("@/lib/app/session", () => ({
 const tx = {
   status: "success",
   reference: "ref-01",
-  amount: 900000,
+  amount: 837000,
   currency: "NGN",
   metadata: { userId: "u1" },
   customer: { customer_code: "cus_1", email: "alice@example.com" },

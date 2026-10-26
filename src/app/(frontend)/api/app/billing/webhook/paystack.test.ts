@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { POST as webhook } from "./paystack/route";
+import { extend } from "@/lib/app/billing";
 
 let events = new Map<string, any>();
 let users = new Map<string, any>();
@@ -20,6 +21,7 @@ vi.mock("@/lib/payload", () => ({
 }));
 
 let origSecret: string | undefined;
+let origPlan: string | undefined;
 
 function sign(raw: string) {
   return crypto.createHmac("sha512", process.env.PAYSTACK_SECRET_KEY!).update(raw).digest("hex");
@@ -34,9 +36,23 @@ function post(event: string, data: Record<string, any>) {
   }));
 }
 
+function chargeRef(reference: string, planCode = "premium"): Record<string, any> {
+  return {
+    amount: 837000,
+    currency: "NGN",
+    status: "success",
+    reference,
+    plan: { plan_code: planCode },
+    metadata: { userId: "u1" },
+    customer: { customer_code: "cus_1", email: "alice@example.com" },
+  };
+}
+
 beforeEach(() => {
   origSecret = process.env.PAYSTACK_SECRET_KEY;
+  origPlan = process.env.PAYSTACK_PLAN_CODE;
   process.env.PAYSTACK_SECRET_KEY = "sk_test_live_1234567890abcdef";
+  process.env.PAYSTACK_PLAN_CODE = "premium";
   events = new Map();
   users = new Map();
   updates = [];
@@ -63,25 +79,31 @@ beforeEach(() => {
       if (collection === "users") return users.get(id) ?? null;
       return null;
     }),
-    update: vi.fn(async ({ collection, id, data }: any) => {
+    update: vi.fn(async ({ collection, where, data, id }: any) => {
       if (collection === "users") {
-        updates.push({ id, data });
-        const u = users.get(id) ?? {};
-        users.set(id, { ...u, ...data });
-        return { id, ...u, ...data };
+      const uid = id ?? where?.eventId ?? where?.id;
+      updates.push({ id: uid, data });
+      const u = users.get(uid) ?? {};
+      users.set(uid, { ...u, ...data });
       }
-      return { id };
+      if (collection === "billing-events" && where?.eventId?.equals) {
+        const ev = events.get(where.eventId.equals);
+        if (ev) events.set(where.eventId.equals, { ...ev, ...data });
+        return { id: where.eventId.equals };
+      }
+      return { id: String(Date.now()) };
     }),
   };
 });
 
 afterEach(() => {
   process.env.PAYSTACK_SECRET_KEY = origSecret;
+  process.env.PAYSTACK_PLAN_CODE = origPlan;
 });
 
 describe("paystack webhook", () => {
   it("extends Pro on charge.success and skips a duplicate charge.success", async () => {
-    const data = { reference: "ref-1", metadata: { userId: "u1" }, customer: { customer_code: "cus_1", email: "alice@example.com" } };
+    const data = chargeRef("ref-1");
     const a = await post("charge.success", data);
     expect(a.status).toBe(200);
     const b = await post("charge.success", data);
@@ -92,27 +114,15 @@ describe("paystack webhook", () => {
   });
 
   it("does not extend again when the same reference arrives via webhook after confirm (shared claim key)", async () => {
-    await post("charge.success", {
-      reference: "shared-ref",
-      metadata: { userId: "u1" },
-      customer: { customer_code: "cus_1", email: "alice@example.com" },
-    });
+    await post("charge.success", chargeRef("shared-ref"));
     const first = updates.length;
-    await post("charge.success", {
-      reference: "shared-ref",
-      metadata: { userId: "u1" },
-      customer: { customer_code: "cus_1", email: "alice@example.com" },
-    });
+    await post("charge.success", chargeRef("shared-ref"));
     expect(updates).toHaveLength(first);
     expect(events.has("paystack:charge:shared-ref")).toBe(true);
   });
 
   it("revokes Pro on refund.processed", async () => {
-    await post("charge.success", {
-      reference: "ref-refund",
-      metadata: { userId: "u1" },
-      customer: { customer_code: "cus_1", email: "alice@example.com" },
-    });
+    await post("charge.success", chargeRef("ref-refund"));
     const res = await post("refund.processed", { id: "rf-1", customer: { customer_code: "cus_1", email: "alice@example.com" } });
     expect(res.status).toBe(200);
     const last = updates[updates.length - 1];
@@ -154,5 +164,46 @@ describe("paystack webhook", () => {
       headers: { "content-type": "application/json", "x-paystack-signature": "bad" },
     }));
     expect(res.status).toBe(401);
+  });
+
+  it("does not grant Pro on charge.success with a wrong amount", async () => {
+    const data = chargeRef("wrong-amount");
+    data.amount = 100;
+    await post("charge.success", data);
+    expect(updates).toHaveLength(0);
+    const ev = events.get("paystack:charge:wrong-amount");
+    expect(ev).toMatchObject({ type: "paystack:charge:ignored" });
+    expect(ev.reason).toContain("837000");
+  });
+
+  it("does not grant Pro on charge.success with a wrong currency", async () => {
+    const data = chargeRef("wrong-currency");
+    data.currency = "usd";
+    data.amount = 837000;
+    await post("charge.success", data);
+    expect(updates).toHaveLength(0);
+    const ev = events.get("paystack:charge:wrong-currency");
+    expect(ev).toMatchObject({ type: "paystack:charge:ignored" });
+    expect(ev.reason).toContain("NGN");
+  });
+
+  it("does not grant Pro on charge.success with a wrong plan", async () => {
+    const data = chargeRef("wrong-plan", "pro");
+    data.currency = "NGN";
+    data.amount = 837000;
+    await post("charge.success", data);
+    expect(updates).toHaveLength(0);
+    const ev = events.get("paystack:charge:wrong-plan");
+    expect(ev).toMatchObject({ type: "paystack:charge:ignored" });
+    expect(ev.reason).toContain("plan");
+  });
+
+  it("grants Pro on a correct charge.success with exactly one period", async () => {
+    const res = await post("charge.success", chargeRef("ok-ref"));
+    expect(res.status).toBe(200);
+    expect(updates).toHaveLength(1);
+    expect(updates[0].data.billingStatus).toBe("active");
+    expect(updates[0].data.cancelAtPeriodEnd).toBe(false);
+    expect(updates[0].data.proUntil).toBe(extend("2030-01-01T00:00:00.000Z"));
   });
 });

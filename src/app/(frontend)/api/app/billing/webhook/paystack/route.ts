@@ -1,5 +1,19 @@
+import "server-only";
+
 import { ok, fail } from "@/lib/app/http";
-import { extend, findUserId, getAccount, paystackSignatureOk, setBilling, claimEvent, releaseEvent, DAY, INVOICE_GRACE_DAYS } from "@/lib/app/billing";
+import {
+  extend,
+  findUserId,
+  getAccount,
+  paystackSignatureOk,
+  setBilling,
+  claimEvent,
+  releaseEvent,
+  DAY,
+  INVOICE_GRACE_DAYS,
+} from "@/lib/app/billing";
+import { getPayloadClient } from "@/lib/payload";
+import { PRO_PRICE_NGN } from "@/lib/app/plans";
 
 type Ev = { event: string; data: Record<string, any> };
 
@@ -7,20 +21,52 @@ export async function POST(req: Request) {
   const raw = await req.text();
   if (!paystackSignatureOk(raw, req.headers.get("x-paystack-signature"))) return fail("Invalid signature.", 401);
   let ev: Ev;
-  try { ev = JSON.parse(raw); } catch { return fail("Bad payload.", 400); }
+  try {
+    ev = JSON.parse(raw);
+  } catch {
+    return fail("Bad payload.", 400);
+  }
   const d = ev.data ?? {};
   const meta = typeof d.metadata === "object" && d.metadata ? d.metadata : {};
-  const uid = await findUserId({ userId: meta.userId, customerRef: d.customer?.customer_code, email: d.customer?.email ?? d.email });
+  const uid = await findUserId({ userId: meta.userId, email: d.customer?.email ?? d.email });
   if (!uid) return ok();
   try {
     switch (ev.event) {
       case "charge.success": {
-        if (!d.reference) { console.warn("[billing] paystack webhook charge.success missing reference"); break; }
+        if (!d.reference) {
+          console.warn("[billing] paystack webhook charge.success missing reference");
+          break;
+        }
         const key = `paystack:charge:${d.reference}`;
         if (!(await claimEvent(key, "paystack.charge"))) break;
         try {
+          const currency = String(d.currency ?? "").toUpperCase();
+          const amount = Number(d.amount ?? 0);
+          const planCode = d.plan?.plan_code;
+          const reasons: string[] = [];
+          if (d.status !== "success") reasons.push("status is not success");
+          if (currency !== "NGN") reasons.push(`currency is not NGN (received "${d.currency ?? ""}")`);
+          if (amount !== PRO_PRICE_NGN * 100) reasons.push(`amount is ${amount}, expected ${PRO_PRICE_NGN * 100} kobo`);
+          if (planCode !== process.env.PAYSTACK_PLAN_CODE) reasons.push(`plan is ${planCode ?? "(none)"}, expected ${process.env.PAYSTACK_PLAN_CODE ?? "(none)"}`);
+          if (reasons.length > 0) {
+            const payload = await getPayloadClient();
+            await payload.update({
+              collection: "billing-events",
+              where: { eventId: { equals: key } },
+              data: { type: "paystack:charge:ignored", reason: reasons.join("; ") },
+              overrideAccess: true,
+              depth: 0,
+            });
+            break;
+          }
           const acc = await getAccount(uid);
-          await setBilling(uid, { provider: "paystack", billingStatus: "active", cancelAtPeriodEnd: false, proUntil: extend(acc.billing.proUntil), ...(d.customer?.customer_code ? { customerRef: d.customer.customer_code } : {}) });
+          await setBilling(uid, {
+            provider: "paystack",
+            billingStatus: "active",
+            cancelAtPeriodEnd: false,
+            proUntil: extend(acc.billing.proUntil),
+            ...(d.customer?.customer_code ? { customerRef: d.customer.customer_code } : {}),
+          });
         } catch (e) {
           await releaseEvent(key);
           throw e;
@@ -31,7 +77,14 @@ export async function POST(req: Request) {
         if (!d.subscription_code) break;
         const key = `paystack:subscription:create:${d.subscription_code}`;
         if (!(await claimEvent(key, "paystack.subscription.create"))) break;
-        await setBilling(uid, { provider: "paystack", billingStatus: "active", subscriptionRef: d.subscription_code, emailToken: d.email_token ?? null, cancelAtPeriodEnd: false, ...(d.next_payment_date ? { proUntil: new Date(d.next_payment_date).toISOString() } : {}) });
+        await setBilling(uid, {
+          provider: "paystack",
+          billingStatus: "active",
+          subscriptionRef: d.subscription_code,
+          emailToken: d.email_token ?? null,
+          cancelAtPeriodEnd: false,
+          ...(d.next_payment_date ? { proUntil: new Date(d.next_payment_date).toISOString() } : {}),
+        });
         break;
       }
       case "subscription.not_renew": {
@@ -42,7 +95,7 @@ export async function POST(req: Request) {
       }
       case "subscription.disable": {
         const key = `paystack:subscription:disable:${d.subscription_code ?? d.id ?? "unknown"}`;
-        if (!(await claimEvent(key, "paystack.subscription.disable"))) break;
+        if (!(await claimEvent(key, "paystack.subscription:disable"))) break;
         await setBilling(uid, { billingStatus: "canceled", cancelAtPeriodEnd: true });
         break;
       }
