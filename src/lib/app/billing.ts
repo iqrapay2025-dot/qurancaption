@@ -3,10 +3,13 @@ import crypto from "node:crypto";
 import { getPayloadClient } from "@/lib/payload";
 import type { Billing, Plan } from "./plans";
 
-const DAY = 86_400_000;
+export const DAY = 86_400_000;
+// After an invoice.payment_failed webhook, stop extending Pro and let it lapse
+// after this many days unless a successful payment arrives first.
+export const INVOICE_GRACE_DAYS = 7;
 export const siteUrl = () => (process.env.NEXT_PUBLIC_SITE_URL ? process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "") : process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}`.replace(/\/$/, "") : "http://localhost:3001");
 
-export type Account = { plan: Plan; billing: Billing; subscriptionRef: string | null; customerRef: string | null; presets: Preset[] };
+export type Account = { plan: Plan; billing: Billing; subscriptionRef: string | null; customerRef: string | null; emailToken: string | null; presets: Preset[] };
 export type Preset = { id: string; name: string; style: Record<string, string | number | boolean> };
 
 export async function getAccount(userId: string): Promise<Account> {
@@ -24,11 +27,12 @@ export async function getAccount(userId: string): Promise<Account> {
     },
     subscriptionRef: (u.subscriptionRef as string) ?? null,
     customerRef: (u.customerRef as string) ?? null,
+    emailToken: (u.emailToken as string) ?? null,
     presets: Array.isArray(u.presets) ? (u.presets as Preset[]) : [],
   };
 }
 
-type Patch = Partial<{ provider: "paystack" | "stripe"; customerRef: string; subscriptionRef: string; billingStatus: Billing["status"]; proUntil: string; cancelAtPeriodEnd: boolean; presets: Preset[] }>;
+type Patch = Partial<{ provider: "paystack" | "stripe"; customerRef: string; subscriptionRef: string; emailToken: string; billingStatus: Billing["status"]; proUntil: string; cancelAtPeriodEnd: boolean; presets: Preset[] }>;
 
 // Server-owned workflow fields: written only from verified webhooks and authenticated billing routes.
 export async function setBilling(userId: string, data: Patch) {
@@ -83,8 +87,12 @@ export async function paystackCheckout(user: { id: string; email: string }) {
   return d.authorization_url;
 }
 export async function paystackVerify(reference: string) {
-  return ps<{ status: string; reference: string; metadata?: { userId?: string } | string | null; customer?: { customer_code?: string; email?: string } }>(`/transaction/verify/${encodeURIComponent(reference)}`);
+  return ps<{ status: string; reference: string; amount?: number; currency?: string; metadata?: { userId?: string } | string | null; customer?: { customer_code?: string; email?: string } }>(`/transaction/verify/${encodeURIComponent(reference)}`);
 }
+export async function paystackDisable(code: string, token: string) {
+  return ps("/subscription/disable", { method: "POST", body: { code, token } });
+}
+
 export async function paystackCancel(acc: Account) {
   let code = acc.subscriptionRef;
   if (!code && acc.customerRef) {

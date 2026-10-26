@@ -1,11 +1,14 @@
-import { csrf, fail, ok, readJson } from "@/lib/app/http";
+import { csrf, fail, ok, readJson, rateLimited } from "@/lib/app/http";
 import { currentUser } from "@/lib/app/session";
 import { getAccount, paystackCheckout, paystackConfigured, stripeCheckout, stripeConfigured } from "@/lib/app/billing";
+import { rateLimit } from "@/lib/app/rate-limit";
 
 export async function POST(req: Request) {
   const bad = csrf(req); if (bad) return bad;
   const user = await currentUser().catch(() => null);
   if (!user) return fail("Log in or create an account to upgrade.", 401);
+  const rl = rateLimit(`app:checkout:${String(user.id)}`, 10, 60 * 60 * 1000);
+  if (!rl.ok) return rateLimited(rl.retryAfter);
   const b = (await readJson(req)) as { provider?: string } | null;
   const provider = b?.provider;
   if (provider !== "paystack" && provider !== "stripe") return fail("Choose Paystack or Stripe.");

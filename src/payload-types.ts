@@ -219,6 +219,7 @@ export interface User {
   provider?: ('paystack' | 'stripe') | null;
   customerRef?: string | null;
   subscriptionRef?: string | null;
+  emailToken?: string | null;
   billingStatus?: ('none' | 'active' | 'past_due' | 'canceled') | null;
   proUntil?: string | null;
   cancelAtPeriodEnd?: boolean | null;
@@ -716,6 +717,7 @@ export interface UsersSelect<T extends boolean = true> {
   provider?: T;
   customerRef?: T;
   subscriptionRef?: T;
+  emailToken?: T;
   billingStatus?: T;
   proUntil?: T;
   cancelAtPeriodEnd?: T;

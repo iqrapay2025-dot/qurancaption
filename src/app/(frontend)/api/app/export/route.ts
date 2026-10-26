@@ -1,9 +1,10 @@
 import { buildCaptions, creditLines, toSRT, toVTT, type CaptionLine, type Verse } from "@/data";
 import { MAX_RANGES } from "@/lib/app/validate";
-import { csrf, deny, fail, ok, readJson } from "@/lib/app/http";
+import { csrf, deny, fail, ok, readJson, rateLimited, clientIp } from "@/lib/app/http";
 import { getAccount } from "@/lib/app/billing";
 import { FREE_LIMITS } from "@/lib/app/plans";
 import { currentUser } from "@/lib/app/session";
+import { rateLimit } from "@/lib/app/rate-limit";
 import { getVerses, getTranslations, ApiError } from "@/lib/quran/server";
 
 const KEY = /^[a-z_]{2,40}$/;
@@ -47,6 +48,8 @@ export async function POST(req: Request) {
   }
 
   const user = await currentUser().catch(() => null);
+  const rl = rateLimit(`app:export:${user ? String(user.id) : clientIp(req)}`, 30, 60 * 60 * 1000);
+  if (!rl.ok) return rateLimited(rl.retryAfter);
   const plan = user ? (await getAccount(String(user.id))).plan : "free";
   const total = ranges.reduce((n, r) => n + (r.to - r.from + 1), 0);
   if (plan !== "pro" && total > FREE_LIMITS.verses)

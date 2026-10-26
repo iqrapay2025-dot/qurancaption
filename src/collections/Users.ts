@@ -30,6 +30,7 @@ export const Users: CollectionConfig = {
     { name: 'provider', type: 'select', options: ['paystack', 'stripe'], access: serverOnly },
     { name: 'customerRef', type: 'text', index: true, access: serverOnly },
     { name: 'subscriptionRef', type: 'text', access: serverOnly },
+    { name: 'emailToken', type: 'text', access: serverOnly },
     { name: 'billingStatus', type: 'select', options: ['none', 'active', 'past_due', 'canceled'], defaultValue: 'none', access: serverOnly },
     { name: 'proUntil', type: 'date', access: serverOnly },
     { name: 'cancelAtPeriodEnd', type: 'checkbox', defaultValue: false, access: serverOnly },

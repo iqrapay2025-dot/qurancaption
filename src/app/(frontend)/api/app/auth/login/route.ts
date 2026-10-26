@@ -1,12 +1,16 @@
 import { getPayloadClient } from "@/lib/payload";
-import { csrf, fail, ok, readJson } from "@/lib/app/http";
+import { csrf, fail, ok, readJson, rateLimited, clientIp } from "@/lib/app/http";
 import { publicUser, setSession } from "@/lib/app/session";
+import { rateLimit } from "@/lib/app/rate-limit";
 
 export async function POST(req: Request) {
   const bad = csrf(req); if (bad) return bad;
   const b = (await readJson(req)) as Record<string, unknown> | null;
   const email = typeof b?.email === "string" ? b.email.trim().toLowerCase() : "";
   const password = typeof b?.password === "string" ? b.password : "";
+  const ip = clientIp(req);
+  const rl = rateLimit(`app:login:${email || "unknown"}:${ip}`, 5, 15 * 60 * 1000);
+  if (!rl.ok) return rateLimited(rl.retryAfter);
   if (!email || !password) return fail("Enter your email and password.");
   const payload = await getPayloadClient();
   try {

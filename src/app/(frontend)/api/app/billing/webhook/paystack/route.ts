@@ -1,5 +1,5 @@
 import { ok, fail } from "@/lib/app/http";
-import { extend, findUserId, getAccount, paystackSignatureOk, setBilling, claimEvent, releaseEvent } from "@/lib/app/billing";
+import { extend, findUserId, getAccount, paystackSignatureOk, setBilling, claimEvent, releaseEvent, DAY, INVOICE_GRACE_DAYS } from "@/lib/app/billing";
 
 type Ev = { event: string; data: Record<string, any> };
 
@@ -27,18 +27,45 @@ export async function POST(req: Request) {
         }
         break;
       }
-      case "subscription.create":
-        await setBilling(uid, { provider: "paystack", billingStatus: "active", subscriptionRef: d.subscription_code, cancelAtPeriodEnd: false, ...(d.next_payment_date ? { proUntil: new Date(d.next_payment_date).toISOString() } : {}) });
+      case "subscription.create": {
+        if (!d.subscription_code) break;
+        const key = `paystack:subscription:create:${d.subscription_code}`;
+        if (!(await claimEvent(key, "paystack.subscription.create"))) break;
+        await setBilling(uid, { provider: "paystack", billingStatus: "active", subscriptionRef: d.subscription_code, emailToken: d.email_token ?? null, cancelAtPeriodEnd: false, ...(d.next_payment_date ? { proUntil: new Date(d.next_payment_date).toISOString() } : {}) });
         break;
-      case "subscription.not_renew":
+      }
+      case "subscription.not_renew": {
+        const key = `paystack:subscription:not_renew:${d.subscription_code ?? d.id ?? "unknown"}`;
+        if (!(await claimEvent(key, "paystack.subscription.not_renew"))) break;
         await setBilling(uid, { cancelAtPeriodEnd: true });
         break;
-      case "subscription.disable":
+      }
+      case "subscription.disable": {
+        const key = `paystack:subscription:disable:${d.subscription_code ?? d.id ?? "unknown"}`;
+        if (!(await claimEvent(key, "paystack.subscription.disable"))) break;
         await setBilling(uid, { billingStatus: "canceled", cancelAtPeriodEnd: true });
         break;
-      case "invoice.payment_failed":
-        await setBilling(uid, { billingStatus: "past_due" });
+      }
+      case "invoice.payment_failed": {
+        const key = `paystack:invoice:payment_failed:${d.id ?? d.reference ?? "unknown"}`;
+        if (!(await claimEvent(key, "paystack.invoice.payment_failed"))) break;
+        const acc = await getAccount(uid);
+        if (acc.plan === "pro") {
+          const cap = new Date(Date.now() + INVOICE_GRACE_DAYS * DAY);
+          const until = acc.billing.proUntil ? new Date(acc.billing.proUntil) : cap;
+          await setBilling(uid, { billingStatus: "past_due", proUntil: new Date(Math.min(until.getTime(), cap.getTime())).toISOString() });
+        } else {
+          await setBilling(uid, { billingStatus: "past_due" });
+        }
         break;
+      }
+      case "refund.processed": {
+        const key = `paystack:refund:processed:${d.id ?? d.reference ?? "unknown"}`;
+        if (!(await claimEvent(key, "paystack.refund.processed"))) break;
+        await setBilling(uid, { billingStatus: "canceled", cancelAtPeriodEnd: true, proUntil: new Date().toISOString() });
+        console.warn("[billing] paystack webhook refund.processed: Pro revoked for user", uid);
+        break;
+      }
     }
   } catch (e) {
     console.error("[billing] paystack webhook failed:", e instanceof Error ? e.message : e);

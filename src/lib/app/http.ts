@@ -1,9 +1,17 @@
 import "server-only";
+import { rateLimit } from "./rate-limit";
 
 export const noStore = { "Cache-Control": "no-store" };
 export const fail = (error: string, status = 400) => Response.json({ error }, { status, headers: noStore });
 export const ok = (body: unknown = { ok: true }, status = 200) => Response.json(body, { status, headers: noStore });
+export const rateLimited = (retryAfter: number, message = "Too many requests. Please try again later.") =>
+  Response.json({ error: message }, { status: 429, headers: { ...noStore, "Retry-After": String(retryAfter) } });
 export const readJson = async (req: Request): Promise<unknown> => req.json().catch(() => null);
+export const clientIp = (req: Request): string => {
+  const fwd = req.headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0].trim() || "unknown";
+  return "unknown";
+};
 export const csrf = (req: Request): Response | null => {
   const origin = req.headers.get("origin");
   const allowed = new Set<string>();
