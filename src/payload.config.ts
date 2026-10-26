@@ -17,7 +17,9 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || '',
-  db: postgresAdapter({ pool: { connectionString: process.env.DATABASE_URL } }),
+  db: postgresAdapter({
+  pool: { connectionString: process.env.DATABASE_URL || process.env.NEON_DATABASE_URL },
+}),
   editor: lexicalEditor(),
   admin: {
     user: Admins.slug,
