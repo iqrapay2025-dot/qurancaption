@@ -207,46 +207,56 @@ describe("paystack webhook", () => {
     expect(updates[0].data.cancelAtPeriodEnd).toBe(false);
     expect(updates[0].data.proUntil).toBe(extend("2030-01-01T00:00:00.000Z"));
   });
-it("stores manual payment event on charge.success for manual kind", async () => {
-    const res = await post("charge.success", { ...chargeRef("ok-ref-manual"), kind: PAYSTACK_MANUAL_KIND });
+
+  const manual = (reference: string): Record<string, any> => ({
+    ...chargeRef(reference),
+    plan: undefined,
+    metadata: { userId: "u1", kind: PAYSTACK_MANUAL_KIND },
+  });
+
+  it("stores manual payment event on charge.success for manual kind", async () => {
+    const res = await post("charge.success", manual("ok-ref-manual"));
     expect(res.status).toBe(200);
-    expect(events.has("paystack:charge:ok-ref-manual")).toBe(true);
     const evt = events.get("paystack:charge:ok-ref-manual");
-    expect(evt).toMatchObject({ kind: PAYSTACK_MANUAL_KIND, status: "success" });
-    expect(evt.data.metadata?.userId).toBe("u1");
+    expect(evt).toMatchObject({ eventId: "paystack:charge:ok-ref-manual", type: "paystack.charge" });
   });
 
-  it("does not grant Pro on charge.success when kind=manual", async () => {
-    const res = await post("charge.success", { ...chargeRef("ok-ref-manual"), kind: PAYSTACK_MANUAL_KIND });
+  it("extends proUntil exactly once for a manual_monthly charge with no plan", async () => {
+    const res = await post("charge.success", manual("ok-ref-manual"));
+    expect(res.status).toBe(200);
+    expect(updates).toHaveLength(1);
+    expect(updates[0].data.billingStatus).toBe("active");
+    expect(updates[0].data.proUntil).toBe(extend("2030-01-01T00:00:00.000Z"));
+    expect(updates[0].data.customerRef).toBeUndefined();
+  });
+
+  it("grants only one period when the same manual reference arrives twice", async () => {
+    await post("charge.success", manual("dup-manual"));
+    const res = await post("charge.success", manual("dup-manual"));
+    expect(res.status).toBe(200);
+    expect(updates).toHaveLength(1);
+  });
+
+  it("a manual charge cannot use the subscription path (plan attached is ignored)", async () => {
+    const res = await post("charge.success", { ...manual("manual-plan"), plan: { plan_code: "premium" } });
     expect(res.status).toBe(200);
     expect(updates).toHaveLength(0);
-    const ev = events.get("paystack:charge:ok-ref-manual");
-    expect(ev).toMatchObject({ type: "paystack:charge:ignored" });
-    expect(ev.reason).toContain("manual");
+    expect(events.get("paystack:charge:manual-plan")).toMatchObject({ type: "paystack:charge:ignored" });
+    expect(events.get("paystack:charge:manual-plan").reason).toContain("manual");
   });
 
-  it("can confirm a manual payment and grant Pro with correct reference", async () => {
-    await post("charge.success", { ...chargeRef("ok-ref-manual"), kind: PAYSTACK_MANUAL_KIND });
-    const res = await confirm(new Request("http://x/api/app/billing/webhook/paystack/manual/ok-ref", {
-      method: "POST",
-      body: JSON.stringify({ reference: "ok-ref" }),
-      headers: { "content-type": "application/json" }
-    }));
+  it("a manual charge without a reference returns 200 and grants nothing", async () => {
+    const res = await post("charge.success", { ...manual("x"), reference: undefined });
     expect(res.status).toBe(200);
-    const last = updates[updates.length - 1];
-    expect(last?.data?.billingStatus).toBe("active");
-    expect(last?.data?.proUntil).toBeGreaterThan(Date.now());
-    expect(last?.data?.cancelAtPeriodEnd).toBe(false);
+    expect(updates).toHaveLength(0);
+    expect(events.size).toBe(0);
   });
 
-  it("rejects manual payment with wrong reference", async () => {
-    await post("charge.success", { ...chargeRef("ok-ref-manual"), kind: PAYSTACK_MANUAL_KIND });
-    const res = await confirm(new Request("http://x/api/app/billing/webhook/paystack/manual/bad-ref", {
-      method: "POST",
-      body: JSON.stringify({ reference: "wrong-ref" }),
-      headers: { "content-type": "application/json" }
-    }));
-    expect(res.status).toBe(400);
+  it("subscription charges still need PAYSTACK_PLAN_CODE", async () => {
+    process.env.PAYSTACK_PLAN_CODE = "other";
+    const res = await post("charge.success", chargeRef("sub-plan"));
+    expect(res.status).toBe(200);
     expect(updates).toHaveLength(0);
+    expect(events.get("paystack:charge:sub-plan").reason).toContain("plan");
   });
 });
