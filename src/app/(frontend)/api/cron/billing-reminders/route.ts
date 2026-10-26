@@ -10,10 +10,12 @@ const fmtDate = (iso?: string | null) => (iso ? new Date(iso).toLocaleDateString
 
 export async function GET(req: Request) {
   // Vercel Cron sends Authorization: Bearer <CRON_SECRET>.
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return new Response("Unauthorized", { status: 401 });
   const auth = req.headers.get("authorization") || "";
   if (!auth.startsWith("Bearer ")) return new Response("Unauthorized", { status: 401 });
   const token = auth.slice("Bearer ".length);
-  if (token !== process.env.CRON_SECRET) return new Response("Unauthorized", { status: 401 });
+  if (token !== secret) return new Response("Unauthorized", { status: 401 });
 
   if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
     // Email not configured: skip silently.
