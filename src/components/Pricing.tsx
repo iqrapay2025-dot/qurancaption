@@ -16,6 +16,7 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
   onProjects: () => void; onSettings: () => void; onSignOut: () => void;
 }) {
   const [provider, setProvider] = useState<"paystack" | "stripe">("paystack");
+  const [mode, setMode] = useState<"auto" | "manual">("auto");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isPro = user?.plan === "pro";
@@ -23,7 +24,7 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
   const checkout = async () => {
     setError(null);
     setBusy(true);
-    const r = await appFetch<{ url: string }>("/api/app/billing/checkout", { body: { provider } });
+    const r = await appFetch<{ url: string }>("/api/app/billing/checkout", { body: { provider, mode } });
     if (r.ok) { window.location.href = r.data.url; return; }
     setBusy(false);
     setError(r.error);
@@ -74,6 +75,22 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
                     ))}
                   </div>
                 </fieldset>
+                {provider === "paystack" && (
+                  <fieldset className="mt-6">
+                    <legend className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">How to pay</legend>
+                    <div className="grid grid-cols-2 gap-2">
+                      {([
+                        ["auto", "Auto-renew monthly", "Card only · renews automatically every month"],
+                        ["manual", "Pay monthly", "Card, bank transfer, USSD, QR · renews only when you pay"],
+                      ] as const).map(([k, n, d]) => (
+                        <label key={k} className={`cursor-pointer rounded-sm border p-3 text-sm ${mode === k ? "border-primary bg-secondary" : "border-border hover:bg-muted"}`}>
+                          <input type="radio" name="mode" value={k} checked={mode === k} onChange={() => setMode(k)} className="sr-only" />
+                          <b className="block">{n}</b><span className="text-xs text-muted-foreground">{d}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                )}
                 {error && <p role="alert" className="mt-4 rounded-sm border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">{error}</p>}
                 <button onClick={upgrade} disabled={busy || !ready} className="mt-4 w-full rounded-sm bg-gradient-to-b from-[#2cbd6d] to-[#178f4a] px-5 py-3 text-sm font-semibold text-white shadow-md hover:brightness-95 disabled:opacity-60">
                   {busy ? "Redirecting to checkout…" : user ? `Upgrade to Pro with ${provider === "paystack" ? "Paystack" : "Stripe"}` : "Sign up to upgrade"}

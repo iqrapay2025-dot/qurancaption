@@ -3,7 +3,7 @@
 import { CreditCard, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { appFetch, type AppUser } from "../lib/app/client";
-import { FREE_LIMITS, PRO_PRICE_NGN } from "../lib/app/plans";
+import { FREE_LIMITS, MONTHLY_PERIOD_DAYS, PRO_PRICE_NGN } from "../lib/app/plans";
 import AccountMenu from "./AccountMenu";
 import { Logo, ThemeToggle } from "./shared";
 
@@ -16,6 +16,7 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
 }) {
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [paying, setPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [confirmState, setConfirmState] = useState<"idle" | "working" | "done" | "failed">(checkout ? "working" : "idle");
@@ -25,10 +26,25 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
     if (!checkout || !user || ran.current) return;
     ran.current = true;
     (async () => {
-      const r = await appFetch("/api/app/billing/confirm", { body: checkout });
-      await refresh();
-      history.replaceState(null, "", "#/settings");
-      if (r.ok) { setConfirmState("done"); } else { setConfirmState("failed"); setError(r.error); }
+      let attempts = 0;
+      const maxAttempts = 10; // poll for up to ~30 seconds
+      while (attempts < maxAttempts) {
+        const r = await appFetch("/api/app/billing/confirm", { body: checkout });
+        await refresh();
+        history.replaceState(null, "", "#/settings");
+        if (r.ok) { setConfirmState("done"); return; }
+        // 409 means payment is still pending (e.g. bank transfer, USSD, QR)
+        if (r.status === 409) {
+          attempts++;
+          await new Promise((res) => setTimeout(res, 3000));
+          continue;
+        }
+        setConfirmState("failed");
+        setError(r.error);
+        return;
+      }
+      setConfirmState("failed");
+      setError("We are still confirming your payment. It should activate shortly.");
     })();
   }, [checkout, user, refresh]);
 
@@ -39,6 +55,15 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
     setBusy(false);
     setConfirming(false);
     if (r.ok) { await refresh(); setNotice("Your subscription is cancelled. You keep Pro until the end of the period you've paid for."); }
+    else setError(r.error);
+  };
+
+  const payForNextMonth = async () => {
+    setPaying(true);
+    setError(null);
+    const r = await appFetch<{ url: string }>("/api/app/billing/checkout", { body: { provider: "paystack", mode: "manual" } });
+    setPaying(false);
+    if (r.ok) { window.location.href = r.data.url; }
     else setError(r.error);
   };
 
@@ -53,6 +78,9 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
   const b = user?.billing;
   const pro = user?.plan === "pro";
   const providerName = b?.provider === "stripe" ? "Stripe" : b?.provider === "paystack" ? "Paystack" : null;
+  const isManualPayer = pro && b?.provider === "paystack" && !b?.subscriptionRef;
+  const daysUntilExpiry = b?.proUntil ? Math.max(0, Math.ceil((new Date(b.proUntil).getTime() - Date.now()) / 86400000)) : 0;
+  const showExpiryBanner = daysUntilExpiry > 0 && daysUntilExpiry <= 5;
 
   return (
     <div className="min-h-screen bg-background">
@@ -83,12 +111,13 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
             {notice && <p role="status" className="mt-4 rounded-sm border border-primary/40 bg-primary/10 p-3 text-sm">{notice}</p>}
             {error && <p role="alert" className="mt-4 rounded-sm border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">{error}</p>}
             {b?.status === "past_due" && <p role="alert" className="mt-4 rounded-sm border border-amber-500/50 bg-amber-500/10 p-3 text-sm">Your last payment didn't go through. Update your card with {providerName ?? "your provider"} to keep Pro.</p>}
+            {isManualPayer && showExpiryBanner && <p role="alert" className="mt-4 rounded-sm border border-amber-500/50 bg-amber-500/10 p-3 text-sm">Your Pro access expires on {fmtDate(b?.proUntil)}. Pay for next month to keep using Pro.</p>}
 
             <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
               <dt className="text-muted-foreground">Plan</dt>
               <dd className="font-semibold">{pro ? `Pro · ₦${PRO_PRICE_NGN.toLocaleString()}/month` : "Free"}</dd>
               {pro && providerName && (<><dt className="text-muted-foreground">Paid with</dt><dd>{providerName}</dd></>)}
-              {pro && b?.proUntil && (<><dt className="text-muted-foreground">{b.cancelAtPeriodEnd ? "Pro ends on" : "Renews on"}</dt><dd>{fmtDate(b.proUntil)}</dd></>)}
+              {pro && b?.proUntil && (<><dt className="text-muted-foreground">{isManualPayer ? "Pro until" : b.cancelAtPeriodEnd ? "Pro ends on" : "Renews on"}</dt><dd>{fmtDate(b.proUntil)}{isManualPayer ? " · renews only when you pay" : null}</dd></>)}
               {!pro && (<><dt className="text-muted-foreground">Includes</dt><dd>Up to {FREE_LIMITS.projects} saved projects · up to {FREE_LIMITS.verses} verses per export</dd></>)}
             </dl>
 
@@ -98,6 +127,11 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
               )}
               {!pro ? (
                 <button onClick={onPricing} className="rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">Upgrade to Pro</button>
+              ) : isManualPayer ? (
+                <div className="flex items-center gap-3 text-sm">
+                  <span className="mr-auto">Pay for next month to renew · Pro until {fmtDate(b?.proUntil)}.</span>
+                  <button onClick={payForNextMonth} disabled={paying} className="rounded-sm bg-primary px-4 py-2 font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60">{paying ? "Redirecting…" : "Pay for next month"}</button>
+                </div>
               ) : b?.cancelAtPeriodEnd ? (
                 <p className="text-sm text-muted-foreground">Cancelled. You won't be charged again. After {fmtDate(b.proUntil)} your account returns to Free.</p>
               ) : confirming ? (

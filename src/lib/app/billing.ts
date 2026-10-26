@@ -2,6 +2,7 @@ import "server-only";
 import crypto from "node:crypto";
 import { getPayloadClient } from "@/lib/payload";
 import type { Billing, Plan } from "./plans";
+import { PRO_PRICE_NGN } from "./plans";
 
 export const DAY = 86_400_000;
 // After an invoice.payment_failed webhook, stop extending Pro and let it lapse
@@ -24,6 +25,7 @@ export async function getAccount(userId: string): Promise<Account> {
       status: (u.billingStatus as Billing["status"]) ?? "none",
       proUntil,
       cancelAtPeriodEnd: !!u.cancelAtPeriodEnd,
+      subscriptionRef: (u.subscriptionRef as string) ?? null,
     },
     subscriptionRef: (u.subscriptionRef as string) ?? null,
     customerRef: (u.customerRef as string) ?? null,
@@ -64,6 +66,9 @@ export const safeEqual = (a: string, b: string) => {
 /* ---------- Paystack ---------- */
 const PS = "https://api.paystack.co";
 export const paystackConfigured = () => !!process.env.PAYSTACK_SECRET_KEY && !!process.env.PAYSTACK_PLAN_CODE;
+// Channels offered for the one-time "pay each month" option (no subscription).
+export const PAYSTACK_MANUAL_CHANNELS = ["card", "bank", "bank_transfer", "ussd", "qr", "mobile_money"] as const;
+export const PAYSTACK_MANUAL_KIND = "manual_monthly";
 async function ps<T>(path: string, init?: { method?: string; body?: unknown }): Promise<T> {
   const res = await fetch(PS + path, {
     method: init?.method ?? "GET",
@@ -85,9 +90,24 @@ export async function paystackCheckout(user: { id: string; email: string }) {
     body: { email: user.email, plan: process.env.PAYSTACK_PLAN_CODE, callback_url: `${siteUrl()}/billing/return?provider=paystack`, metadata: { userId: user.id } },
   });
   return d.authorization_url;
+
+}
+export async function paystackCheckoutManual(user: { id: string; email: string }) {
+  const d = await ps<{ authorization_url: string }>("/transaction/initialize", {
+    method: "POST",
+    body: {
+      email: user.email,
+      amount: PRO_PRICE_NGN * 100,
+      currency: "NGN",
+      channels: PAYSTACK_MANUAL_CHANNELS,
+      callback_url: `${siteUrl()}/billing/return?provider=paystack`,
+      metadata: { userId: user.id, kind: PAYSTACK_MANUAL_KIND },
+    },
+  });
+  return d.authorization_url;
 }
 export async function paystackVerify(reference: string) {
-  return ps<{ status: string; reference: string; amount?: number; currency?: string; metadata?: { userId?: string } | string | null; customer?: { customer_code?: string; email?: string } }>(`/transaction/verify/${encodeURIComponent(reference)}`);
+  return ps<{ status: string; reference: string; amount?: number; currency?: string; metadata?: { userId?: string; kind?: string } | string | null; plan?: { plan_code?: string } | null; customer?: { customer_code?: string; email?: string } }>(`/transaction/verify/${encodeURIComponent(reference)}`);
 }
 export async function paystackDisable(code: string, token: string) {
   return ps("/subscription/disable", { method: "POST", body: { code, token } });

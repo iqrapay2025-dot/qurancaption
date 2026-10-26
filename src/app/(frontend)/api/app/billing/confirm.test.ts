@@ -1,5 +1,7 @@
 import crypto from "node:crypto";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { DAY } from "@/lib/app/billing";
+import { MONTHLY_PERIOD_DAYS } from "@/lib/app/plans";
 import { POST as confirm } from "./confirm/route";
 import { POST as webhook } from "./webhook/paystack/route";
 
@@ -34,10 +36,13 @@ const tx = {
 
 let fetchMock: ReturnType<typeof vi.spyOn>;
 let origSecret: string | undefined;
+let origPlan: string | undefined;
 
 beforeEach(() => {
   origSecret = process.env.PAYSTACK_SECRET_KEY;
+  origPlan = process.env.PAYSTACK_PLAN_CODE;
   process.env.PAYSTACK_SECRET_KEY = "sk_test_live_1234567890abcdef";
+  process.env.PAYSTACK_PLAN_CODE = "premium";
   events = new Map();
   users = new Map();
   updates = [];
@@ -77,6 +82,7 @@ beforeEach(() => {
 afterEach(() => {
   fetchMock.mockRestore();
   process.env.PAYSTACK_SECRET_KEY = origSecret;
+  process.env.PAYSTACK_PLAN_CODE = origPlan;
 });
 
 function post(ref: string) {
@@ -161,4 +167,94 @@ describe("paystack confirm idempotency", () => {
     expect(res.status).toBe(400);
     expect(updates).toHaveLength(0);
   });
+
+describe("paystack manual monthly confirm", () => {
+  const manualTx = {
+    status: "success",
+    reference: "manual-ref-01",
+    amount: 837000,
+    currency: "NGN",
+    plan: null,
+    metadata: { userId: "u1", kind: "manual_monthly" },
+    customer: { customer_code: "cus_1", email: "alice@example.com" },
+  };
+
+  it("manual confirm grants one period and does not set subscriptionRef", async () => {
+    fetchMock.mockImplementation(() => Promise.resolve(jsonResp(manualTx)));
+    const res = await post("manual-ref-01");
+    const json = await res.json();
+    expect(res.status).toBe(200);
+    expect(json.alreadyApplied).toBe(false);
+    expect(updates).toHaveLength(1);
+    expect(updates[0].data.billingStatus).toBe("active");
+    expect(updates[0].data.subscriptionRef).toBeUndefined();
+    expect(new Date(updates[0].data.proUntil!).getTime()).toBeGreaterThan(Date.now());
+  });
+
+  it("manual confirm twice extends proUntil only once", async () => {
+    fetchMock.mockImplementation(() => Promise.resolve(jsonResp(manualTx)));
+    await post("manual-ref-01");
+    const first = updates.length;
+    const res = await post("manual-ref-01");
+    const json = await res.json();
+    expect(json.alreadyApplied).toBe(true);
+    expect(updates).toHaveLength(first);
+  });
+
+  it("paying early adds the period to the existing proUntil", async () => {
+    const future = new Date(Date.now() + 20 * DAY).toISOString();
+    users.set("u1", { ...users.get("u1"), proUntil: future });
+    fetchMock.mockImplementation(() => Promise.resolve(jsonResp(manualTx)));
+    await post("manual-ref-01");
+    const last = updates[updates.length - 1];
+    const expected = new Date(new Date(future).getTime() + MONTHLY_PERIOD_DAYS * DAY).toISOString();
+    expect(last.data.proUntil).toBe(expected);
+  });
+
+  it("manual charge with a plan attached is rejected", async () => {
+    const withPlan = { ...manualTx, reference: "manual-with-plan", plan: { plan_code: "premium" } };
+    fetchMock.mockImplementation(() => Promise.resolve(jsonResp(withPlan)));
+    const res = await post("manual-with-plan");
+    expect(res.status).toBe(400);
+    expect(updates).toHaveLength(0);
+  });
+
+  it("wrong amount is rejected for manual charge", async () => {
+    const wrong = { ...manualTx, reference: "manual-wrong-amount", amount: 100 };
+    fetchMock.mockImplementation(() => Promise.resolve(jsonResp(wrong)));
+    const res = await post("manual-wrong-amount");
+    expect(res.status).toBe(400);
+    expect(updates).toHaveLength(0);
+  });
+});
+
+describe("paystack subscription plan check", () => {
+  const subTx = {
+    status: "success",
+    reference: "sub-ref-01",
+    amount: 837000,
+    currency: "NGN",
+    plan: { plan_code: "premium" },
+    metadata: { userId: "u1" },
+    customer: { customer_code: "cus_1", email: "alice@example.com" },
+  };
+
+  it("subscription charge with correct plan code is accepted", async () => {
+    fetchMock.mockImplementation(() => Promise.resolve(jsonResp(subTx)));
+    const res = await post("sub-ref-01");
+    expect(res.status).toBe(200);
+    expect(updates).toHaveLength(1);
+    expect(updates[0].data.customerRef).toBe("cus_1");
+  });
+
+  it("subscription charge with wrong plan code is rejected", async () => {
+    const wrong = { ...subTx, reference: "sub-wrong-plan", plan: { plan_code: "other-plan" } };
+    fetchMock.mockImplementation(() => Promise.resolve(jsonResp(wrong)));
+    const res = await post("sub-wrong-plan");
+    expect(res.status).toBe(400);
+    expect(updates).toHaveLength(0);
+  });
+});
+
+
 });

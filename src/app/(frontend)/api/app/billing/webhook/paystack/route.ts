@@ -3,6 +3,7 @@ import "server-only";
 import { ok, fail } from "@/lib/app/http";
 import {
   extend,
+  PAYSTACK_MANUAL_KIND,
   findUserId,
   getAccount,
   paystackSignatureOk,
@@ -42,12 +43,17 @@ export async function POST(req: Request) {
         try {
           const currency = String(d.currency ?? "").toUpperCase();
           const amount = Number(d.amount ?? 0);
-          const planCode = d.plan?.plan_code;
+          const planCode = d.plan?.plan_code ?? null;
+          const kind = typeof meta.kind === "string" ? meta.kind : null;
           const reasons: string[] = [];
           if (d.status !== "success") reasons.push("status is not success");
           if (currency !== "NGN") reasons.push(`currency is not NGN (received "${d.currency ?? ""}")`);
           if (amount !== PRO_PRICE_NGN * 100) reasons.push(`amount is ${amount}, expected ${PRO_PRICE_NGN * 100} kobo`);
-          if (planCode !== process.env.PAYSTACK_PLAN_CODE) reasons.push(`plan is ${planCode ?? "(none)"}, expected ${process.env.PAYSTACK_PLAN_CODE ?? "(none)"}`);
+          if (kind === PAYSTACK_MANUAL_KIND) {
+            if (planCode) reasons.push("manual charge must not have a plan");
+          } else if (planCode && planCode !== process.env.PAYSTACK_PLAN_CODE) {
+            reasons.push(`plan is ${planCode ?? "(none)"}, expected ${process.env.PAYSTACK_PLAN_CODE ?? "(none)"}`);
+          }
           if (reasons.length > 0) {
             const payload = await getPayloadClient();
             await payload.update({
@@ -60,13 +66,14 @@ export async function POST(req: Request) {
             break;
           }
           const acc = await getAccount(uid);
-          await setBilling(uid, {
+          const patch: { provider: "paystack"; billingStatus: "active"; cancelAtPeriodEnd: boolean; proUntil: string; customerRef?: string } = {
             provider: "paystack",
             billingStatus: "active",
             cancelAtPeriodEnd: false,
             proUntil: extend(acc.billing.proUntil),
-            ...(d.customer?.customer_code ? { customerRef: d.customer.customer_code } : {}),
-          });
+          };
+          if (kind !== PAYSTACK_MANUAL_KIND && d.customer?.customer_code) patch.customerRef = d.customer.customer_code;
+          await setBilling(uid, patch);
         } catch (e) {
           await releaseEvent(key);
           throw e;
