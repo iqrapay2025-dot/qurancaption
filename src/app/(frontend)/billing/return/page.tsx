@@ -8,15 +8,26 @@ const POLL_INTERVAL = 3000;
 // Poll for up to about 2 minutes before falling back to a settled-later message.
 const MAX_TIME = 2 * 60 * 1000;
 
-async function confirmPayment(ref: string) {
-  const r = await appFetch<{ ok: boolean; status: number; error?: string; alreadyApplied?: boolean }>("/api/app/billing/confirm", {
-    body: JSON.stringify({ provider: "paystack", ref }),
-    
-  });
+type Confirmed = { ok: boolean; status?: number; error?: string; alreadyApplied?: boolean; granted?: boolean };
+
+async function confirmPayment(provider: string, ref: string, transactionId: string): Promise<Confirmed> {
+  const path = provider === "flutterwave"
+    ? "/api/app/billing/flutterwave/confirm"
+    : "/api/app/billing/confirm";
+  const body = provider === "flutterwave"
+    ? { provider: "flutterwave", ref, transaction_id: transactionId }
+    : { provider: "paystack", ref };
+  const r = await appFetch<Confirmed>(path, { method: "POST", body: JSON.stringify(body) });
   if (r.ok) {
-          return { ok: true, alreadyApplied: r.data.alreadyApplied };
-        }
-        return { ok: false, status: r.status, error: r.error };
+    if (provider === "flutterwave") {
+      const c = r.data;
+      if (c.alreadyApplied === true) return { ok: true, alreadyApplied: true };
+      if (c.granted === true || c.ok === true) return { ok: true, granted: true };
+      return { ok: false, status: c.status, error: c.error ?? "We couldn't confirm this payment." };
+    }
+    return { ok: true, alreadyApplied: r.data.alreadyApplied };
+  }
+  return { ok: false, status: r.status, error: r.error ?? "We couldn't confirm this payment." };
 }
 
 export default function ReturnPage() {
@@ -26,8 +37,7 @@ export default function ReturnPage() {
 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
-    const provider = q.get("provider") === "stripe" ? "stripe" : "paystack";
-    const ref = q.get("reference") || q.get("trxref") || q.get("session_id") || "";
+    const provider = q.get("provider") || "";
     const canceled = q.get("canceled");
 
     if (canceled) {
@@ -35,12 +45,65 @@ export default function ReturnPage() {
       return;
     }
 
-    // Stripe (auto-renew card) is not handled here; hand off to settings unchanged.
     if (provider === "stripe") {
-      window.location.replace(`/#/settings?provider=stripe&ref=${encodeURIComponent(ref)}`);
+      // Stripe (auto-renew card) is not handled here; hand off to settings unchanged.
+      window.location.replace(`/#/settings?provider=stripe&ref=${encodeURIComponent(q.get("session_id") || "")}`);
       return;
     }
 
+    // Flutterwave redirects back with status, tx_ref and transaction_id.
+    if (provider === "flutterwave") {
+      const txRef = q.get("tx_ref") || "";
+      const statusParam = q.get("status") || "";
+      if (statusParam === "cancelled") {
+        window.location.replace("/#/pricing");
+        return;
+      }
+      if (statusParam === "failed") {
+        setStatus("error");
+        setError("Your payment could not be completed. Please try again.");
+        return;
+      }
+      if (!txRef) {
+        window.location.replace("/#/pricing");
+        return;
+      }
+      let cancelled = false;
+      const startTime = Date.now();
+
+      const poll = async () => {
+        setStatus("confirming");
+        while (!cancelled && !done.current && Date.now() - startTime < MAX_TIME) {
+          const r = await confirmPayment("flutterwave", txRef, q.get("transaction_id") || "");
+          if (r.ok) {
+            setStatus("done");
+            done.current = true;
+            window.location.replace(`/#/settings?provider=flutterwave&ref=${encodeURIComponent(txRef)}`);
+            return;
+          }
+          // 409 or 502 means Flutterwave has not been verified yet (still settling).
+          if (r.status === 409 || r.status === 502) {
+            await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL));
+            continue;
+          }
+          // Real failures: wrong amount, wrong currency, failed status, tx_ref mismatch, or not your payment.
+          setStatus("error");
+          setError(r.error || "We couldn't confirm this payment.");
+          return;
+        }
+        if (!cancelled && !done.current) {
+          setStatus("pending");
+        }
+      };
+
+      poll();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    // Paystack: keep the existing behaviour untouched.
+    const ref = q.get("reference") || q.get("trxref") || q.get("session_id") || "";
     if (!ref) {
       window.location.replace("/#/pricing");
       return;
@@ -52,7 +115,7 @@ export default function ReturnPage() {
     const poll = async () => {
       setStatus("confirming");
       while (!cancelled && !done.current && Date.now() - startTime < MAX_TIME) {
-        const r = await confirmPayment(ref);
+        const r = await confirmPayment("paystack", ref, "");
         if (r.ok) {
           setStatus("done");
           done.current = true;

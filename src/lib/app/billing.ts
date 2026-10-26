@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import { getPayloadClient } from "@/lib/payload";
 import type { Billing, Plan } from "./plans";
 import { PRO_PRICE_NGN } from "./plans";
+import { FLUTTERWAVE_CURRENCY, FLUTTERWAVE_PRICE_USD } from "./plans";
 
 export const DAY = 86_400_000;
 // After an invoice.payment_failed webhook, stop extending Pro and let it lapse
@@ -34,7 +35,7 @@ export async function getAccount(userId: string): Promise<Account> {
   };
 }
 
-type Patch = Partial<{ provider: "paystack" | "stripe"; customerRef: string; subscriptionRef: string; emailToken: string; billingStatus: Billing["status"]; proUntil: string; cancelAtPeriodEnd: boolean; presets: Preset[] }>;
+type Patch = Partial<{ provider: "paystack" | "stripe" | "flutterwave"; customerRef: string; subscriptionRef: string; emailToken: string; billingStatus: Billing["status"]; proUntil: string; cancelAtPeriodEnd: boolean; presets: Preset[] }>;
 
 // Server-owned workflow fields: written only from verified webhooks and authenticated billing routes.
 export async function setBilling(userId: string, data: Patch) {
@@ -132,19 +133,59 @@ async function fw<T>(path: string, body: unknown): Promise<T> {
   return json;
 }
 
+async function fwGet<T>(path: string): Promise<T> {
+  const res = await fetch(FW + path, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}` },
+    cache: "no-store",
+  });
+  const text = await res.text();
+  const json = (() => { try { return JSON.parse(text); } catch { return {}; } })() as T & { message?: string };
+  if (!res.ok) throw new Error(`flutterwave verify ${res.status}: ${json.message ?? (text.replace(/\s+/g, " ").slice(0, 160) || "request failed")}`);
+  return json;
+}
+
+export type FlutterwaveTransaction = {
+  status: string;
+  message: string;
+  data: {
+    id: number;
+    tx_ref: string;
+    flw_ref: string;
+    amount: number;
+    currency: string;
+    status: "successful" | "pending" | "failed";
+    payment_type?: string;
+    meta?: Record<string, unknown> | null;
+    customer?: { id: number; name?: string | null; email?: string | null };
+  };
+};
+
+// Parse the user id encoded in a Flutterwave `tx_ref` of the form
+// `fw_<userId>_<ms>_<hex>`. The checkout writes the logged-in user id into this
+// prefix, and the verify response can also carry it under `meta.userId`.
+export function parseFlutterwaveTxRef(txRef: string): string | null {
+  const m = String(txRef || "").match(/^fw_([^_]+)_\d+_[A-Za-z0-9]+$/);
+  return m?.[1] ?? null;
+}
+
 // One-time Pro checkout: $6, USD, hosted Flutterwave link returned to the caller.
 export async function flutterwaveCheckout(user: { id: string; email: string; name?: string | null }) {
   if (!process.env.FLUTTERWAVE_SECRET_KEY) throw new Error("FLUTTERWAVE_SECRET_KEY is not set");
   const tx_ref = `fw_${String(user.id)}_${Date.now()}_${crypto.randomBytes(6).toString("hex")}`;
   const d = await fw<{ status: string; message: string; data: { link: string } }>("/payments", {
     tx_ref,
-    amount: 6,
-    currency: "USD",
+    amount: FLUTTERWAVE_PRICE_USD,
+    currency: FLUTTERWAVE_CURRENCY,
     redirect_url: `${siteUrl()}/billing/return?provider=flutterwave`,
     customer: { email: user.email, name: user.name ?? undefined },
     meta: { userId: user.id },
   });
   return d.data.link;
+}
+
+export async function flutterwaveVerify(transactionId: string | number): Promise<FlutterwaveTransaction> {
+  return fwGet<FlutterwaveTransaction>(`/transactions/${encodeURIComponent(String(transactionId))}/verify`);
 }
 
 export async function paystackCancel(acc: Account) {
@@ -229,7 +270,7 @@ export async function releaseEvent(eventId: string) {
 // `validate` runs after the claim; returning reasons records the event as ignored and grants nothing.
 export async function grantProPeriod(opts: {
   userId: string;
-  provider: "paystack" | "stripe";
+  provider: "paystack" | "stripe" | "flutterwave";
   reference: string;
   customerRef?: string | null;
   validate?: () => string[];

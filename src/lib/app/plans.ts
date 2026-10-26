@@ -1,5 +1,7 @@
 export const FREE_LIMITS = { projects: 3, verses: 20 } as const;
 export const PRO_PRICE_NGN = 8370;
+export const FLUTTERWAVE_PRICE_USD = 6;
+export const FLUTTERWAVE_CURRENCY = "USD" as const;
 export const MONTHLY_PERIOD_DAYS = 31;
 export const MAX_PRESETS = 20;
 
