@@ -118,7 +118,7 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
         <div className="mt-12 grid gap-6 md:grid-cols-2">
           {[
             { name: "Free", price: "$0", items: ["Up to 3 saved projects", "SRT and VTT export", "Up to 20 verses per export", "Preview, style and sync tools"], pro: false },
-            { name: "Pro", price: `₦${PRO_PRICE_NGN.toLocaleString()}`, items: ["Unlimited projects and verses", "SRT and VTT export", "Custom style presets", "Priority support"], pro: true },
+            { name: "Pro", price: "$6 (₦8,370)", items: ["Unlimited projects and verses", "SRT and VTT export", "Custom style presets", "Priority support"], pro: true },
           ].map((p) => (
             <div key={p.name} className={`rounded-md bg-card p-7 transition-shadow hover:shadow-lg ${p.pro ? "border-2 border-accent" : "border border-border"}`}>
               <div className="flex items-baseline justify-between">

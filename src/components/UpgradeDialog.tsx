@@ -1,8 +1,8 @@
 "use client";
 
 import { Check, Sparkles, X } from "lucide-react";
-import { useEffect } from "react";
-import type { Upgrade } from "../lib/app/client";
+import { useEffect, useState } from "react";
+import { appFetch, type Upgrade } from "../lib/app/client";
 import { FREE_LIMITS, PRO_PRICE_NGN } from "../lib/app/plans";
 
 const COPY: Record<Upgrade["code"], { title: string; body: string }> = {
@@ -21,6 +21,18 @@ export default function UpgradeDialog({ upgrade, signedIn, onClose, onPlans }: {
     return () => document.removeEventListener("keydown", esc);
   }, [onClose]);
   const c = COPY[upgrade.code];
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const checkout = async (mode: "auto" | "manual") => {
+    setError(null);
+    setBusy(true);
+    const r = await appFetch<{ url: string }>("/api/app/billing/checkout", { body: { provider: "paystack", mode } });
+    setBusy(false);
+    if (r.ok) { window.location.href = r.data.url; return; }
+    setError(r.error);
+  };
+
   return (
     <div className="fixed inset-0 z-[60] grid place-items-center bg-black/55 p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div role="dialog" aria-modal="true" aria-labelledby="upg-title" className="relative w-full max-w-md rounded-md border border-border bg-card p-7 shadow-2xl">
@@ -32,7 +44,19 @@ export default function UpgradeDialog({ upgrade, signedIn, onClose, onPlans }: {
           {["Unlimited projects and verses", "Custom style presets", "Priority support"].map((i) => <li key={i} className="flex gap-2.5"><Check size={16} className="mt-0.5 shrink-0 text-primary" />{i}</li>)}
         </ul>
         <div className="mt-6 flex flex-col gap-2 sm:flex-row-reverse">
-          <button onClick={onPlans} className="flex-1 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">{signedIn ? `See Pro · ₦${PRO_PRICE_NGN.toLocaleString()}/month` : "See plans"}</button>
+          {signedIn ? (
+            <>
+              <button onClick={() => checkout("auto")} disabled={busy} className="flex-1 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60">
+                {busy ? "Redirecting…" : `Auto-renew monthly (card) · ₦${PRO_PRICE_NGN.toLocaleString()}/month`}
+              </button>
+              <button onClick={() => checkout("manual")} disabled={busy} className="flex-1 rounded-sm border border-border px-4 py-2.5 text-sm font-medium hover:bg-secondary disabled:opacity-60">
+                Pay monthly (card, bank transfer, USSD, QR)
+              </button>
+            </>
+          ) : (
+            <button onClick={onPlans} className="flex-1 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">{signedIn ? `See Pro · ₦${PRO_PRICE_NGN.toLocaleString()}/month` : "See plans"}</button>
+          )}
+          {error && <p role="alert" className="mt-3 rounded-sm border border-red-500/40 bg-red-500/10 p-2 text-sm text-red-700 dark:text-red-300">{error}</p>}
           <button onClick={onClose} className="flex-1 rounded-sm border border-border px-4 py-2.5 text-sm font-medium hover:bg-secondary">Not now</button>
         </div>
       </div>

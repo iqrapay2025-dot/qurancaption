@@ -2,16 +2,18 @@ import "server-only";
 
 import { getPayloadClient } from "@/lib/payload";
 import { sendMail } from "@/lib/app/mail";
+import { claimEvent, releaseEvent } from "@/lib/app/billing";
 
 const DAY = 86_400_000;
 
 const fmtDate = (iso?: string | null) => (iso ? new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" }) : "");
 
 export async function GET(req: Request) {
-  const secret = req.headers.get("x-cron-secret");
-  if (!secret || secret !== process.env.CRON_SECRET) {
-    return new Response("Unauthorized", { status: 401 });
-  }
+  // Vercel Cron sends Authorization: Bearer <CRON_SECRET>.
+  const auth = req.headers.get("authorization") || "";
+  if (!auth.startsWith("Bearer ")) return new Response("Unauthorized", { status: 401 });
+  const token = auth.slice("Bearer ".length);
+  if (token !== process.env.CRON_SECRET) return new Response("Unauthorized", { status: 401 });
 
   if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
     // Email not configured: skip silently.
@@ -46,6 +48,10 @@ export async function GET(req: Request) {
     if (!email) continue;
     // Ensure this is a manual payer (no subscription ref)
     if (u.subscriptionRef) continue;
+    // Don't send a reminder twice for the same expiry. When proUntil changes
+    // (user pays early) the key changes, so a new reminder is sent.
+    const reminderKey = `reminder:${u.id}:${proUntil}`;
+    if (!(await claimEvent(reminderKey, "billing:reminder"))) continue;
 
     try {
       await sendMail(
@@ -55,6 +61,8 @@ export async function GET(req: Request) {
       );
     } catch (e) {
       console.error("[cron] reminder email failed for", u.id, e instanceof Error ? e.message : e);
+      // Release the claim so the reminder can be retried the next day
+      await releaseEvent(reminderKey);
     }
   }
 

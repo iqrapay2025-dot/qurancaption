@@ -1,7 +1,8 @@
 import crypto from "node:crypto";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { POST as webhook } from "./paystack/route";
-import { extend } from "@/lib/app/billing";
+import { POST as confirm } from "../confirm/route";
+import { extend, DAY, PAYSTACK_MANUAL_KIND } from "@/lib/app/billing";
 
 let events = new Map<string, any>();
 let users = new Map<string, any>();
@@ -205,5 +206,47 @@ describe("paystack webhook", () => {
     expect(updates[0].data.billingStatus).toBe("active");
     expect(updates[0].data.cancelAtPeriodEnd).toBe(false);
     expect(updates[0].data.proUntil).toBe(extend("2030-01-01T00:00:00.000Z"));
+  });
+it("stores manual payment event on charge.success for manual kind", async () => {
+    const res = await post("charge.success", { ...chargeRef("ok-ref-manual"), kind: PAYSTACK_MANUAL_KIND });
+    expect(res.status).toBe(200);
+    expect(events.has("paystack:charge:ok-ref-manual")).toBe(true);
+    const evt = events.get("paystack:charge:ok-ref-manual");
+    expect(evt).toMatchObject({ kind: PAYSTACK_MANUAL_KIND, status: "success" });
+    expect(evt.data.metadata?.userId).toBe("u1");
+  });
+
+  it("does not grant Pro on charge.success when kind=manual", async () => {
+    const res = await post("charge.success", { ...chargeRef("ok-ref-manual"), kind: PAYSTACK_MANUAL_KIND });
+    expect(res.status).toBe(200);
+    expect(updates).toHaveLength(0);
+    const ev = events.get("paystack:charge:ok-ref-manual");
+    expect(ev).toMatchObject({ type: "paystack:charge:ignored" });
+    expect(ev.reason).toContain("manual");
+  });
+
+  it("can confirm a manual payment and grant Pro with correct reference", async () => {
+    await post("charge.success", { ...chargeRef("ok-ref-manual"), kind: PAYSTACK_MANUAL_KIND });
+    const res = await confirm(new Request("http://x/api/app/billing/webhook/paystack/manual/ok-ref", {
+      method: "POST",
+      body: JSON.stringify({ reference: "ok-ref" }),
+      headers: { "content-type": "application/json" }
+    }));
+    expect(res.status).toBe(200);
+    const last = updates[updates.length - 1];
+    expect(last?.data?.billingStatus).toBe("active");
+    expect(last?.data?.proUntil).toBeGreaterThan(Date.now());
+    expect(last?.data?.cancelAtPeriodEnd).toBe(false);
+  });
+
+  it("rejects manual payment with wrong reference", async () => {
+    await post("charge.success", { ...chargeRef("ok-ref-manual"), kind: PAYSTACK_MANUAL_KIND });
+    const res = await confirm(new Request("http://x/api/app/billing/webhook/paystack/manual/bad-ref", {
+      method: "POST",
+      body: JSON.stringify({ reference: "wrong-ref" }),
+      headers: { "content-type": "application/json" }
+    }));
+    expect(res.status).toBe(400);
+    expect(updates).toHaveLength(0);
   });
 });
