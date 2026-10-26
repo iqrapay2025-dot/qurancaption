@@ -113,6 +113,40 @@ export async function paystackDisable(code: string, token: string) {
   return ps("/subscription/disable", { method: "POST", body: { code, token } });
 }
 
+/* ---------- Flutterwave ---------- */
+const FW = "https://api.flutterwave.com/v3";
+
+async function fw<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(FW + path, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+  const text = await res.text();
+  const json = (() => { try { return JSON.parse(text); } catch { return {}; } })() as T & { message?: string };
+  if (!res.ok) throw new Error(`flutterwave ${res.status}: ${json.message ?? (text.replace(/\s+/g, " ").slice(0, 160) || "request failed")}`);
+  return json;
+}
+
+// One-time Pro checkout: $6, USD, hosted Flutterwave link returned to the caller.
+export async function flutterwaveCheckout(user: { id: string; email: string; name?: string | null }) {
+  if (!process.env.FLUTTERWAVE_SECRET_KEY) throw new Error("FLUTTERWAVE_SECRET_KEY is not set");
+  const tx_ref = `fw_${String(user.id)}_${Date.now()}_${crypto.randomBytes(6).toString("hex")}`;
+  const d = await fw<{ status: string; message: string; data: { link: string } }>("/payments", {
+    tx_ref,
+    amount: 6,
+    currency: "USD",
+    redirect_url: `${siteUrl()}/billing/return?provider=flutterwave`,
+    customer: { email: user.email, name: user.name ?? undefined },
+    meta: { userId: user.id },
+  });
+  return d.data.link;
+}
+
 export async function paystackCancel(acc: Account) {
   let code = acc.subscriptionRef;
   if (!code && acc.customerRef) {
@@ -189,6 +223,47 @@ export async function claimEvent(eventId: string, type: string) {
 export async function releaseEvent(eventId: string) {
   const payload = await getPayloadClient();
   await payload.delete({ collection: "billing-events", where: { eventId: { equals: eventId } }, overrideAccess: true }).catch(() => null);
+}
+// Provider-agnostic: extends proUntil by one period, once per (provider, reference).
+// Claim key is prefixed per provider, e.g. "paystack:charge:<ref>".
+// `validate` runs after the claim; returning reasons records the event as ignored and grants nothing.
+export async function grantProPeriod(opts: {
+  userId: string;
+  provider: "paystack" | "stripe";
+  reference: string;
+  customerRef?: string | null;
+  validate?: () => string[];
+}): Promise<{ applied: boolean }> {
+  const { userId, provider, reference, customerRef, validate } = opts;
+  const key = `${provider}:charge:${reference}`;
+  if (!(await claimEvent(key, `${provider}.charge`))) return { applied: false };
+  try {
+    const reasons = validate?.() ?? [];
+    if (reasons.length > 0) {
+      const payload = await getPayloadClient();
+      await payload.update({
+        collection: "billing-events",
+        where: { eventId: { equals: key } },
+        data: { type: `${provider}:charge:ignored`, reason: reasons.join("; ") },
+        overrideAccess: true,
+        depth: 0,
+      });
+      return { applied: false };
+    }
+    const acc = await getAccount(userId);
+    const patch: Patch = {
+      provider,
+      billingStatus: "active",
+      cancelAtPeriodEnd: false,
+      proUntil: extend(acc.billing.proUntil),
+    };
+    if (customerRef) patch.customerRef = customerRef;
+    await setBilling(userId, patch);
+    return { applied: true };
+  } catch (e) {
+    await releaseEvent(key);
+    throw e;
+  }
 }
 export const stripeCancel = (id: string) => st<StripeSub>(`/subscriptions/${encodeURIComponent(id)}`, { cancel_at_period_end: "true" });
 

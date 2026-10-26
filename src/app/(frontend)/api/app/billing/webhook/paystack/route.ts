@@ -2,14 +2,13 @@ import "server-only";
 
 import { ok, fail } from "@/lib/app/http";
 import {
-  extend,
+  grantProPeriod,
   PAYSTACK_MANUAL_KIND,
   findUserId,
   getAccount,
   paystackSignatureOk,
   setBilling,
   claimEvent,
-  releaseEvent,
   DAY,
   INVOICE_GRACE_DAYS,
 } from "@/lib/app/billing";
@@ -38,46 +37,28 @@ export async function POST(req: Request) {
           console.warn("[billing] paystack webhook charge.success missing reference");
           break;
         }
-        const key = `paystack:charge:${d.reference}`;
-        if (!(await claimEvent(key, "paystack.charge"))) break;
-        try {
-          const currency = String(d.currency ?? "").toUpperCase();
-          const amount = Number(d.amount ?? 0);
-          const planCode = d.plan?.plan_code ?? null;
-          const kind = typeof meta.kind === "string" ? meta.kind : null;
-          const reasons: string[] = [];
-          if (d.status !== "success") reasons.push("status is not success");
-          if (currency !== "NGN") reasons.push(`currency is not NGN (received "${d.currency ?? ""}")`);
-          if (amount !== PRO_PRICE_NGN * 100) reasons.push(`amount is ${amount}, expected ${PRO_PRICE_NGN * 100} kobo`);
-          if (kind === PAYSTACK_MANUAL_KIND) {
-            if (planCode) reasons.push("manual charge must not have a plan");
-          } else if (planCode && planCode !== process.env.PAYSTACK_PLAN_CODE) {
-            reasons.push(`plan is ${planCode ?? "(none)"}, expected ${process.env.PAYSTACK_PLAN_CODE ?? "(none)"}`);
-          }
-          if (reasons.length > 0) {
-            const payload = await getPayloadClient();
-            await payload.update({
-              collection: "billing-events",
-              where: { eventId: { equals: key } },
-              data: { type: "paystack:charge:ignored", reason: reasons.join("; ") },
-              overrideAccess: true,
-              depth: 0,
-            });
-            break;
-          }
-          const acc = await getAccount(uid);
-          const patch: { provider: "paystack"; billingStatus: "active"; cancelAtPeriodEnd: boolean; proUntil: string; customerRef?: string } = {
-            provider: "paystack",
-            billingStatus: "active",
-            cancelAtPeriodEnd: false,
-            proUntil: extend(acc.billing.proUntil),
-          };
-          if (kind !== PAYSTACK_MANUAL_KIND && d.customer?.customer_code) patch.customerRef = d.customer.customer_code;
-          await setBilling(uid, patch);
-        } catch (e) {
-          await releaseEvent(key);
-          throw e;
-        }
+        const kind = typeof meta.kind === "string" ? meta.kind : null;
+        await grantProPeriod({
+          userId: uid,
+          provider: "paystack",
+          reference: d.reference,
+          customerRef: kind !== PAYSTACK_MANUAL_KIND ? d.customer?.customer_code : null,
+          validate: () => {
+            const currency = String(d.currency ?? "").toUpperCase();
+            const amount = Number(d.amount ?? 0);
+            const planCode = d.plan?.plan_code ?? null;
+            const reasons: string[] = [];
+            if (d.status !== "success") reasons.push("status is not success");
+            if (currency !== "NGN") reasons.push(`currency is not NGN (received "${d.currency ?? ""}")`);
+            if (amount !== PRO_PRICE_NGN * 100) reasons.push(`amount is ${amount}, expected ${PRO_PRICE_NGN * 100} kobo`);
+            if (kind === PAYSTACK_MANUAL_KIND) {
+              if (planCode) reasons.push("manual charge must not have a plan");
+            } else if (planCode && planCode !== process.env.PAYSTACK_PLAN_CODE) {
+              reasons.push(`plan is ${planCode ?? "(none)"}, expected ${process.env.PAYSTACK_PLAN_CODE ?? "(none)"}`);
+            }
+            return reasons;
+          },
+        });
         break;
       }
       case "subscription.create": {
