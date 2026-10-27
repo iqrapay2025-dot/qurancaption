@@ -17,7 +17,8 @@ export async function POST(req: Request) {
     return fail("Flutterwave isn't set up yet. Please check back soon.", 500);
   }
   try {
-    const url = await flutterwaveCheckout({ id: String(user.id), email: user.email, name: user.name });
+    const country = req.headers.get("x-vercel-ip-country");
+    const url = await flutterwaveCheckout({ id: String(user.id), email: user.email, name: user.name }, country);
     return ok({ url });
   } catch (e) {
     console.error("[billing] flutterwave checkout failed:", e instanceof Error ? e.message : e);

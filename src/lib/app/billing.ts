@@ -169,17 +169,21 @@ export function parseFlutterwaveTxRef(txRef: string): string | null {
   return m?.[1] ?? null;
 }
 
-// One-time Pro checkout: $6, USD, hosted Flutterwave link returned to the caller.
-export async function flutterwaveCheckout(user: { id: string; email: string; name?: string | null }) {
+import { flutterwavePlan } from "./flutterwave-plan";
   if (!process.env.FLUTTERWAVE_SECRET_KEY) throw new Error("FLUTTERWAVE_SECRET_KEY is not set");
+
+export async function flutterwaveCheckout(user: { id: string; email: string; name?: string | null }, country?: string | null) {
+  if (!process.env.FLUTTERWAVE_SECRET_KEY) throw new Error("FLUTTERWAVE_SECRET_KEY is not set");
+  const plan = flutterwavePlan(country);
   const tx_ref = `fw_${String(user.id)}_${Date.now()}_${crypto.randomBytes(6).toString("hex")}`;
   const d = await fw<{ status: string; message: string; data: { link: string } }>("/payments", {
     tx_ref,
-    amount: FLUTTERWAVE_PRICE_USD,
-    currency: FLUTTERWAVE_CURRENCY,
+    amount: plan.amount,
+    currency: plan.currency,
+    payment_options: plan.payment_options,
     redirect_url: `${siteUrl()}/billing/return?provider=flutterwave`,
     customer: { email: user.email, name: user.name ?? undefined },
-    meta: { userId: user.id },
+    meta: { userId: user.id, currency: plan.currency, amount: plan.amount },
   });
   return d.data.link;
 }
@@ -338,9 +342,12 @@ export function flutterwaveValidateTransaction(tx: FlutterwaveTransaction, expec
   const amount = Number(tx.data.amount ?? 0);
   const currency = String(tx.data.currency ?? "").toUpperCase();
   const status = tx.data.status ?? "";
+  const meta = (typeof tx.data.meta === "object" && tx.data.meta) ? (tx.data.meta as Record<string, unknown>) : {};
+  const expectedCurrency = String(meta.currency ?? FLUTTERWAVE_CURRENCY).toUpperCase();
+  const expectedAmount = Number(meta.amount ?? FLUTTERWAVE_PRICE_USD);
   if (status !== "successful") reasons.push(`status is ${status ?? "(none)"}, expected successful`);
-  if (currency !== FLUTTERWAVE_CURRENCY) reasons.push(`currency is ${currency}, expected ${FLUTTERWAVE_CURRENCY}`);
-  if (amount < FLUTTERWAVE_PRICE_USD) reasons.push(`amount is ${amount}, expected at least ${FLUTTERWAVE_PRICE_USD}`);
+  if (currency !== expectedCurrency) reasons.push(`currency is ${currency}, expected ${expectedCurrency}`);
+  if (amount < expectedAmount) reasons.push(`amount is ${amount}, expected at least ${expectedAmount}`);
   if (String(tx.data.tx_ref ?? "") !== expectedRef) reasons.push(`tx_ref is ${String(tx.data.tx_ref ?? "(none)")}, expected ${expectedRef}`);
   return reasons;
 }

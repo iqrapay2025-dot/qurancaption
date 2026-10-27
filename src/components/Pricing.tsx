@@ -92,7 +92,7 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
                 <fieldset className="mt-8">
                   <legend className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Pay with</legend>
                   <div className="grid grid-cols-2 gap-2">
-                    {([["paystack", `Pay ₦${PRO_PRICE_NGN.toLocaleString()} with Paystack`, "Cards, bank, mobile money"], ["flutterwave", `Pay $${FLUTTERWAVE_PRICE_USD} with Flutterwave`, "Cards, bank transfer, USSD, QR"]] as const).map(([k, n, d]) => (
+                    {([["paystack", `Pay ₦${PRO_PRICE_NGN.toLocaleString()} with Paystack`, "Cards, bank, mobile money"], ["flutterwave", country === "NG" ? `Pay ₦${PRO_PRICE_NGN.toLocaleString()} with Flutterwave (card, bank transfer, USSD)` : `Pay $${FLUTTERWAVE_PRICE_USD} with Flutterwave`, "Cards, bank transfer, USSD, QR"]] as const).map(([k, n, d]) => (
                       <label key={k} className={`cursor-pointer rounded-sm border p-3 text-sm ${provider === k ? "border-primary bg-secondary" : "border-border hover:bg-muted"}`}>
                         <input type="radio" name="provider" value={k} checked={provider === k} onChange={() => setProvider(k)} className="sr-only" />
                         <b className="block">{n}</b><span className="text-xs text-muted-foreground">{d}</span>

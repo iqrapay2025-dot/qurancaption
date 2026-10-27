@@ -54,8 +54,11 @@ export async function POST(req: Request) {
 
     const amount = Number(data.amount ?? 0);
     const currency = String(data.currency ?? "").toUpperCase();
+    const meta = (typeof data.meta === "object" && data.meta) ? (data.meta as Record<string, unknown>) : {};
+    const expectedCurrency = String(meta.currency ?? FLUTTERWAVE_CURRENCY).toUpperCase();
+    const expectedAmount = Number(meta.amount ?? FLUTTERWAVE_PRICE_USD);
 
-    if (status !== "successful" || currency !== FLUTTERWAVE_CURRENCY || amount < FLUTTERWAVE_PRICE_USD) {
+    if (status !== "successful" || currency !== expectedCurrency || amount < expectedAmount) {
       return fail("We couldn't confirm this payment.", 400);
     }
     if (String(data.tx_ref ?? "") !== String(payload.ref)) {
