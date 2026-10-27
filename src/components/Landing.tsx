@@ -148,7 +148,7 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
           </div>
           <div>
             <h4 className="mb-3 text-sm font-bold text-white">Contact</h4>
-            <a className="block text-sm hover:text-[#6fe3a0]" href="mailto:hello@qurancaption.studio">hello@qurancaption.studio</a>
+            <a className="block text-sm hover:text-[#6fe3a0]" href="mailto:qurancaptionstudio@gmail.com">qurancaptionstudio@gmail.com</a>
             <div className="mt-3 flex gap-4 text-sm"><a className="hover:text-[#6fe3a0]" href="/terms">Terms of use</a><a className="hover:text-[#6fe3a0]" href="/privacy">Privacy policy</a></div>
           </div>
         </div>

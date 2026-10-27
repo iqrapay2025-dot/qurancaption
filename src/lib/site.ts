@@ -8,7 +8,7 @@ export const SITE = {
   tagline: "Synced Quran captions for your videos",
   description: "Create timed Arabic and translation captions for Quran recitation videos. Pick a surah and ayah range, style the preview, and export SRT or VTT for CapCut, Premiere Pro, DaVinci Resolve and more.",
   url: siteUrl(),
-  email: "hello@qurancaption.studio",
+  email: "qurancaptionstudio@gmail.com",
   updated: "25 October 2026",
   api: { name: "UmmahAPI", url: "https://ummahapi.com/api/docs" },
 };
