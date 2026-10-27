@@ -7,7 +7,7 @@ import { currentUser } from "@/lib/app/session";
 import { parseProject, parseRanges, totalVerses } from "@/lib/app/validate";
 
 type Ctx = { params: Promise<{ id: string }> };
-const validId = (id: string) => /^[a-f0-9-]{8,40}$/i.test(id);
+const validId = (id: string) => /^[A-Za-z0-9_-]{1,64}$/.test(id);
 
 export async function GET(_: Request, { params }: Ctx) {
   const { id } = await params;
@@ -18,7 +18,8 @@ export async function GET(_: Request, { params }: Ctx) {
   try {
     const doc = await payload.findByID({ collection: "projects", id, user, overrideAccess: false, depth: 0 });
     return ok({ project: doc });
-  } catch {
+  } catch (e) {
+    console.error("project GET failed", id, e);
     return fail("Project not found.", 404);
   }
 }
