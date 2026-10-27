@@ -38,7 +38,7 @@ const csp = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' https://fonts.gstatic.com",
   "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com",
-  "media-src 'self' https:",
+  "media-src 'self' https: blob:",
   "worker-src 'self' blob:",
   "frame-src 'none'",
   "object-src 'none'",

@@ -986,12 +986,12 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
                 {audioQ.error && <Notice what="the recitation audio" err={audioQ.error} retryIn={audioQ.retryIn} onRetry={audioQ.retry} />}
                 {ayahMode && ayahAudio && missingAudio && <div role="alert" className="rounded-sm border border-amber-500/40 bg-amber-500/10 p-4 text-sm">This recitation has no audio for some of the selected ayahs. Narrow the range or pick another recitation.</div>}
                 {manualKeys.size > 0 && !probing && <div role="status" className="rounded-sm border border-amber-500/40 bg-amber-500/10 p-4 text-sm"><strong>Manual timing.</strong> {ayahMode ? "Some ayah files could not be measured." : "UmmahAPI does not provide verse timestamps for continuous audio."} Captions are spaced by an estimate (verse length across the whole recording, or 5 s per verse for partial ranges), so they may drift from the recitation. Press play, then use <strong>Tap to mark end</strong> (or Space) as each verse finishes, or set durations by hand under <strong>Verses &amp; timing</strong>. Your edits are kept when you change translations or reciter.</div>}
-                {audioFailed && <div role="alert" className="rounded-sm border border-red-500/40 bg-red-500/10 p-4 text-sm">The audio file could not be played. Try another reciter.</div>}
+                {audioFailed && <div role="alert" className="rounded-sm border border-red-500/40 bg-red-500/10 p-4 text-sm">The audio file could not be played. Try another reciter or convert the file to mp3/wav. (Check the browser console for details.)</div>}
                 {(versesQ.loading || audioQ.loading || probing) && !versesQ.error && !audioQ.error && <Loading label={audioQ.loading ? "Loading recitation audio…" : probing ? "Measuring ayah audio lengths…" : "Loading verses…"} />}
               </div>
 
               <div className="mt-4 w-full max-w-xl rounded-sm border border-border bg-card p-4">
-                {audioSrc && <audio ref={audioRef} src={audioSrc} preload="metadata" onLoadedMetadata={onMeta} onEnded={onEnded} onPause={() => setPlaying(false)} onError={() => setAudioFailed(true)} />}
+                {audioSrc && <audio ref={audioRef} src={audioSrc} preload="metadata" onLoadedMetadata={onMeta} onEnded={onEnded} onPause={() => setPlaying(false)} onError={(e) => { console.error("audio error", (e.target as HTMLAudioElement)?.error); setAudioFailed(true); }} />}
                 <input aria-label="Scrub" type="range" disabled={!ready} min={0} max={total || 1} step={0.1} value={time} onChange={(e) => seek(+e.target.value)} className="w-full accent-[var(--primary)]" />
                 <div className="mt-2 flex items-center justify-between">
                   <span className="w-24 font-mono text-xs text-muted-foreground">{fmt(time)} / {fmt(total)}</span>
