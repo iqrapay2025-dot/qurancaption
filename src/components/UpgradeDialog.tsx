@@ -4,6 +4,7 @@ import { Check, Sparkles, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { appFetch, type Upgrade } from "../lib/app/client";
 import { FREE_LIMITS, PRO_PRICE_NGN } from "../lib/app/plans";
+import { formatNgnEstimate } from "../lib/app/currency";
 
 const COPY: Record<Upgrade["code"], { title: string; body: string }> = {
   project_limit: { title: "You've filled your 3 free projects", body: `Free accounts keep up to ${FREE_LIMITS.projects} saved projects. Delete one you no longer need, or go Pro for unlimited projects.` },
