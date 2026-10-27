@@ -9,7 +9,7 @@ export type Plan = "free" | "pro";
 export type LimitCode = "project_limit" | "verse_limit" | "preset_pro";
 
 export type Billing = {
-  provider: "paystack" | "stripe" | null;
+  provider: "paystack" | "stripe" | "flutterwave" | null;
   status: "none" | "active" | "past_due" | "canceled";
   proUntil: string | null;
   cancelAtPeriodEnd: boolean;

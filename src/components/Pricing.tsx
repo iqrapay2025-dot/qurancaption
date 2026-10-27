@@ -3,9 +3,9 @@
 import { Check } from "lucide-react";
 import { useState } from "react";
 import { appFetch, type AppUser } from "../lib/app/client";
-import { PRO_PRICE_NGN } from "../lib/app/plans";
-import AccountMenu from "./AccountMenu";
-import { Logo, ThemeToggle } from "./shared";
+import { PRO_PRICE_NGN, FLUTTERWAVE_PRICE_USD } from "../lib/app/plans";
+import AccountMenu from "../components/AccountMenu";
+import { Logo, ThemeToggle } from "../components/shared";
 
 const FREE = ["Up to 3 saved projects", "SRT and VTT export", "Up to 20 verses per export"];
 const PRO = ["Unlimited projects and verses", "SRT and VTT export", "Custom style presets", "Priority support"];
@@ -15,7 +15,7 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
   onHome: () => void; onStart: () => void; onLogin: () => void; onSignup: (reason: string, after: () => void) => void;
   onProjects: () => void; onSettings: () => void; onSignOut: () => void;
 }) {
-  const [provider, setProvider] = useState<"paystack" | "stripe">("paystack");
+  const [provider, setProvider] = useState<"paystack" | "flutterwave">("paystack");
   const [mode, setMode] = useState<"auto" | "manual">("auto");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +57,7 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
           </div>
 
           <div className="flex flex-col rounded-md border-2 border-accent bg-card p-7">
-            <div className="flex items-baseline justify-between"><h2 className="text-xl font-bold">Pro</h2><p><span className="text-4xl font-bold">₦{PRO_PRICE_NGN.toLocaleString()}</span><span className="text-sm text-muted-foreground"> /month</span></p></div>
+            <div className="flex items-baseline justify-between"><h2 className="text-xl font-bold">Pro</h2><p><span className="text-4xl font-bold">{provider === "flutterwave" ? `$${FLUTTERWAVE_PRICE_USD.toLocaleString()}` : `₦${PRO_PRICE_NGN.toLocaleString()}`}</span><span className="text-sm text-muted-foreground"> /month</span></p></div>
             <ul className="mt-6 flex-1 space-y-3">{PRO.map((i) => <li key={i} className="flex gap-3 text-sm text-muted-foreground"><Check size={18} className="mt-0.5 shrink-0 text-gold" />{i}</li>)}</ul>
 
             {isPro ? (
@@ -67,7 +67,7 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
                 <fieldset className="mt-8">
                   <legend className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Pay with</legend>
                   <div className="grid grid-cols-2 gap-2">
-                    {([["paystack", "Paystack", "Cards, bank, mobile money"], ["stripe", "Stripe", "International cards"]] as const).map(([k, n, d]) => (
+                    {([["paystack", "Paystack", "Cards, bank, mobile money"], ["flutterwave", "Flutterwave", "Cards, bank transfer, USSD, QR"]] as const).map(([k, n, d]) => (
                       <label key={k} className={`cursor-pointer rounded-sm border p-3 text-sm ${provider === k ? "border-primary bg-secondary" : "border-border hover:bg-muted"}`}>
                         <input type="radio" name="provider" value={k} checked={provider === k} onChange={() => setProvider(k)} className="sr-only" />
                         <b className="block">{n}</b><span className="text-xs text-muted-foreground">{d}</span>
@@ -93,7 +93,7 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
                 )}
                 {error && <p role="alert" className="mt-4 rounded-sm border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">{error}</p>}
                 <button onClick={upgrade} disabled={busy || !ready} className="mt-4 w-full rounded-sm bg-gradient-to-b from-[#2cbd6d] to-[#178f4a] px-5 py-3 text-sm font-semibold text-white shadow-md hover:brightness-95 disabled:opacity-60">
-                  {busy ? "Redirecting to checkout…" : user ? `Upgrade to Pro with ${provider === "paystack" ? "Paystack" : "Stripe"}` : "Sign up to upgrade"}
+                  {busy ? "Redirecting to checkout…" : user ? `Upgrade to Pro with ${provider === "paystack" ? "Paystack" : "Flutterwave"}` : "Sign up to upgrade"}
                 </button>
               </>
             )}
