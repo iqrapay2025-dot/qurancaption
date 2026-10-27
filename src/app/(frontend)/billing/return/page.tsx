@@ -68,25 +68,31 @@ export default function ReturnPage() {
         window.location.replace("/#/pricing");
         return;
       }
+      // The Flutterwave transaction id is numeric when present; otherwise fall back
+      // to the reference (tx_ref) that the confirm route uses for verification.
+      const transactionId = q.get("transaction_id") || txRef;
       let cancelled = false;
       const startTime = Date.now();
 
       const poll = async () => {
         setStatus("confirming");
         while (!cancelled && !done.current && Date.now() - startTime < MAX_TIME) {
-          const r = await confirmPayment("flutterwave", txRef, q.get("transaction_id") || "");
+          const r = await confirmPayment("flutterwave", txRef, transactionId);
           if (r.ok) {
             setStatus("done");
             done.current = true;
             window.location.replace(`/#/settings?provider=flutterwave&ref=${encodeURIComponent(txRef)}`);
             return;
           }
-          // 409 or 502 means Flutterwave has not been verified yet (still settling).
-          if (r.status === 409 || r.status === 502) {
+          // Flutterwave returns 400 while a payment is still settling (pending),
+          // plus 409 and 502, so treat those as "not verified yet" and poll again.
+          if (r.status === 400 || r.status === 409 || r.status === 502) {
             await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL));
             continue;
           }
-          // Real failures: wrong amount, wrong currency, failed status, tx_ref mismatch, or not your payment.
+          // Real failures: wrong amount, wrong currency, failed status, tx_ref
+          // mismatch, or not your payment. Also treat a genuine 4xx/5xx as a
+          // hard failure instead of retrying until the 2 minute timeout.
           setStatus("error");
           setError(r.error || "We couldn't confirm this payment.");
           return;

@@ -87,11 +87,11 @@ afterEach(() => {
   else process.env.FLUTTERWAVE_SECRET_KEY = origKey;
 });
 
-function post(ref: string, txRef: string = ref) {
+function post(ref: string, transaction_id: string | number = ref) {
   return confirm(new Request("http://localhost/api/app/billing/flutterwave/confirm", {
     method: "POST",
     headers: { "content-type": "application/json", origin: "http://localhost" },
-    body: JSON.stringify({ provider: "flutterwave", ref, transaction_id: txRef }),
+    body: JSON.stringify({ provider: "flutterwave", ref, transaction_id }),
   }));
 }
 
@@ -127,11 +127,11 @@ describe("flutterwave confirm", () => {
     expect(updates).toHaveLength(0);
   });
 
-  it("rejects a non-successful status", async () => {
+  it("returns 409 for a pending status and grants nothing", async () => {
     fetchMock.mockResolvedValueOnce(verify({ amount: 6, currency: "USD", status: "pending" }));
     const res = await post("foo_123");
-    expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: "We couldn't confirm this payment." });
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({ error: "Payment is still being processed. Try again later." });
     expect(updates).toHaveLength(0);
   });
 
@@ -172,5 +172,77 @@ describe("flutterwave confirm", () => {
     const expected = new Date(new Date(future).getTime() + MONTHLY_PERIOD_DAYS * DAY).toISOString();
     expect(updates).toHaveLength(1);
     expect(updates[0].data.proUntil).toBe(expected);
+  });
+
+  it("verifies by reference when transaction_id is empty", async () => {
+    fetchMock.mockResolvedValueOnce(verify());
+    const res = await post("foo_123", "");
+    expect(res.status).toBe(200);
+    const url = String(fetchMock.mock.calls[0][0]);
+    expect(url).toContain("/verify_by_reference");
+    expect(url).toContain("tx_ref=foo_123");
+    expect(updates).toHaveLength(1);
+    expect(updates[0].data.provider).toBe("flutterwave");
+  });
+
+  it("verifies by ID when transaction_id is numeric", async () => {
+    fetchMock.mockResolvedValueOnce(verify());
+    const res = await post("foo_123", "42");
+    expect(res.status).toBe(200);
+    const url = String(fetchMock.mock.calls[0][0]);
+    expect(url).toContain("/transactions/42/verify");
+    expect(updates).toHaveLength(1);
+    expect(updates[0].data.provider).toBe("flutterwave");
+  });
+
+  it("returns 400 for a failed status and grants nothing", async () => {
+    fetchMock.mockResolvedValueOnce(verify({ status: "failed" }));
+    const res = await post("foo_123");
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "The payment failed." });
+    expect(updates).toHaveLength(0);
+  });
+
+  it("returns 400 when meta.userId and tx_ref user both present but disagree", async () => {
+    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u2" }, tx_ref: "fw_u3_1700000000_abc123" }));
+    const res = await post("fw_u3_1700000000_abc123");
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "We couldn't confirm this payment." });
+    expect(updates).toHaveLength(0);
+  });
+
+  it("returns 400 when meta.userId matches logged-in user but tx_ref user differs", async () => {
+    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u1" }, tx_ref: "fw_u3_1700000000_abc123" }));
+    const res = await post("fw_u3_1700000000_abc123");
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "We couldn't confirm this payment." });
+    expect(updates).toHaveLength(0);
+  });
+
+  it("verifies by ID when transaction_id is a JSON number", async () => {
+    fetchMock.mockResolvedValueOnce(verify());
+    const res = await post("foo_123", 42);
+    expect(res.status).toBe(200);
+    const url = String(fetchMock.mock.calls[0][0]);
+    expect(url).toContain("/transactions/42/verify");
+    expect(updates).toHaveLength(1);
+    expect(updates[0].data.provider).toBe("flutterwave");
+  });
+
+  it("allows up to 60 confirm calls in a short window", async () => {
+    for (let i = 0; i < 60; i++) {
+      fetchMock.mockResolvedValueOnce(verify());
+      const res = await post("foo_123");
+      expect(res.status).not.toBe(429);
+    }
+  });
+
+  it("the Paystack confirm key is unchanged (still app:confirm:)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync(
+      new URL("../confirm/route.ts", import.meta.url),
+      "utf8"
+    );
+    expect(src).toContain("app:confirm:");
   });
 });

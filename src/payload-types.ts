@@ -463,6 +463,9 @@ export interface BillingEvent {
   id: number;
   eventId: string;
   type?: string | null;
+  reference?: string | null;
+  user?: string | null;
+  outcome?: string | null;
   reason?: string | null;
   createdBy?:
     | ({
@@ -772,6 +775,9 @@ export interface ProjectsSelect<T extends boolean = true> {
 export interface BillingEventsSelect<T extends boolean = true> {
   eventId?: T;
   type?: T;
+  reference?: T;
+  user?: T;
+  outcome?: T;
   reason?: T;
   createdBy?: T;
   updatedBy?: T;

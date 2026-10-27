@@ -7,6 +7,14 @@ export const BillingEvents: CollectionConfig = {
   fields: [
     { name: 'eventId', type: 'text', required: true, unique: true, index: true },
     { name: 'type', type: 'text' },
+    { name: 'reference', type: 'text' },
+    { name: 'user', type: 'text' },
+    {
+      name: 'outcome',
+      type: 'text',
+      validate: (val: string | null | undefined) =>
+        val === 'granted' || val === 'ignored' ? true : 'Invalid outcome',
+    },
     { name: 'reason', type: 'text' },
   ],
   versions: false,

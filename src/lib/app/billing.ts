@@ -188,6 +188,12 @@ export async function flutterwaveVerify(transactionId: string | number): Promise
   return fwGet<FlutterwaveTransaction>(`/transactions/${encodeURIComponent(String(transactionId))}/verify`);
 }
 
+// Verify a transaction by its merchant reference (tx_ref) instead of its numeric ID.
+// Flutterwave v3: GET /transactions/verify_by_reference?tx_ref=xxx
+export async function flutterwaveVerifyByReference(txRef: string): Promise<FlutterwaveTransaction> {
+  return fwGet<FlutterwaveTransaction>(`/transactions/verify_by_reference?tx_ref=${encodeURIComponent(txRef)}`);
+}
+
 export async function paystackCancel(acc: Account) {
   let code = acc.subscriptionRef;
   if (!code && acc.customerRef) {
@@ -306,6 +312,71 @@ export async function grantProPeriod(opts: {
     throw e;
   }
 }
+// Provider-agnostic: extends proUntil by one period, once per (provider, reference).
+
+// Flutterwave helpers shared by the confirm route and the webhook route.
+
+export interface FlutterwaveOwner {
+  ownerId: string | null;
+  ownerSource: "meta" | "tx_ref" | null;
+}
+
+// Extracts the owner id from the verified transaction's meta.userId or the tx_ref
+// prefix, and where it came from. Returns null owner when neither yields one.
+export function flutterwaveExtractOwner(tx: FlutterwaveTransaction): FlutterwaveOwner {
+  const metaUser = typeof tx.data.meta === "object" && tx.data.meta ? String((tx.data.meta as Record<string, unknown>).userId ?? "") : "";
+  const txRefUser = parseFlutterwaveTxRef(String(tx.data.tx_ref ?? ""));
+  const ownerId = metaUser || txRefUser;
+  const source: "meta" | "tx_ref" | null = metaUser ? "meta" : (txRefUser ? "tx_ref" : null);
+  return { ownerId: ownerId || null, ownerSource: source };
+}
+
+// Returns the reasons the verified transaction is not a valid Pro payment
+// (empty array => all checks pass). Mirrors the confirm route checks.
+export function flutterwaveValidateTransaction(tx: FlutterwaveTransaction, expectedRef: string): string[] {
+  const reasons: string[] = [];
+  const amount = Number(tx.data.amount ?? 0);
+  const currency = String(tx.data.currency ?? "").toUpperCase();
+  const status = tx.data.status ?? "";
+  if (status !== "successful") reasons.push(`status is ${status ?? "(none)"}, expected successful`);
+  if (currency !== FLUTTERWAVE_CURRENCY) reasons.push(`currency is ${currency}, expected ${FLUTTERWAVE_CURRENCY}`);
+  if (amount < FLUTTERWAVE_PRICE_USD) reasons.push(`amount is ${amount}, expected at least ${FLUTTERWAVE_PRICE_USD}`);
+  if (String(tx.data.tx_ref ?? "") !== expectedRef) reasons.push(`tx_ref is ${String(tx.data.tx_ref ?? "(none)")}, expected ${expectedRef}`);
+  return reasons;
+}
+
+export interface RecordBillingEventInput {
+  eventId: string;
+  type: string;
+  reference: string;
+  user: string | null;
+  outcome: "granted" | "ignored";
+  reason?: string;
+}
+
+// Records a processed billing event idempotently. Duplicate deliveries are safe:
+// the unique eventId prevents duplicate documents, and the error is swallowed.
+export async function recordBillingEvent(input: RecordBillingEventInput): Promise<void> {
+  const payload = await getPayloadClient();
+  try {
+    await payload.create({
+      collection: "billing-events",
+      data: {
+        eventId: input.eventId,
+        type: input.type,
+        reference: input.reference,
+        user: input.user,
+        outcome: input.outcome,
+        reason: input.reason,
+      },
+      overrideAccess: true,
+      depth: 0,
+    });
+  } catch {
+    // Already recorded (idempotent duplicate).
+  }
+}
+
 export const stripeCancel = (id: string) => st<StripeSub>(`/subscriptions/${encodeURIComponent(id)}`, { cancel_at_period_end: "true" });
 
 export async function applyStripeSub(sub: StripeSub, userIdHint?: string | null) {

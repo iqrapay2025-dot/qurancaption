@@ -4,7 +4,12 @@ import { csrf, fail, ok, readJson, rateLimited } from "@/lib/app/http";
 import { currentUser } from "@/lib/app/session";
 import { rateLimit } from "@/lib/app/rate-limit";
 import { FLUTTERWAVE_CURRENCY, FLUTTERWAVE_PRICE_USD } from "@/lib/app/plans";
-import { flutterwaveVerify, grantProPeriod, parseFlutterwaveTxRef } from "@/lib/app/billing";
+import {
+  flutterwaveVerify,
+  flutterwaveVerifyByReference,
+  grantProPeriod,
+  parseFlutterwaveTxRef,
+} from "@/lib/app/billing";
 
 const REF_RE = /^[A-Za-z0-9_\-.]{6,120}$/;
 
@@ -24,16 +29,31 @@ export async function POST(req: Request) {
   }
 
   const uid = String(user.id);
-  const rl = rateLimit(`app:confirm:${uid}`, 30, 60 * 60 * 1000);
+  const rl = rateLimit(`app:flw-confirm:${uid}`, 100, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
 
   try {
-    const tx = await flutterwaveVerify(payload.transaction_id ?? payload.ref);
+    const idStr = String(payload.transaction_id ?? "");
+    let tx;
+    if (/^\d+$/.test(idStr)) {
+      tx = await flutterwaveVerify(idStr);
+    } else {
+      tx = await flutterwaveVerifyByReference(payload.ref);
+    }
     const data = tx.data ?? {};
+
+    const status = data.status ?? "";
+
+    // Still settling: tell the caller to keep polling.
+    if (status === "pending") {
+      return fail("Payment is still being processed. Try again later.", 409);
+    }
+    if (status === "failed") {
+      return fail("The payment failed.", 400);
+    }
 
     const amount = Number(data.amount ?? 0);
     const currency = String(data.currency ?? "").toUpperCase();
-    const status = data.status ?? "";
 
     if (status !== "successful" || currency !== FLUTTERWAVE_CURRENCY || amount < FLUTTERWAVE_PRICE_USD) {
       return fail("We couldn't confirm this payment.", 400);
@@ -44,6 +64,10 @@ export async function POST(req: Request) {
 
     const metaUser = typeof data.meta === "object" && data.meta ? String((data.meta as Record<string, unknown>).userId ?? "") : "";
     const txRefUser = parseFlutterwaveTxRef(String(data.tx_ref ?? ""));
+    // If both owner sources are present but disagree, reject.
+    if (metaUser && txRefUser && metaUser !== txRefUser) {
+      return fail("We couldn't confirm this payment.", 400);
+    }
     const owner = metaUser || txRefUser;
     if (owner !== uid) {
       return fail("This payment does not belong to your account.", 403);
@@ -56,7 +80,12 @@ export async function POST(req: Request) {
     });
     return ok({ ok: true, alreadyApplied: !applied });
   } catch (e) {
-    console.error("[billing] flutterwave confirm failed:", e instanceof Error ? e.message : e);
+    // Flutterwave may return 404 when the transaction isn't recorded yet right after payment.
+    const msg = e instanceof Error ? e.message : String(e);
+    if (/404|not found/i.test(msg)) {
+      return fail("The payment has not been recorded yet. Try again later.", 409);
+    }
+    console.error("[billing] flutterwave confirm failed:", msg);
     return fail("We couldn't confirm the payment yet. It may take a minute to appear.", 502);
   }
 }
