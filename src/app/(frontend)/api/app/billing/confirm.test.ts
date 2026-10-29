@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { DAY } from "@/lib/app/billing";
-import { MONTHLY_PERIOD_DAYS } from "@/lib/app/plans";
+import { MONTHLY_PERIOD_DAYS, PRO_PRICE_NGN_KOBO } from "@/lib/app/plans";
 import { POST as confirm } from "./confirm/route";
 import { POST as webhook } from "./webhook/paystack/route";
 
@@ -28,7 +28,7 @@ vi.mock("@/lib/app/session", () => ({
 const tx = {
   status: "success",
   reference: "ref-01",
-  amount: 837000,
+  amount: PRO_PRICE_NGN_KOBO,
   currency: "NGN",
   metadata: { userId: "u1" },
   customer: { customer_code: "cus_1", email: "alice@example.com" },
@@ -172,7 +172,7 @@ describe("paystack manual monthly confirm", () => {
   const manualTx = {
     status: "success",
     reference: "manual-ref-01",
-    amount: 837000,
+    amount: PRO_PRICE_NGN_KOBO,
     currency: "NGN",
     plan: null,
     metadata: { userId: "u1", kind: "manual_monthly" },
@@ -232,7 +232,7 @@ describe("paystack subscription plan check", () => {
   const subTx = {
     status: "success",
     reference: "sub-ref-01",
-    amount: 837000,
+    amount: PRO_PRICE_NGN_KOBO,
     currency: "NGN",
     plan: { plan_code: "premium" },
     metadata: { userId: "u1" },

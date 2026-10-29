@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { POST as webhook } from "./paystack/route";
 import { POST as confirm } from "../confirm/route";
 import { extend, DAY, PAYSTACK_MANUAL_KIND } from "@/lib/app/billing";
+import { PRO_PRICE_NGN_KOBO } from "@/lib/app/plans";
 
 let events = new Map<string, any>();
 let users = new Map<string, any>();
@@ -39,7 +40,7 @@ function post(event: string, data: Record<string, any>) {
 
 function chargeRef(reference: string, planCode = "premium"): Record<string, any> {
   return {
-    amount: 837000,
+    amount: PRO_PRICE_NGN_KOBO,
     currency: "NGN",
     status: "success",
     reference,
@@ -174,13 +175,13 @@ describe("paystack webhook", () => {
     expect(updates).toHaveLength(0);
     const ev = events.get("paystack:charge:wrong-amount");
     expect(ev).toMatchObject({ type: "paystack:charge:ignored" });
-    expect(ev.reason).toContain("837000");
+    expect(ev.reason).toContain("807522");
   });
 
   it("does not grant Pro on charge.success with a wrong currency", async () => {
     const data = chargeRef("wrong-currency");
     data.currency = "usd";
-    data.amount = 837000;
+    data.amount = PRO_PRICE_NGN_KOBO;
     await post("charge.success", data);
     expect(updates).toHaveLength(0);
     const ev = events.get("paystack:charge:wrong-currency");
@@ -191,7 +192,7 @@ describe("paystack webhook", () => {
   it("does not grant Pro on charge.success with a wrong plan", async () => {
     const data = chargeRef("wrong-plan", "pro");
     data.currency = "NGN";
-    data.amount = 837000;
+    data.amount = PRO_PRICE_NGN_KOBO;
     await post("charge.success", data);
     expect(updates).toHaveLength(0);
     const ev = events.get("paystack:charge:wrong-plan");

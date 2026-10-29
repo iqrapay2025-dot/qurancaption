@@ -2,7 +2,7 @@
 
 import { ArrowRight, Check, Download, ListChecks, Palette } from "lucide-react";
 import Link from "next/link";
-import { PRO_PRICE_NGN } from "../lib/app/plans";
+import { PRO_PRICE_NGN, FLUTTERWAVE_PRICE_USD } from "../lib/app/plans";
 import type { AppUser } from "../lib/app/client";
 import AccountMenu from "./AccountMenu";
 import { Logo, ThemeToggle } from "./shared";
@@ -118,7 +118,7 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
         <div className="mt-12 grid gap-6 md:grid-cols-2">
           {[
             { name: "Free", price: "$0", items: ["Up to 3 saved projects", "SRT and VTT export", "Up to 20 verses per export", "Preview, style and sync tools"], pro: false },
-            { name: "Pro", price: "$6 (₦8,370)", items: ["Unlimited projects and verses", "SRT and VTT export", "Custom style presets", "Priority support"], pro: true },
+            { name: "Pro", price: `$${FLUTTERWAVE_PRICE_USD} (₦${PRO_PRICE_NGN.toLocaleString()})`, items: ["Unlimited projects and verses", "SRT and VTT export", "Custom style presets", "Priority support"], pro: true },
           ].map((p) => (
             <div key={p.name} className={`rounded-md bg-card p-7 transition-shadow hover:shadow-lg ${p.pro ? "border-2 border-accent" : "border border-border"}`}>
               <div className="flex items-baseline justify-between">

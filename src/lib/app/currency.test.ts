@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { formatNgnEstimate } from "./currency";
 
 describe("formatNgnEstimate", () => {
-  it("rounds 6 * rate to nearest 50 and formats with thousands separators", () => {
-    // 6 * 1396.07 = 8376.42 → rounds to 8,400
-    expect(formatNgnEstimate(1396.07)).toBe("8,400");
+  it("rounds PRO_PRICE_NGN * rate to nearest 50 and formats with thousands separators", () => {
+    // 8075.22 * 1 = 8075.22 → rounds to 8,100
+    expect(formatNgnEstimate(1)).toBe("8,100");
   });
 
   it("returns null when rate is null", () => {
