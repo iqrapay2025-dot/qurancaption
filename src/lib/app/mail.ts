@@ -2,7 +2,11 @@
 import "server-only";
 import { getPayloadClient } from "@/lib/payload";
 
-export async function sendMail(to: string, subject: string, html: string) {
+export async function sendMail(
+  to: string,
+  subject: string,
+  html: string,
+): Promise<boolean> {
   const brevoKey = process.env.BREVO_API_KEY;
   const resendKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
@@ -23,12 +27,9 @@ export async function sendMail(to: string, subject: string, html: string) {
       }),
       cache: "no-store",
     });
-    if (!res.ok) {
-      const text = await res.text();
-      console.error(`[mail] Brevo error: ${res.status} - ${text}`);
-    } else {
-      return;
-    }
+    if (res.ok) return true;
+    const text = await res.text();
+    console.error(`[mail] Brevo error: ${res.status} - ${text}`);
   }
 
   // Fall back to Resend if configured
@@ -42,12 +43,14 @@ export async function sendMail(to: string, subject: string, html: string) {
       body: JSON.stringify({ from, to: [to], subject, html }),
       cache: "no-store",
     });
-    if (!res.ok) throw new Error(`mail provider returned ${res.status}`);
-    return;
+    if (res.ok) return true;
+    const text = await res.text();
+    console.error(`[mail] Resend error: ${res.status} - ${text}`);
   }
 
-  // Neither provider configured: log error but don't throw
+  // Neither provider configured or both failed: log error and return false
   console.error(
     "[mail] email not configured: set BREVO_API_KEY and EMAIL_FROM, or RESEND_API_KEY and EMAIL_FROM"
   );
+  return false;
 }

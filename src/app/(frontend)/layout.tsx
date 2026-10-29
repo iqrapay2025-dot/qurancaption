@@ -8,6 +8,8 @@ import {
 } from "@/lib/make-site-settings"
 import { SITE } from "@/lib/site"
 import "./styles.css"
+import CookieConsent from "@/components/CookieConsent"
+import CookieSettingsBar from "@/components/CookieSettingsBar"
 
 const title = makeSiteSettings.title ?? `${SITE.name} | ${SITE.tagline}`
 const description = makeSiteSettings.description ?? SITE.description
@@ -18,13 +20,32 @@ const googleAnalyticsId = sanitizeHtmlAttribute(
 )
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ? process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "") : process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3001"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL
+      ? process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")
+      : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3001",
+  ),
   title: { default: title, template: `%s | ${SITE.name}` },
   description,
   applicationName: SITE.name,
-  keywords: ["Quran captions", "Quran subtitles", "SRT", "VTT", "Quran video", "CapCut", "Premiere Pro", "Quran translation", "tilawah"],
+  keywords: [
+    "Quran captions",
+    "Quran subtitles",
+    "SRT",
+    "VTT",
+    "Quran video",
+    "CapCut",
+    "Premiere Pro",
+    "Quran translation",
+    "tilawah",
+  ],
   alternates: { canonical: "/" },
-  robots: process.env.ALLOW_INDEXING === "true" ? undefined : { index: false, follow: false },
+  robots:
+    process.env.ALLOW_INDEXING === "true"
+      ? undefined
+      : { index: false, follow: false },
   icons: favicon ? { icon: favicon } : undefined,
   openGraph: {
     type: "website",
@@ -83,6 +104,8 @@ gtag('config', ${JSON.stringify(googleAnalyticsId)});
           </>
         )}
         <BodyCustomCode html={customScripts?.bodyEnd} />
+        <CookieSettingsBar />
+        <CookieConsent />
       </body>
     </html>
   )

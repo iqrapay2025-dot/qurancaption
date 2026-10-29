@@ -94,9 +94,9 @@ describe("sendMail", () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it("returns successfully (no throw) when neither provider is configured", async () => {
+  it("returns false (no throw) when neither provider is configured", async () => {
     // Should not throw, just log error
 
-    await expect(sendMail("user@example.com", "Test Subject", html)).resolves.toBeUndefined();
+    await expect(sendMail("user@example.com", "Test Subject", html)).resolves.toBe(false);
   });
 });

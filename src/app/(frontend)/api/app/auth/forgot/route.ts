@@ -18,7 +18,10 @@ export async function POST(req: Request) {
     const token = await payload.forgotPassword({ collection: "users", data: { email }, disableEmail: true });
     if (token) {
       const link = `${siteUrl()}/#/reset?token=${encodeURIComponent(token)}`;
-      await sendMail(email, "Reset your Quran Caption Studio password", `<p>We received a request to reset your password.</p><p><a href="${link}">Choose a new password</a></p><p>This link expires in one hour. If you didn't ask for this, you can ignore this email.</p>`);
+      const sent = await sendMail(email, "Reset your Quran Caption Studio password", `<p>We received a request to reset your password.</p><p><a href="${link}">Choose a new password</a></p><p>This link expires in one hour. If you didn't ask for this, you can ignore this email.</p>`);
+      if (!sent) {
+        console.error(`[auth] forgot-password email failed for ${email}`);
+      }
     }
   } catch (e) {
     console.error("[auth] forgot-password failed:", e instanceof Error ? e.name : "error");

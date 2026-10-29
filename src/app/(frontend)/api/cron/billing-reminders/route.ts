@@ -55,14 +55,13 @@ export async function GET(req: Request) {
     const reminderKey = `reminder:${u.id}:${proUntil}`;
     if (!(await claimEvent(reminderKey, "billing:reminder"))) continue;
 
-    try {
-      await sendMail(
-        email,
-        "Your Qurancaption Pro access is expiring soon",
-        `<p>Your Pro access expires on ${fmtDate(proUntil)}.</p><p>You chose pay-each-month, so it won’t renew automatically. <a href="${siteUrl}/#/settings">Pay for next month</a> to keep using Pro.</p>`
-      );
-    } catch (e) {
-      console.error("[cron] reminder email failed for", u.id, e instanceof Error ? e.message : e);
+    const sent = await sendMail(
+      email,
+      "Your Qurancaption Pro access is expiring soon",
+      `<p>Your Pro access expires on ${fmtDate(proUntil)}.</p><p>You chose pay-each-month, so it won’t renew automatically. <a href="${siteUrl}/#/settings">Pay for next month</a> to keep using Pro.</p>`
+    );
+    if (!sent) {
+      console.error("[cron] reminder email failed for", u.id);
       // Release the claim so the reminder can be retried the next day
       await releaseEvent(reminderKey);
     }
