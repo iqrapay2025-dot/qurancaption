@@ -1,0 +1,1 @@
+import { FLUTTERWAVE_PLAN_ID } from "@/lib/app/flutterwave-plan";
