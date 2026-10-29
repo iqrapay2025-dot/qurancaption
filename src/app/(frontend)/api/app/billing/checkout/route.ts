@@ -32,7 +32,8 @@ export async function POST(req: Request) {
     }
     return ok({ url });
   } catch (e) {
-    console.error("[billing] checkout failed:", e instanceof Error ? e.message : e);
-    return fail("We couldn't start the checkout. Please try again in a moment.", 502);
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[billing] checkout failed:", msg);
+    return fail(`We couldn't start the checkout. ${msg}`.slice(0, 200), 502);
   }
 }
