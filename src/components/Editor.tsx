@@ -177,6 +177,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
   const chaptersQ = useApi<{ environment: string; chapters: Chapter[] }>("/api/quran/chapters");
   const translationsQ = useApi<{ translations: TranslationRes[] }>("/api/quran/translations");
   const ownPro = user?.plan === "pro";
+  const [verseUsage, setVerseUsage] = useState<{ used: number; limit: number | null; remaining: number | null; resetAt: string | null } | null>(null);
   const [ownOn, setOwnOn] = useState(false);
   const [own, setOwn] = useState<OwnAudio | null>(null);
   const [ownBusy, setOwnBusy] = useState(false);
@@ -185,6 +186,17 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
   const ownRef = useRef<OwnAudio | null>(null);
   ownRef.current = own;
   useEffect(() => () => { if (ownRef.current) URL.revokeObjectURL(ownRef.current.url); }, []);
+  useEffect(() => {
+    if (!user || sessionReady === false) return;
+    let cancelled = false;
+    (async () => {
+      const r = await fetch("/api/app/usage", { credentials: "same-origin" }).catch(() => null);
+      if (!r || cancelled) return;
+      const j = await r.json().catch(() => null);
+      if (!cancelled && j?.verses) setVerseUsage(j.verses);
+    })();
+    return () => { cancelled = true; };
+  }, [user, sessionReady]);
   const ayahMode = audioMode === "ayah" && !ownActive;
   const recitersQ = useApi<{ reciters: Reciter[] }>("/api/quran/reciters");
   const chapters = chaptersQ.data?.chapters ?? [];
@@ -369,7 +381,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
     inflight.current = false;
     if (!r.ok) {
       setStatus("error");
-      if (r.status === 402) requestUpgrade({ code: r.error.includes("verses") ? "verse_limit" : "project_limit", message: r.error });
+      if (r.status === 402) requestUpgrade({ code: (r as any).code ?? (r.error.includes("verses") ? "verse_limit" : "project_limit"), message: r.error });
       return;
     }
     if (!idRef.current) {
@@ -741,6 +753,14 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
               <p className="rounded-sm bg-muted px-3 py-2 text-xs text-muted-foreground">
                 {to - from + 1} {to === from ? "verse" : "verses"}{isPro || multi ? "" : ` of ${FREE_LIMITS.verses} free`} · {surahId}:{from}–{to}{ready ? ` · ${fmt(total)}` : ""}
                 {multi && <><br />{totalAll} verses across {allRanges.length} ranges{isPro ? "" : ` · ${FREE_LIMITS.verses} free in total`}</>}
+                {!isPro && verseUsage && verseUsage.limit && verseUsage.used > 0 && (
+                  <>
+                    <br />
+                    <span className={verseUsage.remaining === 0 ? "text-red-600" : "text-muted-foreground"}>
+                      {verseUsage.used} of {verseUsage.limit} unique verses used this month{verseUsage.remaining === 0 ? " — upgrade for more" : `, ${verseUsage.remaining} left`}
+                    </span>
+                  </>
+                )}
               </p>
             )}
           </Section>

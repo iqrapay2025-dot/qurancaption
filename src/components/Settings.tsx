@@ -3,7 +3,7 @@
 import { CreditCard, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { appFetch, type AppUser } from "../lib/app/client";
-import { FREE_LIMITS, MONTHLY_PERIOD_DAYS, PRO_PRICE_NGN } from "../lib/app/plans";
+import { FREE_LIMITS, FREE_MONTHLY_VERSES, MONTHLY_PERIOD_DAYS, PRO_PRICE_NGN } from "../lib/app/plans";
 import AccountMenu from "./AccountMenu";
 import { Logo, ThemeToggle } from "./shared";
 
@@ -20,6 +20,7 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [confirmState, setConfirmState] = useState<"idle" | "working" | "done" | "failed">(checkout ? "working" : "idle");
+  const [verseUsage, setVerseUsage] = useState<{ used: number; limit: number | null; remaining: number | null; resetAt: string | null } | null>(null);
   const ran = useRef(false);
 
   useEffect(() => {
@@ -47,6 +48,18 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
       setError("We are still confirming your payment. It should activate shortly.");
     })();
   }, [checkout, user, refresh]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const r = await fetch("/api/app/usage", { credentials: "same-origin" }).catch(() => null);
+      if (!r || cancelled) return;
+      const j = await r.json().catch(() => null);
+      if (!cancelled && j?.verses) setVerseUsage(j.verses);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
 
   const cancel = async () => {
     setBusy(true);
@@ -118,7 +131,20 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
               <dd className="font-semibold">{pro ? `Pro · ₦${PRO_PRICE_NGN.toLocaleString()}/month` : "Free"}</dd>
               {pro && providerName && (<><dt className="text-muted-foreground">Paid with</dt><dd>{providerName}</dd></>)}
               {pro && b?.proUntil && (<><dt className="text-muted-foreground">{isManualPayer ? "Pro until" : b.cancelAtPeriodEnd ? "Pro ends on" : "Renews on"}</dt><dd>{fmtDate(b.proUntil)}{isManualPayer ? " · renews only when you pay" : null}</dd></>)}
-              {!pro && (<><dt className="text-muted-foreground">Includes</dt><dd>Up to {FREE_LIMITS.projects} saved projects · up to {FREE_LIMITS.verses} verses per export</dd></>)}
+              {!pro && (
+                <>
+                  <dt className="text-muted-foreground">Includes</dt>
+                  <dd>Up to {FREE_LIMITS.projects} saved projects · up to {FREE_LIMITS.verses} verses per export</dd>
+                  {verseUsage && verseUsage.limit && (
+                    <>
+                      <dt className="text-muted-foreground">Free verses this month</dt>
+                      <dd className={verseUsage.remaining === 0 ? "text-red-600 font-semibold" : "text-muted-foreground"}>
+                        {verseUsage.used} of {verseUsage.limit} used{verseUsage.remaining === 0 ? " — upgrade for more" : `, ${verseUsage.remaining} left`}{verseUsage.resetAt && ` · resets ${new Date(verseUsage.resetAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })} UTC`}
+                      </dd>
+                    </>
+                  )}
+                </>
+              )}
             </dl>
 
             <div className="mt-6 border-t border-border pt-5">

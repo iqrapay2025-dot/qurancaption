@@ -87,6 +87,8 @@ export interface Config {
     users: User;
     projects: Project;
     'billing-events': BillingEvent;
+    'usage-verses': UsageVerse;
+    'usage-projects': UsageProject;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -102,6 +104,8 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     'billing-events': BillingEventsSelect<false> | BillingEventsSelect<true>;
+    'usage-verses': UsageVersesSelect<false> | UsageVersesSelect<true>;
+    'usage-projects': UsageProjectsSelect<false> | UsageProjectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -490,6 +494,66 @@ export interface BillingEvent {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "usage-verses".
+ */
+export interface UsageVerse {
+  id: number;
+  user: number | User;
+  month: string;
+  verseKey: string;
+  createdBy?:
+    | ({
+        relationTo: 'admins';
+        value: number | Admin;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null);
+  updatedBy?:
+    | ({
+        relationTo: 'admins';
+        value: number | Admin;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null);
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "usage-projects".
+ */
+export interface UsageProject {
+  id: number;
+  user: number | User;
+  month: string;
+  count: number;
+  createdBy?:
+    | ({
+        relationTo: 'admins';
+        value: number | Admin;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null);
+  updatedBy?:
+    | ({
+        relationTo: 'admins';
+        value: number | Admin;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null);
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -539,6 +603,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'billing-events';
         value: number | BillingEvent;
+      } | null)
+    | ({
+        relationTo: 'usage-verses';
+        value: number | UsageVerse;
+      } | null)
+    | ({
+        relationTo: 'usage-projects';
+        value: number | UsageProject;
       } | null);
   globalSlug?: string | null;
   user:
@@ -786,6 +858,32 @@ export interface BillingEventsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "usage-verses_select".
+ */
+export interface UsageVersesSelect<T extends boolean = true> {
+  user?: T;
+  month?: T;
+  verseKey?: T;
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "usage-projects_select".
+ */
+export interface UsageProjectsSelect<T extends boolean = true> {
+  user?: T;
+  month?: T;
+  count?: T;
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -867,7 +965,16 @@ export interface CollectionsWidget {
 export interface CollectionQueryWidget {
   data?: {
     title?: string | null;
-    relatedCollection: 'admins' | 'media' | 'folders' | 'tags' | 'users' | 'projects' | 'billing-events';
+    relatedCollection:
+      | 'admins'
+      | 'media'
+      | 'folders'
+      | 'tags'
+      | 'users'
+      | 'projects'
+      | 'billing-events'
+      | 'usage-verses'
+      | 'usage-projects';
     where?:
       | {
           [k: string]: unknown;
@@ -889,7 +996,19 @@ export interface CollectionQueryWidget {
  */
 export interface ActivityWidget {
   data?: {
-    excludedCollections?: ('admins' | 'media' | 'folders' | 'tags' | 'users' | 'projects' | 'billing-events')[] | null;
+    excludedCollections?:
+      | (
+          | 'admins'
+          | 'media'
+          | 'folders'
+          | 'tags'
+          | 'users'
+          | 'projects'
+          | 'billing-events'
+          | 'usage-verses'
+          | 'usage-projects'
+        )[]
+      | null;
   };
   width: 'small' | 'medium' | 'large' | 'x-large' | 'full';
 }

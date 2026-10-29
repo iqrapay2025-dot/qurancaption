@@ -40,7 +40,7 @@ export default function Projects({ user, ready, dark, toggleTheme, onHome, onNew
     const r = await appFetch("/api/app/projects/" + id + "/duplicate", { method: "POST", body: {} });
     setBusyId(null);
     if (r.ok) load();
-    else if (r.status === 402) requestUpgrade({ code: "project_limit", message: r.error });
+    else if (r.status === 402) requestUpgrade({ code: (r as any).code ?? "project_limit", message: r.error });
     else setError(r.error);
   };
   const atLimit = !!usage && usage.limit !== null && usage.count >= usage.limit;

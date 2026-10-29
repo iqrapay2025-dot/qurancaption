@@ -12,6 +12,8 @@ import { Tags } from './collections/Tags'
 import { Users } from './collections/Users'
 import { Projects } from './collections/Projects'
 import { BillingEvents } from './collections/BillingEvents'
+import { UsageVerses } from './collections/UsageVerses'
+import { UsageProjects } from './collections/UsageProjects'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -27,7 +29,7 @@ export default buildConfig({
     importMap: { baseDir: path.resolve(dirname) },
   },
   i18n: { fallbackLanguage: 'en', supportedLanguages: { en: adminLanguage } },
-  collections: [Admins, Media, Folders, Tags, Users, Projects, BillingEvents],
+  collections: [Admins, Media, Folders, Tags, Users, Projects, BillingEvents, UsageVerses, UsageProjects],
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   localization: { locales: [{ code: 'en', label: 'English' }], fallback: true, defaultLocale: 'en' },
 storage: process.env.BLOB_READ_WRITE_TOKEN

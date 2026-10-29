@@ -2,10 +2,11 @@ import { buildCaptions, creditLines, toSRT, toVTT, type CaptionLine, type Verse 
 import { MAX_RANGES } from "@/lib/app/validate";
 import { csrf, deny, fail, ok, readJson, rateLimited, clientIp } from "@/lib/app/http";
 import { getAccount } from "@/lib/app/billing";
-import { FREE_LIMITS } from "@/lib/app/plans";
+import { FREE_LIMITS, FREE_MONTHLY_VERSES, monthKey } from "@/lib/app/plans";
 import { currentUser } from "@/lib/app/session";
 import { rateLimit } from "@/lib/app/rate-limit";
 import { getVerses, getTranslations, ApiError } from "@/lib/quran/server";
+import { getPayloadClient } from "@/lib/payload";
 
 const KEY = /^[a-z_]{2,40}$/;
 const NAME = /^[A-Za-z0-9_.-]{1,80}\.(srt|vtt)$/;
@@ -54,6 +55,61 @@ export async function POST(req: Request) {
   const total = ranges.reduce((n, r) => n + (r.to - r.from + 1), 0);
   if (plan !== "pro" && total > FREE_LIMITS.verses)
     return deny("verse_limit", `Free exports cover up to ${FREE_LIMITS.verses} verses in total across all ranges. Upgrade to Pro for longer passages.`);
+
+  // Monthly unique-verse allowance for free accounts.
+  // Re-exporting already-recorded verses costs nothing; only new verse keys consume allowance.
+  if (user && plan !== "pro") {
+    const payload = await getPayloadClient();
+    const month = monthKey();
+    const verseKeys = new Set<string>();
+    for (const r of ranges) {
+      for (let n = r.from; n <= r.to; n++) verseKeys.add(`${r.surah}:${n}`);
+    }
+    const existing = await payload.find({
+      collection: "usage-verses",
+      where: {
+        user: { equals: String(user.id) },
+        month: { equals: month },
+      },
+      depth: 0,
+      limit: 1000,
+    });
+    const recordedKeys = new Set(existing.docs.map((d: any) => d.verseKey));
+    const newKeys = [...verseKeys].filter((k) => !recordedKeys.has(k));
+    if (recordedKeys.size + newKeys.length > FREE_MONTHLY_VERSES) {
+      const remaining = Math.max(0, FREE_MONTHLY_VERSES - recordedKeys.size);
+      return deny(
+        "monthly_verse_limit",
+        `You've used ${recordedKeys.size} of ${FREE_MONTHLY_VERSES} free verses this month. ${remaining} verse${remaining === 1 ? "" : "s"} left this month. Upgrade for unlimited verses, or they reset on the 1st of next month (UTC).`,
+      );
+    }
+    // Record new verse keys (skip any that appeared concurrently via unique index).
+    for (const k of newKeys) {
+      await payload
+        .create({
+          collection: "usage-verses",
+          data: { user: user.id, month, verseKey: k },
+          overrideAccess: false,
+          depth: 0,
+        })
+        .catch(() => {
+          // Concurrent insert already recorded this key – it costs nothing.
+        });
+    }
+    // Re-count after recording to catch concurrent inserts that pushed us over the limit.
+    const recount = await payload.find({
+      collection: "usage-verses",
+      where: { user: { equals: String(user.id) }, month: { equals: month } },
+      depth: 0, limit: 1000,
+    });
+    if (recount.docs.length > FREE_MONTHLY_VERSES) {
+      // Already recorded some keys due to a race; stop the export but leave the recorded keys.
+      return deny(
+        "monthly_verse_limit",
+        `You've used ${recount.docs.length} of ${FREE_MONTHLY_VERSES} free verses this month. No verses left this month. Upgrade for unlimited verses, or they reset on the 1st of next month (UTC).`,
+      );
+    }
+  }
 
   const sp = isObj(b.split) ? b.split : null;
   const maxAr = sp ? num(sp.maxAr, 10, 500) : undefined, maxTr = sp ? num(sp.maxTr, 10, 500) : undefined;

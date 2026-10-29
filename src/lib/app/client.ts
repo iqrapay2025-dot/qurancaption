@@ -5,10 +5,10 @@ import { useCallback, useEffect, useState } from "react";
 import type { Billing, Plan } from "./plans";
 
 export type AppUser = { id: string; email: string; name?: string | null; plan?: Plan; billing?: Billing };
-export type Upgrade = { code: "project_limit" | "verse_limit" | "preset_pro" | "own_audio" | "overlay_video" | "general"; message?: string };
+export type Upgrade = { code: "project_limit" | "verse_limit" | "preset_pro" | "own_audio" | "overlay_video" | "general" | "monthly_verse_limit" | "monthly_project_limit"; message?: string };
 export type Preset = { id: string; name: string; style: Record<string, string | number | boolean> };
 
-export async function appFetch<T>(url: string, init?: { method?: string; body?: unknown }): Promise<{ ok: true; data: T } | { ok: false; status: number; error: string }> {
+export async function appFetch<T>(url: string, init?: { method?: string; body?: unknown }): Promise<{ ok: true; data: T } | { ok: false; status: number; error: string; code?: string }> {
   try {
     const res = await fetch(url, {
       method: init?.method ?? (init?.body ? "POST" : "GET"),
@@ -17,7 +17,7 @@ export async function appFetch<T>(url: string, init?: { method?: string; body?: 
       credentials: "same-origin",
     });
     const json = await res.json().catch(() => ({}));
-    if (!res.ok) return { ok: false, status: res.status, error: json?.error ?? "Something went wrong. Please try again." };
+    if (!res.ok) return { ok: false, status: res.status, error: json?.error ?? "Something went wrong. Please try again.", code: json?.code };
     return { ok: true, data: json as T };
   } catch {
     return { ok: false, status: 0, error: "Can't reach the server. Check your connection and try again." };

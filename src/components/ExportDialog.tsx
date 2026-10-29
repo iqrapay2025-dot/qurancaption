@@ -237,7 +237,7 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
     });
     setBusy(false);
     if (!r.ok) {
-      if (r.status === 402) { onClose(); return requestUpgrade({ code: "verse_limit", message: r.error }); }
+      if (r.status === 402) { onClose(); return requestUpgrade({ code: (r.code as any) ?? "verse_limit", message: r.error }); }
       return setError(r.error);
     }
     const out = r.data.files.filter((f) => f.body.trim());

@@ -3,12 +3,14 @@
 import { Check, Sparkles, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { appFetch, type Upgrade } from "../lib/app/client";
-import { FREE_LIMITS, PRO_PRICE_NGN } from "../lib/app/plans";
+import { FREE_LIMITS, FREE_MONTHLY_VERSES, FREE_MONTHLY_PROJECT_CREATIONS, PRO_PRICE_NGN } from "../lib/app/plans";
 import { formatNgnEstimate } from "../lib/app/currency";
 
 const COPY: Record<Upgrade["code"], { title: string; body: string }> = {
   project_limit: { title: "You've filled your 3 free projects", body: `Free accounts keep up to ${FREE_LIMITS.projects} saved projects. Delete one you no longer need, or go Pro for unlimited projects.` },
   verse_limit: { title: "That's more than 20 verses", body: `Free exports cover up to ${FREE_LIMITS.verses} verses at a time. Pick a shorter range, or go Pro for longer passages.` },
+  monthly_verse_limit: { title: "Free verses used for this month", body: `Free exports are limited to ${FREE_MONTHLY_VERSES} unique verses per month. Upgrade for unlimited verses, or they reset on the 1st of next month (UTC).` },
+  monthly_project_limit: { title: "Monthly project creations used", body: `Free accounts can create up to ${FREE_MONTHLY_PROJECT_CREATIONS} projects per month. Deleting and recreating does not reset this count. It resets on the 1st of next month (UTC).` },
   preset_pro: { title: "Style presets are a Pro feature", body: "Save your favourite fonts, colours and layout once, then apply them to any project in a click." },
   overlay_video: { title: "Transparent video overlay is a Pro feature", body: "Render your styled captions to a transparent WebM to place above your footage in a video editor." },
   own_audio: { title: "Your own recitation is a Pro feature", body: "Upload your own recording, find the pauses and time every verse to it. The audio never leaves your browser." },
