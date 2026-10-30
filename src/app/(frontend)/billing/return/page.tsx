@@ -17,7 +17,7 @@ async function confirmPayment(provider: string, ref: string, transactionId: stri
   const body = provider === "flutterwave"
     ? { provider: "flutterwave", ref, transaction_id: transactionId }
     : { provider: "paystack", ref };
-  const r = await appFetch<Confirmed>(path, { method: "POST", body: JSON.stringify(body) });
+  const r = await appFetch<Confirmed>(path, { method: "POST", body });
   if (r.ok) {
     if (provider === "flutterwave") {
       const c = r.data;
