@@ -7,7 +7,6 @@ import { PRO_PRICE_NGN } from "@/lib/app/plans";
 const REF = /^[\w.\\-]{1,120}$/;
 
 export async function POST(req: Request) {
-  console.error("[billing] confirm hit, build marker 2026-10-30-a");
   const bad = csrf(req); if (bad) return bad;
   const user = await currentUser().catch(() => null);
   if (!user) return fail("Log in to confirm your payment.", 401);

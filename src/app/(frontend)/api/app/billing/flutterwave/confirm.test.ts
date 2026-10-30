@@ -246,3 +246,73 @@ describe("flutterwave confirm", () => {
     expect(src).toContain("app:confirm:");
   });
 });
+
+describe("reference format validation", () => {
+  it("accepts a standard Flutterwave tx_ref (fw_ prefix format)", async () => {
+    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "fw_u1_12345_abc123", meta: { userId: "u1" } }));
+    const res = await confirm(new Request("http://localhost/api/app/billing/flutterwave/confirm", {
+      method: "POST",
+      body: JSON.stringify({ provider: "flutterwave", ref: "fw_u1_12345_abc123", transaction_id: "" }),
+      headers: { "content-type": "application/json", origin: "http://localhost" },
+    }));
+    expect(res.status).toBe(200);
+  });
+
+  it("accepts a Flutterwave tx_ref with letters in hex part", async () => {
+    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "fw_u1_12345_abcd1234", meta: { userId: "u1" } }));
+    const res = await confirm(new Request("http://localhost/api/app/billing/flutterwave/confirm", {
+      method: "POST",
+      body: JSON.stringify({ provider: "flutterwave", ref: "fw_u1_12345_abcd1234", transaction_id: "" }),
+      headers: { "content-type": "application/json", origin: "http://localhost" },
+    }));
+    expect(res.status).toBe(200);
+  });
+
+  it("accepts a plain reference without fw_ prefix", async () => {
+    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "simple_ref", meta: { userId: "u1" } }));
+    const res = await confirm(new Request("http://localhost/api/app/billing/flutterwave/confirm", {
+      method: "POST",
+      body: JSON.stringify({ provider: "flutterwave", ref: "simple_ref", transaction_id: "" }),
+      headers: { "content-type": "application/json", origin: "http://localhost" },
+    }));
+    expect(res.status).toBe(200);
+  });
+
+  it("accepts a reference with dots and hyphens", async () => {
+    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "ref_with-dots.com", meta: { userId: "u1" } }));
+    const res = await confirm(new Request("http://localhost/api/app/billing/flutterwave/confirm", {
+      method: "POST",
+      body: JSON.stringify({ provider: "flutterwave", ref: "ref_with-dots.com", transaction_id: "" }),
+      headers: { "content-type": "application/json", origin: "http://localhost" },
+    }));
+    expect(res.status).toBe(200);
+  });
+
+  it("accepts a reference with underscore", async () => {
+    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "ref_with_underscore", meta: { userId: "u1" } }));
+    const res = await confirm(new Request("http://localhost/api/app/billing/flutterwave/confirm", {
+      method: "POST",
+      body: JSON.stringify({ provider: "flutterwave", ref: "ref_with_underscore", transaction_id: "" }),
+      headers: { "content-type": "application/json", origin: "http://localhost" },
+    }));
+    expect(res.status).toBe(200);
+  });
+
+  it("rejects a reference with unsafe characters (space)", async () => {
+    const res = await confirm(new Request("http://localhost/api/app/billing/flutterwave/confirm", {
+      method: "POST",
+      body: JSON.stringify({ provider: "flutterwave", ref: "unsafe space", transaction_id: "" }),
+      headers: { "content-type": "application/json", origin: "http://localhost" },
+    }));
+    expect(res.status).toBe(400);
+  });
+
+  it("rejects a reference with emoji", async () => {
+    const res = await confirm(new Request("http://localhost/api/app/billing/flutterwave/confirm", {
+      method: "POST",
+      body: JSON.stringify({ provider: "flutterwave", ref: "emoji🔥", transaction_id: "" }),
+      headers: { "content-type": "application/json", origin: "http://localhost" },
+    }));
+    expect(res.status).toBe(400);
+  });
+});

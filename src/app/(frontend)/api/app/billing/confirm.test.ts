@@ -264,7 +264,7 @@ describe("reference format validation", () => {
     const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
       method: "POST",
       body: JSON.stringify({ provider: "paystack", ref: "AB1234567890" }),
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", origin: "http://localhost" },
     }));
     expect(res.status).toBe(200);
   });
@@ -273,7 +273,7 @@ describe("reference format validation", () => {
     const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
       method: "POST",
       body: JSON.stringify({ provider: "paystack", ref: "INV-2024-001" }),
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", origin: "http://localhost" },
     }));
     expect(res.status).toBe(200);
   });
@@ -282,7 +282,7 @@ describe("reference format validation", () => {
     const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
       method: "POST",
       body: JSON.stringify({ provider: "paystack", ref: "receipt_001" }),
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", origin: "http://localhost" },
     }));
     expect(res.status).toBe(200);
   });
@@ -291,7 +291,7 @@ describe("reference format validation", () => {
     const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
       method: "POST",
       body: JSON.stringify({ provider: "paystack", ref: "txn.ref.01" }),
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", origin: "http://localhost" },
     }));
     expect(res.status).toBe(200);
   });
@@ -300,7 +300,7 @@ describe("reference format validation", () => {
     const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
       method: "POST",
       body: JSON.stringify({ provider: "paystack", ref: "unsafe space" }),
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", origin: "http://localhost" },
     }));
     expect(res.status).toBe(400);
   });
@@ -309,7 +309,7 @@ describe("reference format validation", () => {
     const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
       method: "POST",
       body: JSON.stringify({ provider: "paystack", ref: "emoji🔥" }),
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", origin: "http://localhost" },
     }));
     expect(res.status).toBe(400);
   });

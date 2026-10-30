@@ -4,6 +4,7 @@ import { getPayloadClient } from "@/lib/payload";
 import type { Billing, Plan } from "./plans";
 import { PRO_PRICE_NGN } from "./plans";
 import { FLUTTERWAVE_CURRENCY, FLUTTERWAVE_PRICE_USD } from "./plans";
+import { flutterwavePlan } from "./flutterwave-plan";
 
 export const DAY = 86_400_000;
 // After an invoice.payment_failed webhook, stop extending Pro and let it lapse
@@ -168,9 +169,6 @@ export function parseFlutterwaveTxRef(txRef: string): string | null {
   const m = String(txRef || "").match(/^fw_([^_]+)_\d+_[A-Za-z0-9]+$/);
   return m?.[1] ?? null;
 }
-
-import { flutterwavePlan } from "./flutterwave-plan";
-  if (!process.env.FLUTTERWAVE_SECRET_KEY) throw new Error("FLUTTERWAVE_SECRET_KEY is not set");
 
 export async function flutterwaveCheckout(user: { id: string; email: string; name?: string | null }, country?: string | null) {
   if (!process.env.FLUTTERWAVE_SECRET_KEY) throw new Error("FLUTTERWAVE_SECRET_KEY is not set");

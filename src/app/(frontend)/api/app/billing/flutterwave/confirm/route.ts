@@ -11,7 +11,7 @@ import {
   parseFlutterwaveTxRef,
 } from "@/lib/app/billing";
 
-const REF_RE = /^[A-Za-z0-9_\-.]{6,120}$/;
+const REF_RE = /^[A-Za-z0-9_\-.]{1,120}$/;
 
 export async function POST(req: Request) {
   const bad = csrf(req);
@@ -24,7 +24,21 @@ export async function POST(req: Request) {
     ref?: string;
     transaction_id?: string | number;
   } | null;
-  if (!payload?.provider || payload.provider !== "flutterwave" || !payload.ref || !REF_RE.test(payload.ref)) {
+
+  if (!payload?.provider) {
+    console.error("[billing] flutterwave: missing provider in body", JSON.stringify(payload));
+    return fail("Invalid payment reference.", 400);
+  }
+  if (payload.provider !== "flutterwave") {
+    console.error(`[billing] flutterwave: unexpected provider: "${payload.provider}"`);
+    return fail("Invalid payment reference.", 400);
+  }
+  if (!payload.ref) {
+    console.error("[billing] flutterwave: missing ref in body", JSON.stringify(payload));
+    return fail("Invalid payment reference.", 400);
+  }
+  if (!REF_RE.test(payload.ref)) {
+    console.error(`[billing] flutterwave: invalid reference format: "${payload.ref}"`);
     return fail("Invalid payment reference.", 400);
   }
 
