@@ -258,3 +258,59 @@ describe("paystack subscription plan check", () => {
 
 
 });
+
+describe("reference format validation", () => {
+  it("accepts a standard Paystack reference", async () => {
+    const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
+      method: "POST",
+      body: JSON.stringify({ provider: "paystack", ref: "AB1234567890" }),
+      headers: { "content-type": "application/json" },
+    }));
+    expect(res.status).toBe(200);
+  });
+
+  it("accepts a Paystack reference with hyphen", async () => {
+    const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
+      method: "POST",
+      body: JSON.stringify({ provider: "paystack", ref: "INV-2024-001" }),
+      headers: { "content-type": "application/json" },
+    }));
+    expect(res.status).toBe(200);
+  });
+
+  it("accepts a Paystack reference with underscore", async () => {
+    const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
+      method: "POST",
+      body: JSON.stringify({ provider: "paystack", ref: "receipt_001" }),
+      headers: { "content-type": "application/json" },
+    }));
+    expect(res.status).toBe(200);
+  });
+
+  it("accepts a Paystack reference with dots", async () => {
+    const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
+      method: "POST",
+      body: JSON.stringify({ provider: "paystack", ref: "txn.ref.01" }),
+      headers: { "content-type": "application/json" },
+    }));
+    expect(res.status).toBe(200);
+  });
+
+  it("rejects a reference with unsafe characters (space)", async () => {
+    const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
+      method: "POST",
+      body: JSON.stringify({ provider: "paystack", ref: "unsafe space" }),
+      headers: { "content-type": "application/json" },
+    }));
+    expect(res.status).toBe(400);
+  });
+
+  it("rejects a reference with emoji", async () => {
+    const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
+      method: "POST",
+      body: JSON.stringify({ provider: "paystack", ref: "emoji🔥" }),
+      headers: { "content-type": "application/json" },
+    }));
+    expect(res.status).toBe(400);
+  });
+});

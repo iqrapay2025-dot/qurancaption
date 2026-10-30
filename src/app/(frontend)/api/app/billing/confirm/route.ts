@@ -4,14 +4,22 @@ import { rateLimit } from "@/lib/app/rate-limit";
 import { applyStripeSub, grantProPeriod, PAYSTACK_MANUAL_KIND, paystackVerify, stripeSession, stripeSubscription } from "@/lib/app/billing";
 import { PRO_PRICE_NGN } from "@/lib/app/plans";
 
-const REF = /^[\w.\-]{6,120}$/;
+const REF = /^[\w.\\-]{1,120}$/;
 
 export async function POST(req: Request) {
+  console.error("[billing] confirm hit, build marker 2026-10-30-a");
   const bad = csrf(req); if (bad) return bad;
   const user = await currentUser().catch(() => null);
   if (!user) return fail("Log in to confirm your payment.", 401);
   const b = (await readJson(req)) as { provider?: string; ref?: string } | null;
-  if (!b?.ref || !REF.test(b.ref)) return fail("Invalid payment reference.", 400);
+  if (!b?.ref) {
+    console.error("[billing] confirm: missing ref in body", JSON.stringify(b));
+    return fail("Invalid payment reference.", 400);
+  }
+  if (!REF.test(b.ref)) {
+    console.error(`[billing] confirm: invalid reference format: "${b.ref}"`);
+    return fail("Invalid payment reference.", 400);
+  }
   const uid = String(user.id);
   const rl = rateLimit(`app:confirm:${uid}`, 30, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
