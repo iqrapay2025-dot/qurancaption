@@ -80,8 +80,8 @@ export default function ReturnPage() {
             return;
           }
           // Flutterwave returns 400 while a payment is still settling (pending),
-          // plus 409 and 502, so treat those as "not verified yet" and poll again.
-          if (r.status === 400 || r.status === 409 || r.status === 502) {
+          // 409 (pending) and 502 (not recorded yet) mean "not verified yet", so poll again.
+          if (r.status === 409 || r.status === 502) {
             await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL));
             continue;
           }

@@ -289,7 +289,8 @@ export function flutterwaveValidateTransaction(tx: FlutterwaveTransaction, expec
   const expectedCurrency = String(meta.currency ?? "").toUpperCase();
   const serverPrice = currency === "NGN" ? PRO_PRICE_NGN : currency === "GHS" ? FLUTTERWAVE_PRICE_GHS : FLUTTERWAVE_PRICE_USD;
   if (status !== "successful") reasons.push(`status is ${status ?? "(none)"}, expected successful`);
-  if (expectedCurrency && currency !== expectedCurrency) reasons.push(`currency is ${currency}, expected ${expectedCurrency}`);
+  if (!expectedCurrency || currency !== expectedCurrency) reasons.push(`currency is ${currency}, expected ${expectedCurrency || "(none)"}`);
+if (!["NGN", "GHS", "USD"].includes(currency)) reasons.push(`unsupported currency ${currency}`);
   if (Math.round(amount * 100) !== Math.round(serverPrice * 100)) reasons.push(`amount is ${amount}, expected ${serverPrice}`);
   const metaAmount = Number(meta.amount ?? 0);
   if (metaAmount && Math.round(amount * 100) !== Math.round(metaAmount * 100)) reasons.push(`amount is ${amount}, expected ${metaAmount}`);
