@@ -88,7 +88,7 @@ describe("sendMail", () => {
     await sendMail("user@example.com", "Test Subject", html);
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "[mail] email not configured: set BREVO_API_KEY and EMAIL_FROM, or RESEND_API_KEY and EMAIL_FROM"
+      "[mail] email not configured: set BREVO_API_KEY and EMAIL_FROM, or RESEND_API_KEY and EMAIL_FROM, or GMAIL_USER and GMAIL_APP_PASSWORD"
     );
 
     consoleErrorSpy.mockRestore();
