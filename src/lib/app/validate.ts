@@ -22,10 +22,11 @@ export function parseRanges(v: unknown): RangeInput[] | null {
     const surah = int(r.surah, 1, 114), from = int(r.from, 1, 286), to = int(r.to, 1, 286);
     if (!surah || !from || !to || to < from) return null;
     const range: RangeInput = { surah, from, to };
-    if (r.durs !== undefined && r.durs !== null) {
-      if (!Array.isArray(r.durs) || r.durs.length !== to - from + 1) return null;
-      if (!r.durs.every((x) => typeof x === "number" && Number.isFinite(x) && x >= 0.5 && x <= 3600)) return null;
-      range.durs = r.durs as number[];
+        if (r.durs !== undefined && r.durs !== null) {
+      // A bad timing list is dropped, not fatal: the range saves and timing is re-estimated on reopen.
+      if (Array.isArray(r.durs) && r.durs.length === to - from + 1 && r.durs.every((x) => typeof x === "number" && Number.isFinite(x) && x >= 0.5 && x <= 3600)) {
+        range.durs = r.durs as number[];
+      }
     }
     out.push(range);
   }

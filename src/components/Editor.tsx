@@ -136,7 +136,12 @@ function makeThumbnail(arabic: string, style: { font: keyof typeof FONT_FAMILY; 
     return undefined;
   }
 }
-
+// Keep saved timings within what the server accepts. Export still uses the live values.
+const saveRange = (r: RangeSnap): RangeSnap => {
+  if (!r.durs) return r;
+  if (r.durs.length !== r.to - r.from + 1 || !r.durs.every(Number.isFinite)) return { surah: r.surah, from: r.from, to: r.to };
+  return { ...r, durs: r.durs.map((d) => Math.min(3600, Math.max(0.5, d))) };
+};
 const EXPORT_KEY = "qcs-guest-exports";
 
 function SaveIndicator({ status, savedAt, onRetry, onSignup }: { status: SaveStatus; savedAt: Date | null; onRetry: () => void; onSignup: () => void }) {
@@ -310,7 +315,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
       const kept = ranges[active];
       const keptOk = kept?.durs && kept.surah === surahId && kept.from === from && kept.to === to ? kept.durs : undefined;
       const durs = ready ? verses.map((v) => Math.round((v.end - v.start) * 100) / 100) : keptOk;
-      if (durs) snap.durs = durs;
+      if (durs && durs.length === to - from + 1 && durs.every((d) => Number.isFinite(d) && d >= 0.5 && d <= 3600)) snap.durs = durs;
     }
     return snap;
   }, [ranges, active, surahId, from, to, ready, verses]);
@@ -324,8 +329,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
   const stable = (o: unknown): string => JSON.stringify(o, (_, v) => (v && typeof v === "object" && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => a.localeCompare(b))) : v));
   const payload = useMemo(() => ({
     name: project.trim() || "Untitled project", surah: allRanges[0].surah, fromAyah: allRanges[0].from, toAyah: allRanges[0].to,
-    ranges: multi ? allRanges : [],
-    layers: { arabic: true, tr1: !!layers.tr1, tr2: !!layers.tr2, translit: layers.translit, verseKey: layers.verseKey },
+    ranges: multi ? allRanges.map(saveRange) : [],    layers: { arabic: true, tr1: !!layers.tr1, tr2: !!layers.tr2, translit: layers.translit, verseKey: layers.verseKey },
     translations: { tr1: layers.tr1, tr2: layers.tr2 }, reciterId, style, ratio,
   }), [project, allRanges, multi, layers, reciterId, style, ratio]);
   const sig = stable(payload);
