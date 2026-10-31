@@ -2,9 +2,9 @@ import "server-only";
 import crypto from "node:crypto";
 import { getPayloadClient } from "@/lib/payload";
 import type { Billing, Plan } from "./plans";
-import { PRO_PRICE_NGN } from "./plans";
-import { FLUTTERWAVE_CURRENCY, FLUTTERWAVE_PRICE_USD } from "./plans";
-import { flutterwavePlan } from "./flutterwave-plan";
+import { PRO_PRICE_NGN, PRO_PRICE_NGN_KOBO } from "./plans";
+import { FLUTTERWAVE_PRICE_USD, FLUTTERWAVE_PRICE_GHS } from "./plans";
+import { flutterwavePlan, flutterwavePlanIdForCurrency } from "./flutterwave-plan";
 
 export const DAY = 86_400_000;
 // After an invoice.payment_failed webhook, stop extending Pro and let it lapse
@@ -99,7 +99,7 @@ export async function paystackCheckoutManual(user: { id: string; email: string }
     method: "POST",
     body: {
       email: user.email,
-      amount: PRO_PRICE_NGN * 100,
+      amount: PRO_PRICE_NGN_KOBO,
       currency: "NGN",
       channels: PAYSTACK_MANUAL_CHANNELS,
       callback_url: `${siteUrl()}/billing/return?provider=paystack`,
@@ -179,9 +179,10 @@ export async function flutterwaveCheckout(user: { id: string; email: string; nam
     amount: plan.amount,
     currency: plan.currency,
     payment_options: plan.payment_options,
+    payment_plan: plan.plan_id,
     redirect_url: `${siteUrl()}/billing/return?provider=flutterwave`,
     customer: { email: user.email, name: user.name ?? undefined },
-    meta: { userId: user.id, currency: plan.currency, amount: plan.amount },
+    meta: { userId: user.id, currency: plan.currency, amount: plan.amount, plan: plan.plan_id },
   });
   return d.data.link;
 }
@@ -341,12 +342,16 @@ export function flutterwaveValidateTransaction(tx: FlutterwaveTransaction, expec
   const currency = String(tx.data.currency ?? "").toUpperCase();
   const status = tx.data.status ?? "";
   const meta = (typeof tx.data.meta === "object" && tx.data.meta) ? (tx.data.meta as Record<string, unknown>) : {};
-  const expectedCurrency = String(meta.currency ?? FLUTTERWAVE_CURRENCY).toUpperCase();
-  const expectedAmount = Number(meta.amount ?? FLUTTERWAVE_PRICE_USD);
+  const expectedCurrency = String(meta.currency ?? "").toUpperCase();
+  const serverPrice = currency === "NGN" ? PRO_PRICE_NGN : currency === "GHS" ? FLUTTERWAVE_PRICE_GHS : FLUTTERWAVE_PRICE_USD;
   if (status !== "successful") reasons.push(`status is ${status ?? "(none)"}, expected successful`);
-  if (currency !== expectedCurrency) reasons.push(`currency is ${currency}, expected ${expectedCurrency}`);
-  if (amount < expectedAmount) reasons.push(`amount is ${amount}, expected at least ${expectedAmount}`);
+  if (expectedCurrency && currency !== expectedCurrency) reasons.push(`currency is ${currency}, expected ${expectedCurrency}`);
+  if (Math.round(amount * 100) !== Math.round(serverPrice * 100)) reasons.push(`amount is ${amount}, expected ${serverPrice}`);
+  const metaAmount = Number(meta.amount ?? 0);
+  if (metaAmount && Math.round(amount * 100) !== Math.round(metaAmount * 100)) reasons.push(`amount is ${amount}, expected ${metaAmount}`);
   if (String(tx.data.tx_ref ?? "") !== expectedRef) reasons.push(`tx_ref is ${String(tx.data.tx_ref ?? "(none)")}, expected ${expectedRef}`);
+  const metaPlan = String(meta.plan ?? "");
+  if (metaPlan && metaPlan !== flutterwavePlanIdForCurrency(currency)) reasons.push(`plan mismatch`);
   return reasons;
 }
 

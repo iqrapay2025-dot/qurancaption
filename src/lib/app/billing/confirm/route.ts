@@ -2,7 +2,7 @@ import { ok } from "@/lib/app/http";
 import { grantProPeriod } from "@/lib/app/billing";
 import { PAYSTACK_MANUAL_KIND } from "@/lib/app/billing";
 import { PRO_PRICE_NGN } from "@/lib/app/plans";
-import { FLUTTERWAVE_PLAN_ID } from "@/lib/app/flutterwave-plan";
+import { flutterwavePlanIdForCurrency } from "@/lib/app/flutterwave-plan";
 
 export async function POST(req: Request) {
   const d = await req.json();
@@ -27,8 +27,11 @@ export async function POST(req: Request) {
         reasons.push(`plan is ${planCode ?? "(none)"}, expected ${process.env.PAYSTACK_PLAN_CODE ?? "(none)"}`);
       }
       // Flutterwave plan ID validation
-      if (d.provider === "flutterwave" && d.plan?.plan_id !== FLUTTERWAVE_PLAN_ID) {
-        reasons.push(`flutterwave plan_id is ${d.plan?.plan_id ?? "null"}, expected ${FLUTTERWAVE_PLAN_ID}`);
+      if (d.provider === "flutterwave") {
+        const expectedPlan = flutterwavePlanIdForCurrency(d.currency ?? "USD");
+        if (d.plan?.plan_id !== expectedPlan) {
+          reasons.push(`flutterwave plan_id is ${d.plan?.plan_id ?? "null"}, expected ${expectedPlan}`);
+        }
       }
       return reasons;
     },

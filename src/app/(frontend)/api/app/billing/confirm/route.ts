@@ -2,7 +2,7 @@ import { csrf, fail, ok, readJson, rateLimited } from "@/lib/app/http";
 import { currentUser } from "@/lib/app/session";
 import { rateLimit } from "@/lib/app/rate-limit";
 import { applyStripeSub, grantProPeriod, PAYSTACK_MANUAL_KIND, paystackVerify, stripeSession, stripeSubscription } from "@/lib/app/billing";
-import { PRO_PRICE_NGN } from "@/lib/app/plans";
+import { PRO_PRICE_NGN_KOBO } from "@/lib/app/plans";
 
 const REF = /^[\w.\-]{6,120}$/;
 
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       const amount = Number(tx.amount ?? 0);
       const currency = String(tx.currency ?? "").toUpperCase();
       const planCode = tx.plan?.plan_code ?? null;
-      if (tx.status !== "success" || currency !== "NGN" || amount !== PRO_PRICE_NGN * 100) return fail("We couldn't confirm this payment.", 400);
+      if (tx.status !== "success" || currency !== "NGN" || amount !== PRO_PRICE_NGN_KOBO) return fail("We couldn't confirm this payment.", 400);
       if (kind === PAYSTACK_MANUAL_KIND) {
         if (planCode) return fail("We couldn't confirm this payment.", 400);
       } else if (planCode && planCode !== process.env.PAYSTACK_PLAN_CODE) {

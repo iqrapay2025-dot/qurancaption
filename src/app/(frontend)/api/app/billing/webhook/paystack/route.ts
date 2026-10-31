@@ -13,7 +13,7 @@ import {
   INVOICE_GRACE_DAYS,
 } from "@/lib/app/billing";
 import { getPayloadClient } from "@/lib/payload";
-import { PRO_PRICE_NGN } from "@/lib/app/plans";
+import { PRO_PRICE_NGN_KOBO } from "@/lib/app/plans";
 
 type Ev = { event: string; data: Record<string, any> };
 
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
             const reasons: string[] = [];
             if (d.status !== "success") reasons.push("status is not success");
             if (currency !== "NGN") reasons.push(`currency is not NGN (received "${d.currency ?? ""}")`);
-            if (amount !== PRO_PRICE_NGN * 100) reasons.push(`amount is ${amount}, expected ${PRO_PRICE_NGN * 100} kobo`);
+            if (amount !== PRO_PRICE_NGN_KOBO) reasons.push(`amount is ${amount}, expected ${PRO_PRICE_NGN_KOBO} kobo`);
             if (kind === PAYSTACK_MANUAL_KIND) {
               if (planCode) reasons.push("manual charge must not have a plan");
             } else if (planCode && planCode !== process.env.PAYSTACK_PLAN_CODE) {

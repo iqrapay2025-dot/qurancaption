@@ -116,7 +116,7 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
 
             <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
               <dt className="text-muted-foreground">Plan</dt>
-              <dd className="font-semibold">{pro ? `Pro · ₦${PRO_PRICE_NGN.toLocaleString()}/month` : "Free"}</dd>
+              <dd className="font-semibold">{pro ? "Pro" : "Free"}</dd>
               {pro && providerName && (<><dt className="text-muted-foreground">Paid with</dt><dd>{providerName}</dd></>)}
               {pro && b?.proUntil && (<><dt className="text-muted-foreground">{isManualPayer ? "Pro until" : b.cancelAtPeriodEnd ? "Pro ends on" : "Renews on"}</dt><dd>{fmtDate(b.proUntil)}{isManualPayer ? " · renews only when you pay" : null}</dd></>)}
               {!pro && (<><dt className="text-muted-foreground">Includes</dt><dd>Up to {FREE_LIMITS.projects} saved projects · up to {FREE_LIMITS.verses} verses per export</dd></>)}

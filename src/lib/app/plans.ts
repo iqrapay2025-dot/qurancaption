@@ -4,6 +4,7 @@ export const FREE_MONTHLY_PROJECT_CREATIONS = 10;
 export const PRO_PRICE_NGN = 8075.22;
 export const PRO_PRICE_NGN_KOBO = 807522;
 export const FLUTTERWAVE_PRICE_USD = 6;
+export const FLUTTERWAVE_PRICE_GHS = 69.88;
 export const FLUTTERWAVE_CURRENCY = "USD" as const;
 export const MONTHLY_PERIOD_DAYS = 31;
 export const MAX_PRESETS = 20;

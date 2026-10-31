@@ -32,7 +32,7 @@ const baseData = {
   currency: "USD",
   status: "successful",
   customer: { id: 1, email: "alice@example.com" },
-  meta: { userId: "u1" },
+  meta: { userId: "u1", currency: "USD", amount: 6, plan: "247120" },
 };
 
 let fetchMock: ReturnType<typeof vi.spyOn>;
@@ -144,7 +144,7 @@ describe("flutterwave confirm", () => {
   });
 
   it("rejects a payment not belonging to the logged-in user", async () => {
-    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u2" } }));
+    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u2", currency: "USD", amount: 6, plan: "247120" } }));
     const res = await post("foo_123");
     expect(res.status).toBe(403);
     expect((await res.json()).error).toContain("does not belong to your account");
@@ -204,7 +204,7 @@ describe("flutterwave confirm", () => {
   });
 
   it("returns 400 when meta.userId and tx_ref user both present but disagree", async () => {
-    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u2" }, tx_ref: "fw_u3_1700000000_abc123" }));
+    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u2", currency: "USD", amount: 6, plan: "247120" }, tx_ref: "fw_u3_1700000000_abc123" }));
     const res = await post("fw_u3_1700000000_abc123");
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: "We couldn't confirm this payment." });
@@ -212,7 +212,7 @@ describe("flutterwave confirm", () => {
   });
 
   it("returns 400 when meta.userId matches logged-in user but tx_ref user differs", async () => {
-    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u1" }, tx_ref: "fw_u3_1700000000_abc123" }));
+    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u1", currency: "USD", amount: 6, plan: "247120" }, tx_ref: "fw_u3_1700000000_abc123" }));
     const res = await post("fw_u3_1700000000_abc123");
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: "We couldn't confirm this payment." });
@@ -249,7 +249,7 @@ describe("flutterwave confirm", () => {
 
 describe("reference format validation", () => {
   it("accepts a standard Flutterwave tx_ref (fw_ prefix format)", async () => {
-    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "fw_u1_12345_abc123", meta: { userId: "u1" } }));
+    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "fw_u1_12345_abc123", meta: { userId: "u1", currency: "USD", amount: 6, plan: "247120" } }));
     const res = await confirm(new Request("http://localhost/api/app/billing/flutterwave/confirm", {
       method: "POST",
       body: JSON.stringify({ provider: "flutterwave", ref: "fw_u1_12345_abc123", transaction_id: "" }),
@@ -259,7 +259,7 @@ describe("reference format validation", () => {
   });
 
   it("accepts a Flutterwave tx_ref with letters in hex part", async () => {
-    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "fw_u1_12345_abcd1234", meta: { userId: "u1" } }));
+    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "fw_u1_12345_abcd1234", meta: { userId: "u1", currency: "USD", amount: 6, plan: "247120" } }));
     const res = await confirm(new Request("http://localhost/api/app/billing/flutterwave/confirm", {
       method: "POST",
       body: JSON.stringify({ provider: "flutterwave", ref: "fw_u1_12345_abcd1234", transaction_id: "" }),
@@ -269,7 +269,7 @@ describe("reference format validation", () => {
   });
 
   it("accepts a plain reference without fw_ prefix", async () => {
-    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "simple_ref", meta: { userId: "u1" } }));
+    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "simple_ref", meta: { userId: "u1", currency: "USD", amount: 6, plan: "247120" } }));
     const res = await confirm(new Request("http://localhost/api/app/billing/flutterwave/confirm", {
       method: "POST",
       body: JSON.stringify({ provider: "flutterwave", ref: "simple_ref", transaction_id: "" }),
@@ -279,7 +279,7 @@ describe("reference format validation", () => {
   });
 
   it("accepts a reference with dots and hyphens", async () => {
-    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "ref_with-dots.com", meta: { userId: "u1" } }));
+    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "ref_with-dots.com", meta: { userId: "u1", currency: "USD", amount: 6, plan: "247120" } }));
     const res = await confirm(new Request("http://localhost/api/app/billing/flutterwave/confirm", {
       method: "POST",
       body: JSON.stringify({ provider: "flutterwave", ref: "ref_with-dots.com", transaction_id: "" }),
@@ -289,7 +289,7 @@ describe("reference format validation", () => {
   });
 
   it("accepts a reference with underscore", async () => {
-    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "ref_with_underscore", meta: { userId: "u1" } }));
+    fetchMock.mockResolvedValueOnce(verify({ tx_ref: "ref_with_underscore", meta: { userId: "u1", currency: "USD", amount: 6, plan: "247120" } }));
     const res = await confirm(new Request("http://localhost/api/app/billing/flutterwave/confirm", {
       method: "POST",
       body: JSON.stringify({ provider: "flutterwave", ref: "ref_with_underscore", transaction_id: "" }),

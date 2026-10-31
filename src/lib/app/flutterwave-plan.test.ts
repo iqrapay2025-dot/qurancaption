@@ -22,3 +22,28 @@ describe("flutterwavePlan", () => {
     expect(p.currency).toBe("USD");
   });
 });
+import { flutterwaveCountryInfo } from "./flutterwave-plan";
+
+describe("flutterwaveCountryInfo", () => {
+  it("NG", () => expect(flutterwaveCountryInfo("NG").currency).toBe("NGN"));
+  it("GH", () => expect(flutterwaveCountryInfo("GH").currency).toBe("GHS"));
+  it("lowercase gh", () => expect(flutterwaveCountryInfo("gh").currency).toBe("GHS"));
+  it("unknown", () => expect(flutterwaveCountryInfo("XX").currency).toBe("USD"));
+  it("undefined", () => expect(flutterwaveCountryInfo(undefined).currency).toBe("USD"));
+  it("agrees with flutterwavePlan", () => {
+    for (const c of ["NG", "GH", "gh", "XX", undefined]) {
+      const info = flutterwaveCountryInfo(c);
+      const plan = flutterwavePlan(c);
+      expect(plan.currency).toBe(info.currency);
+      expect(plan.amount).toBe(info.amount);
+    }
+  });
+});
+
+describe("display/methodsLabel", () => {
+  it("NG", () => { const i=flutterwaveCountryInfo("NG"); expect(i.display).toBe("₦8,075.22"); expect(i.methodsLabel).toBe("Card, bank transfer, USSD"); });
+  it("GH", () => { const i=flutterwaveCountryInfo("GH"); expect(i.display).toBe("GH₵69.88"); expect(i.methodsLabel).toBe("Card"); });
+  it("gh", () => { const i=flutterwaveCountryInfo("gh"); expect(i.display).toBe("GH₵69.88"); });
+  it("unknown", () => { const i=flutterwaveCountryInfo("XX"); expect(i.display).toBe("$6"); expect(i.methodsLabel).toBe("Card"); });
+  it("undefined", () => { const i=flutterwaveCountryInfo(undefined); expect(i.display).toBe("$6"); });
+});

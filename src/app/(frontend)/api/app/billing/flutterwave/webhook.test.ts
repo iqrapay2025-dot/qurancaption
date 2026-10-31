@@ -14,7 +14,7 @@ const baseData = {
   currency: "USD",
   status: "successful",
   payment_type: "card",
-  meta: { userId: "u1" },
+  meta: { userId: "u1", currency: "USD", amount: 6, plan: "247120" },
   customer: { id: 1, name: "Alice", email: "alice@example.com" },
 };
 
@@ -173,7 +173,7 @@ describe("flutterwave webhook", () => {
   });
 
   it("grants nothing and returns 200 when the owner maps to no real user", async () => {
-    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u999" } }));
+    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u999", currency: "USD", amount: 6, plan: "247120" } }));
     const res = await postWebhook();
     expect(res.status).toBe(200);
     expect(updates).toHaveLength(0);
@@ -187,7 +187,7 @@ describe("flutterwave webhook", () => {
   });
 
   it("records an ignored event and returns 200 when meta.userId and tx_ref user disagree", async () => {
-    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u1" }, tx_ref: "fw_u3_1700000000_abc123" }));
+    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u1", currency: "USD", amount: 6, plan: "247120" }, tx_ref: "fw_u3_1700000000_abc123" }));
     const res = await postWebhook({ ref: "fw_u3_1700000000_abc123" });
     expect(res.status).toBe(200);
     const evt = events.get("fw_u3_1700000000_abc123");
@@ -241,7 +241,7 @@ describe("flutterwave webhook", () => {
   });
 
   it("grants a payment to the owner even if different from the session user", async () => {
-    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u2" }, tx_ref: "fw_u2_1700000000_abc123" }));
+    fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u2", currency: "USD", amount: 6, plan: "247120" }, tx_ref: "fw_u2_1700000000_abc123" }));
     const res = await postWebhook({ ref: "fw_u2_1700000000_abc123" });
     expect(res.status).toBe(200);
     expect(updates).toHaveLength(1);

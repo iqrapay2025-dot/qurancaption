@@ -3,8 +3,8 @@
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { appFetch, type AppUser } from "../lib/app/client";
-import { PRO_PRICE_NGN, FLUTTERWAVE_PRICE_USD } from "../lib/app/plans";
-import { formatNgnEstimate } from "../lib/app/currency";
+import { PRO_PRICE_NGN } from "../lib/app/plans";
+import { flutterwaveCountryInfo } from "../lib/app/flutterwave-plan";
 import AccountMenu from "../components/AccountMenu";
 import { Logo, ThemeToggle } from "../components/shared";
 
@@ -17,11 +17,11 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
   onProjects: () => void; onSettings: () => void; onSignOut: () => void;
 }) {
   const [provider, setProvider] = useState<"paystack" | "flutterwave">("paystack");
+  const [country, setCountry] = useState<string | null>(null);
+  const fw = flutterwaveCountryInfo(country);
   const [mode, setMode] = useState<"auto" | "manual">("auto");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [rate, setRate] = useState<number | null>(null);
-  const [country, setCountry] = useState<string | null>(null);
   const isPro = user?.plan === "pro";
 
   useEffect(() => {
@@ -29,7 +29,6 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
     appFetch<{ rate: number | null; updated: string | null; country: string | null }>("/api/app/rate").then((r) => {
       if (cancelled) return;
       if (r.ok) {
-        setRate(r.data.rate);
         setCountry(r.data.country);
       }
     });
@@ -48,9 +47,6 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
     if (!user) return onSignup("Create a free account first, then you can upgrade to Pro.", () => {});
     checkout();
   };
-
-  const estimate = formatNgnEstimate(rate);
-  const showEstimate = country === "NG" && estimate !== null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -73,18 +69,9 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
             <ul className="mt-6 flex-1 space-y-3">{FREE.map((i) => <li key={i} className="flex gap-3 text-sm text-muted-foreground"><Check size={18} className="mt-0.5 shrink-0 text-gold" />{i}</li>)}</ul>
             <button onClick={onStart} className="mt-8 w-full rounded-sm border border-foreground/80 px-5 py-3 text-sm font-semibold hover:bg-foreground hover:text-background">{user && !isPro ? "Your current plan · Open editor" : "Start free"}</button>
           </div>
-
           <div className="flex flex-col rounded-md border-2 border-accent bg-card p-7">
-            <div className="flex items-baseline justify-between"><h2 className="text-xl font-bold">Pro</h2><p><span className="text-4xl font-bold">${FLUTTERWAVE_PRICE_USD}</span><span className="text-sm text-muted-foreground"> /month</span></p></div>
-            {showEstimate && (
-              <div className="mt-1">
-                <p className="text-sm text-muted-foreground">≈ ₦{estimate} at today's rate</p>
-                <p className="text-xs text-muted-foreground">Estimate only. Your bank may charge slightly more or less.</p>
-                <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground underline">Rates By Exchange Rate API</a>
-              </div>
-            )}
+            <div className="flex items-baseline justify-between"><h2 className="text-xl font-bold">Pro</h2><p><span className="text-4xl font-bold">{fw.display}</span><span className="text-sm text-muted-foreground"> /month</span></p></div>
             <ul className="mt-6 flex-1 space-y-3">{PRO.map((i) => <li key={i} className="flex gap-3 text-sm text-muted-foreground"><Check size={18} className="mt-0.5 shrink-0 text-gold" />{i}</li>)}</ul>
-
             {isPro ? (
               <button onClick={onSettings} className="mt-8 w-full rounded-sm bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">You're on Pro · Manage billing</button>
             ) : (
@@ -92,13 +79,10 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
                 <fieldset className="mt-8">
                   <legend className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Pay with</legend>
                   <div className="grid grid-cols-2 gap-2">
-                    {([["paystack", `Pay ₦${PRO_PRICE_NGN.toLocaleString()} with Paystack`, "Cards, bank, mobile money"], ["flutterwave", country === "NG" ? `Pay ₦${PRO_PRICE_NGN.toLocaleString()} with Flutterwave (card, bank transfer, USSD)` : `Pay $${FLUTTERWAVE_PRICE_USD} with Flutterwave`, "Cards, bank transfer, USSD, QR"]] as const).map(([k, n, d]) => (
+                    {([["paystack", `Pay ₦${PRO_PRICE_NGN.toLocaleString()} with Paystack`, "Cards, bank, mobile money"], ["flutterwave", `Pay ${fw.display} with Flutterwave`, fw.methodsLabel]] as const).map(([k, n, d]) => (
                       <label key={k} className={`cursor-pointer rounded-sm border p-3 text-sm ${provider === k ? "border-primary bg-secondary" : "border-border hover:bg-muted"}`}>
                         <input type="radio" name="provider" value={k} checked={provider === k} onChange={() => setProvider(k)} className="sr-only" />
                         <b className="block">{n}</b><span className="text-xs text-muted-foreground">{d}</span>
-                        {k === "flutterwave" && showEstimate && (
-                          <span className="block text-xs text-muted-foreground">≈ ₦{estimate} at today's rate</span>
-                        )}
                       </label>
                     ))}
                   </div>

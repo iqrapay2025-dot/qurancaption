@@ -3,7 +3,8 @@ import "server-only";
 import { csrf, fail, ok, readJson, rateLimited } from "@/lib/app/http";
 import { currentUser } from "@/lib/app/session";
 import { rateLimit } from "@/lib/app/rate-limit";
-import { FLUTTERWAVE_CURRENCY, FLUTTERWAVE_PRICE_USD } from "@/lib/app/plans";
+import { PRO_PRICE_NGN, FLUTTERWAVE_PRICE_USD, FLUTTERWAVE_PRICE_GHS } from "@/lib/app/plans";
+import { flutterwavePlanIdForCurrency } from "@/lib/app/flutterwave-plan";
 import {
   flutterwaveVerify,
   flutterwaveVerifyByReference,
@@ -69,15 +70,17 @@ export async function POST(req: Request) {
     const amount = Number(data.amount ?? 0);
     const currency = String(data.currency ?? "").toUpperCase();
     const meta = (typeof data.meta === "object" && data.meta) ? (data.meta as Record<string, unknown>) : {};
-    const expectedCurrency = String(meta.currency ?? FLUTTERWAVE_CURRENCY).toUpperCase();
-    const expectedAmount = Number(meta.amount ?? FLUTTERWAVE_PRICE_USD);
+    const expectedCurrency = String(meta.currency ?? "").toUpperCase();
+    const expectedAmount = Number(meta.amount ?? 0);
+    const expectedPlan = String(meta.plan ?? "");
+    const serverPrice = currency === "NGN" ? PRO_PRICE_NGN : currency === "GHS" ? FLUTTERWAVE_PRICE_GHS : FLUTTERWAVE_PRICE_USD;
 
-    if (status !== "successful" || currency !== expectedCurrency || amount < expectedAmount) {
-      return fail("We couldn't confirm this payment.", 400);
-    }
-    if (String(data.tx_ref ?? "") !== String(payload.ref)) {
-      return fail("We couldn't confirm this payment.", 400);
-    }
+    if (status !== "successful") return fail("We couldn't confirm this payment.", 400);
+    if (!expectedCurrency || currency !== expectedCurrency) return fail("We couldn't confirm this payment.", 400);
+    if (Math.round(amount * 100) !== Math.round(serverPrice * 100)) return fail("We couldn't confirm this payment.", 400);
+    if (expectedAmount && Math.round(amount * 100) !== Math.round(expectedAmount * 100)) return fail("We couldn't confirm this payment.", 400);
+    if (expectedPlan && expectedPlan !== flutterwavePlanIdForCurrency(currency)) return fail("We couldn't confirm this payment.", 400);
+    if (String(data.tx_ref ?? "") !== String(payload.ref)) return fail("We couldn't confirm this payment.", 400);
 
     const metaUser = typeof data.meta === "object" && data.meta ? String((data.meta as Record<string, unknown>).userId ?? "") : "";
     const txRefUser = parseFlutterwaveTxRef(String(data.tx_ref ?? ""));
