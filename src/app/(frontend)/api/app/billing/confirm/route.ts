@@ -4,7 +4,7 @@ import { rateLimit } from "@/lib/app/rate-limit";
 import { applyStripeSub, grantProPeriod, PAYSTACK_MANUAL_KIND, paystackVerify, stripeSession, stripeSubscription } from "@/lib/app/billing";
 import { PRO_PRICE_NGN } from "@/lib/app/plans";
 
-const REF = /^[\w.\\-]{1,120}$/;
+const REF = /^[\w.\-]{6,120}$/;
 
 export async function POST(req: Request) {
   const bad = csrf(req); if (bad) return bad;
