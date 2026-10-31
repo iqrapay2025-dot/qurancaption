@@ -27,7 +27,7 @@ export const Users: CollectionConfig = {
       index: true,
       access: { create: () => false, update: () => false, read: () => false },
     },
-    { name: 'provider', type: 'select', options: ['paystack', 'stripe'], access: serverOnly },
+    { name: 'provider', type: 'select', options: ['paystack', 'stripe', 'flutterwave'], access: serverOnly },
     { name: 'customerRef', type: 'text', index: true, access: serverOnly },
     { name: 'subscriptionRef', type: 'text', access: serverOnly },
     { name: 'emailToken', type: 'text', access: serverOnly },

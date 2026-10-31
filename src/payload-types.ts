@@ -220,7 +220,7 @@ export interface User {
   id: number;
   name?: string | null;
   googleId?: string | null;
-  provider?: ('paystack' | 'stripe') | null;
+  provider?: ('paystack' | 'stripe' | 'flutterwave') | null;
   customerRef?: string | null;
   subscriptionRef?: string | null;
   emailToken?: string | null;
