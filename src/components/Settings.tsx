@@ -80,17 +80,9 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
     else setError(r.error);
   };
 
-  const portal = async () => {
-    setBusy(true);
-    setError(null);
-    const r = await appFetch<{ url: string }>("/api/app/billing/portal", { body: {} });
-    if (r.ok) location.assign(r.data.url);
-    else { setBusy(false); setError(r.error); }
-  };
-
   const b = user?.billing;
   const pro = user?.plan === "pro";
-  const providerName = b?.provider === "stripe" ? "Stripe" : b?.provider === "paystack" ? "Paystack" : null;
+  const providerName = b?.provider === "paystack" ? "Paystack" : b?.provider === "flutterwave" ? "Flutterwave" : null;
   const isManualPayer = pro && b?.provider === "paystack" && !b?.subscriptionRef;
   const daysUntilExpiry = b?.proUntil ? Math.max(0, Math.ceil((new Date(b.proUntil).getTime() - Date.now()) / 86400000)) : 0;
   const showExpiryBanner = daysUntilExpiry > 0 && daysUntilExpiry <= 5;
@@ -146,11 +138,8 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
                 </>
               )}
             </dl>
-
             <div className="mt-6 border-t border-border pt-5">
-              {pro && b?.provider === "stripe" && (
-                <button onClick={portal} disabled={busy} className="mb-4 rounded-sm border border-border px-4 py-2.5 text-sm font-medium hover:bg-secondary disabled:opacity-60">Manage card &amp; invoices</button>
-              )}
+
               {!pro ? (
                 <button onClick={onPricing} className="rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">Upgrade to Pro</button>
               ) : isManualPayer ? (

@@ -45,11 +45,6 @@ export default function ReturnPage() {
       return;
     }
 
-    if (provider === "stripe") {
-      // Stripe (auto-renew card) is not handled here; hand off to settings unchanged.
-      window.location.replace(`/#/settings?provider=stripe&ref=${encodeURIComponent(q.get("session_id") || "")}`);
-      return;
-    }
 
     // Flutterwave redirects back with status, tx_ref and transaction_id.
     if (provider === "flutterwave") {

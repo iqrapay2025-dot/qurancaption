@@ -1,7 +1,7 @@
 import { csrf, fail, ok, readJson, rateLimited } from "@/lib/app/http";
 import { currentUser } from "@/lib/app/session";
 import { rateLimit } from "@/lib/app/rate-limit";
-import { applyStripeSub, grantProPeriod, PAYSTACK_MANUAL_KIND, paystackVerify, stripeSession, stripeSubscription } from "@/lib/app/billing";
+import { grantProPeriod, PAYSTACK_MANUAL_KIND, paystackVerify } from "@/lib/app/billing";
 import { PRO_PRICE_NGN_KOBO } from "@/lib/app/plans";
 
 const REF = /^[\w.\-]{6,120}$/;
@@ -46,10 +46,6 @@ export async function POST(req: Request) {
         customerRef: kind !== PAYSTACK_MANUAL_KIND ? tx.customer?.customer_code : null,
       });
       return ok({ ok: true, alreadyApplied: !applied });
-    } else if (b.provider === "stripe") {
-      const s = await stripeSession(b.ref);
-      if (s.client_reference_id !== uid || s.status !== "complete" || !s.subscription) return fail("We couldn't confirm this payment.", 400);
-      await applyStripeSub(await stripeSubscription(s.subscription), uid);
     } else return fail("Unknown payment provider.");
   } catch (e) {
     console.error("[billing] confirm failed:", e instanceof Error ? e.message : e);

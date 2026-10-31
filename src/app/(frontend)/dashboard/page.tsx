@@ -103,7 +103,6 @@ export default async function Dashboard() {
     ["Quran data key (UMMAH_API_KEY)", env("UMMAH_API_KEY"), "Not set means anonymous, rate-limited access"],
     ["Email sending (RESEND_API_KEY + EMAIL_FROM)", env("RESEND_API_KEY") && env("EMAIL_FROM"), "Not set means reset emails are only logged"],
     ["Paystack (PAYSTACK_SECRET_KEY + PLAN_CODE)", env("PAYSTACK_SECRET_KEY") && env("PAYSTACK_PLAN_CODE"), "Needed for Paystack subscriptions"],
-    ["Stripe (STRIPE_SECRET_KEY + PRICE_ID)", env("STRIPE_SECRET_KEY") && env("STRIPE_PRICE_ID"), "Optional if you only use Paystack"],
   ];
   const totalUsers = users.totalDocs;
 

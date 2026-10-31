@@ -36,7 +36,7 @@ export async function getAccount(userId: string): Promise<Account> {
   };
 }
 
-type Patch = Partial<{ provider: "paystack" | "stripe" | "flutterwave"; customerRef: string; subscriptionRef: string; emailToken: string; billingStatus: Billing["status"]; proUntil: string; cancelAtPeriodEnd: boolean; presets: Preset[] }>;
+type Patch = Partial<{ provider: "paystack" | "flutterwave"; customerRef: string; subscriptionRef: string; emailToken: string; billingStatus: Billing["status"]; proUntil: string; cancelAtPeriodEnd: boolean; presets: Preset[] }>;
 
 // Server-owned workflow fields: written only from verified webhooks and authenticated billing routes.
 export async function setBilling(userId: string, data: Patch) {
@@ -208,62 +208,6 @@ export async function paystackCancel(acc: Account) {
   await ps("/subscription/disable", { method: "POST", body: { code, token: sub.email_token } });
   return code;
 }
-
-/* ---------- Stripe ---------- */
-const ST = "https://api.stripe.com/v1";
-export const stripeConfigured = () => !!process.env.STRIPE_SECRET_KEY && !!process.env.STRIPE_PRICE_ID;
-const ST_VERSION = "2026-09-30.endive";
-async function st<T>(path: string, form?: Record<string, string>, method?: "DELETE"): Promise<T> {
-  const res = await fetch(ST + path, {
-    method: method ?? (form ? "POST" : "GET"),
-    headers: { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY}`, "Stripe-Version": ST_VERSION, ...(form ? { "Content-Type": "application/x-www-form-urlencoded" } : {}) },
-    body: form ? new URLSearchParams(form) : undefined,
-    cache: "no-store",
-  });
-  const text = await res.text();
-  const json = (() => { try { return JSON.parse(text); } catch { return {}; } })() as T & { error?: { message?: string } };
-  if (!res.ok) throw new Error(`stripe ${res.status}: ${json.error?.message ?? (text.replace(/\s+/g, " ").slice(0, 160) || "request failed")}`);
-  return json;
-}
-export function stripeEventOk(raw: string, header: string | null) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!header || !secret) return false;
-  const parts = Object.fromEntries(header.split(",").map((p) => p.split("=") as [string, string]));
-  const t = Number(parts.t);
-  if (!t || Math.abs(Date.now() / 1000 - t) > 300) return false;
-  return safeEqual(crypto.createHmac("sha256", secret).update(`${parts.t}.${raw}`).digest("hex"), parts.v1 ?? "");
-}
-export async function stripeCheckout(user: { id: string; email: string }) {
-  const s = await st<{ url: string }>("/checkout/sessions", {
-    mode: "subscription",
-    "line_items[0][price]": process.env.STRIPE_PRICE_ID!,
-    "line_items[0][quantity]": "1",
-    customer_email: user.email,
-    client_reference_id: user.id,
-    integration_identifier: `qcs_${Array.from(crypto.randomBytes(8), (b) => String.fromCharCode(97 + (b % 26))).join("")}`,
-    "subscription_data[metadata][userId]": user.id,
-    success_url: `${siteUrl()}/billing/return?provider=stripe&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${siteUrl()}/billing/return?provider=stripe&canceled=1`,
-  });
-  return s.url;
-}
-export type StripeSub = { id: string; customer: string; status: string; cancel_at_period_end: boolean; current_period_end?: number; items?: { data: { current_period_end?: number }[] }; metadata?: { userId?: string } };
-export const stripeSession = (id: string) => st<{ client_reference_id: string | null; status: string; customer: string | null; subscription: string | null }>(`/checkout/sessions/${encodeURIComponent(id)}`);
-export const stripeSubscription = (id: string) => st<StripeSub>(`/subscriptions/${encodeURIComponent(id)}`);
-export const stripePortal = (customer: string) => st<{ url: string }>("/billing_portal/sessions", { customer, return_url: `${siteUrl()}/#/settings` });
-export const stripeCharge = (id: string) => st<{ customer: string | null; refunded?: boolean }>(`/charges/${encodeURIComponent(id)}`);
-export const stripeEndNow = (id: string) => st<StripeSub>(`/subscriptions/${encodeURIComponent(id)}`, {}, "DELETE");
-
-// Revokes Pro and stops further charges after a dispute or full refund.
-export async function revokeStripeAccess(customer: string | null | undefined, reason: string) {
-  const uid = await findUserId({ customerRef: customer });
-  if (!uid) { console.warn(`[billing] ${reason}: no user for customer`); return; }
-  const acc = await getAccount(uid);
-  if (acc.subscriptionRef && acc.billing.provider === "stripe") await stripeEndNow(acc.subscriptionRef).catch((e) => console.error("[billing] end subscription failed:", e instanceof Error ? e.message : e));
-  await setBilling(uid, { billingStatus: "canceled", cancelAtPeriodEnd: true, proUntil: new Date().toISOString() });
-  console.warn(`[billing] ${reason}: Pro revoked for user ${uid}`);
-}
-
 // Returns false when this event was already processed.
 export async function claimEvent(eventId: string, type: string) {
   const payload = await getPayloadClient();
@@ -279,7 +223,7 @@ export async function releaseEvent(eventId: string) {
 // `validate` runs after the claim; returning reasons records the event as ignored and grants nothing.
 export async function grantProPeriod(opts: {
   userId: string;
-  provider: "paystack" | "stripe" | "flutterwave";
+  provider: "paystack" | "flutterwave";
   reference: string;
   customerRef?: string | null;
   validate?: () => string[];
@@ -387,16 +331,3 @@ export async function recordBillingEvent(input: RecordBillingEventInput): Promis
   }
 }
 
-export const stripeCancel = (id: string) => st<StripeSub>(`/subscriptions/${encodeURIComponent(id)}`, { cancel_at_period_end: "true" });
-
-export async function applyStripeSub(sub: StripeSub, userIdHint?: string | null) {
-  const id = await findUserId({ userId: sub.metadata?.userId ?? userIdHint, customerRef: sub.customer });
-  if (!id) return;
-  const end = sub.current_period_end ?? sub.items?.data[0]?.current_period_end;
-  const status = sub.status === "active" || sub.status === "trialing" ? "active" : sub.status === "canceled" ? "canceled" : "past_due";
-  await setBilling(id, {
-    provider: "stripe", customerRef: sub.customer, subscriptionRef: sub.id, billingStatus: status,
-    cancelAtPeriodEnd: sub.cancel_at_period_end || status === "canceled",
-    ...(end ? { proUntil: new Date(end * 1000).toISOString() } : {}),
-  });
-}
