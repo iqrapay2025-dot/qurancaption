@@ -1,8 +1,9 @@
 import "server-only";
 
+import crypto from "node:crypto";
 import { getPayloadClient } from "@/lib/payload";
 import { sendMail } from "@/lib/app/mail";
-import { claimEvent, releaseEvent } from "@/lib/app/billing";
+import { claimEvent, releaseEvent, siteUrl } from "@/lib/app/billing";
 
 const DAY = 86_400_000;
 
@@ -15,56 +16,66 @@ export async function GET(req: Request) {
   const auth = req.headers.get("authorization") || "";
   if (!auth.startsWith("Bearer ")) return new Response("Unauthorized", { status: 401 });
   const token = auth.slice("Bearer ".length);
-  if (token !== secret) return new Response("Unauthorized", { status: 401 });
-
-  if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) {
-    // Email not configured: skip silently.
-    return new Response("Email not configured", { status: 200 });
-  }
+  const a = Buffer.from(token);
+  const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return new Response("Unauthorized", { status: 401 });
 
   const payload = await getPayloadClient();
   const now = Date.now();
   const fiveDaysFromNow = new Date(now + 5 * DAY).toISOString();
 
-  // Find manual payers: paystack provider, active billing, no subscription ref, proUntil within 5 days.
-  const users = await payload.find({
-    collection: "users",
-    where: {
-      provider: { equals: "paystack" },
-      billingStatus: { equals: "active" },
-      proUntil: { greater_than: new Date(now).toISOString(), less_than: fiveDaysFromNow },
-    },
-    limit: 100,
-    depth: 0,
-  });
+  const baseUrl = siteUrl();
+  const deadline = now + 50_000; // stop before function timeout
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001";
+  let page = 1;
+  let hasNext = true;
+  while (hasNext && Date.now() < deadline) {
+    const users = await payload.find({
+      collection: "users",
+      where: {
+        provider: { equals: "paystack" },
+        billingStatus: { equals: "active" },
+        proUntil: { greater_than: new Date(now).toISOString(), less_than: fiveDaysFromNow },
+      },
+      limit: 100,
+      page,
+      depth: 0,
+    });
+    hasNext = !!users.hasNextPage;
+    page++;
 
-  for (const u of users.docs) {
-    const proUntil = u.proUntil as string | null | undefined;
-    if (!proUntil) continue;
-    const until = new Date(proUntil).getTime();
-    const daysLeft = Math.ceil((until - now) / DAY);
-    if (daysLeft < 1 || daysLeft > 5) continue; // only 1-5 days remaining (includes last day)
-    const email = u.email as string | undefined;
-    if (!email) continue;
-    // Ensure this is a manual payer (no subscription ref)
-    if (u.subscriptionRef) continue;
-    // Don't send a reminder twice for the same expiry. When proUntil changes
-    // (user pays early) the key changes, so a new reminder is sent.
-    const reminderKey = `reminder:${u.id}:${proUntil}`;
-    if (!(await claimEvent(reminderKey, "billing:reminder"))) continue;
+    for (const u of users.docs) {
+      if (Date.now() >= deadline) break;
+      const proUntil = u.proUntil as string | null | undefined;
+      if (!proUntil) continue;
+      const until = new Date(proUntil).getTime();
+      const daysLeft = Math.ceil((until - now) / DAY);
+      if (daysLeft < 1 || daysLeft > 5) continue;
+      const email = u.email as string | undefined;
+      if (!email) continue;
+      if (u.subscriptionRef) continue;
+      const reminderKey = `reminder:${u.id}:${proUntil}`;
+      if (!(await claimEvent(reminderKey, "billing:reminder"))) continue;
 
-    const sent = await sendMail(
-      email,
-      "Your Qurancaption Pro access is expiring soon",
-      `<p>Your Pro access expires on ${fmtDate(proUntil)}.</p><p>You chose pay-each-month, so it won’t renew automatically. <a href="${siteUrl}/#/settings">Pay for next month</a> to keep using Pro.</p>`
-    );
-    if (!sent) {
-      console.error("[cron] reminder email failed for", u.id);
-      // Release the claim so the reminder can be retried the next day
-      await releaseEvent(reminderKey);
+      try {
+        const sent = await sendMail(
+          email,
+          "Your Qurancaption Pro access is expiring soon",
+          `<p>Your Pro access expires on ${fmtDate(proUntil)}.</p><p>You chose pay-each-month, so it won’t renew automatically. <a href="${baseUrl}/#/settings">Pay for next month</a> to keep using Pro.</p>`
+        );
+        if (!sent) {
+          console.error("[cron] reminder email failed for", u.id);
+          await releaseEvent(reminderKey);
+        }
+      } catch (e) {
+        console.error("[cron] reminder send threw for", u.id, e instanceof Error ? e.message : e);
+        await releaseEvent(reminderKey);
+      }
     }
+  }
+
+  if (!process.env.BREVO_API_KEY && !process.env.RESEND_API_KEY) {
+    console.error("[cron] no email provider configured (BREVO_API_KEY or RESEND_API_KEY)");
   }
 
   return new Response("OK", { status: 200 });
