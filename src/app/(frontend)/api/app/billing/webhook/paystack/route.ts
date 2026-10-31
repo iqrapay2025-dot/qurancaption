@@ -71,7 +71,6 @@ export async function POST(req: Request) {
           subscriptionRef: d.subscription_code,
           emailToken: d.email_token ?? null,
           cancelAtPeriodEnd: false,
-          ...(d.next_payment_date ? { proUntil: new Date(d.next_payment_date).toISOString() } : {}),
         });
         break;
       }
