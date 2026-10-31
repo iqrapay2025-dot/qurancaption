@@ -13,7 +13,7 @@ export const BillingEvents: CollectionConfig = {
       name: 'outcome',
       type: 'text',
       validate: (val: string | null | undefined) =>
-        val === 'granted' || val === 'ignored' ? true : 'Invalid outcome',
+        val == null || val === '' || val === 'granted' || val === 'ignored' ? true : 'Invalid outcome',
     },
     { name: 'reason', type: 'text' },
   ],
