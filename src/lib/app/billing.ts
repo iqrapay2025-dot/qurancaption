@@ -58,7 +58,17 @@ export async function findUserId(by: { userId?: string | null; customerRef?: str
   return null;
 }
 
-export const extend = (from?: string | null, days = 31) => new Date(Math.max(Date.now(), from ? new Date(from).getTime() : 0) + days * DAY).toISOString();
+// Adds calendar months, not 31 days. Nov 1 -> Dec 1. Jan 31 -> Feb 28/29.
+export const extend = (from?: string | null, months = 1) => {
+  const base = new Date(Math.max(Date.now(), from ? new Date(from).getTime() : 0));
+  const day = base.getUTCDate();
+  const d = new Date(base);
+  d.setUTCDate(1);
+  d.setUTCMonth(d.getUTCMonth() + months);
+  const lastDay = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+  d.setUTCDate(Math.min(day, lastDay));
+  return d.toISOString();
+};
 
 export const safeEqual = (a: string, b: string) => {
   const x = Buffer.from(a), y = Buffer.from(b);
@@ -208,11 +218,19 @@ export async function paystackCancel(acc: Account) {
   await ps("/subscription/disable", { method: "POST", body: { code, token: sub.email_token } });
   return code;
 }
-// Returns false when this event was already processed.
+// Returns true only if THIS call created the claim row.
+// Returns false only if the row already exists (already processed).
+// Any other failure throws, so nothing is granted and the caller can retry.
 export async function claimEvent(eventId: string, type: string) {
   const payload = await getPayloadClient();
-  try { await payload.create({ collection: "billing-events", data: { eventId, type }, overrideAccess: true, depth: 0 }); return true; }
-  catch { return !(await payload.find({ collection: "billing-events", where: { eventId: { equals: eventId } }, limit: 1, depth: 0, overrideAccess: true }).then((r) => r.docs.length > 0).catch(() => false)); }
+  try {
+    await payload.create({ collection: "billing-events", data: { eventId, type }, overrideAccess: true, depth: 0 });
+    return true;
+  } catch (createErr) {
+    const found = await payload.find({ collection: "billing-events", where: { eventId: { equals: eventId } }, limit: 1, depth: 0, overrideAccess: true });
+    if (found.docs.length > 0) return false;
+    throw createErr;
+  }
 }
 export async function releaseEvent(eventId: string) {
   const payload = await getPayloadClient();

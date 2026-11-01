@@ -169,7 +169,7 @@ describe("flutterwave confirm", () => {
     users.set("u1", { ...users.get("u1"), proUntil: future });
     fetchMock.mockResolvedValueOnce(verify());
     await post("foo_123");
-    const expected = new Date(new Date(future).getTime() + MONTHLY_PERIOD_DAYS * DAY).toISOString();
+const expected = (() => { const d = new Date(future); d.setUTCMonth(d.getUTCMonth() + 1); return d.toISOString(); })();
     expect(updates).toHaveLength(1);
     expect(updates[0].data.proUntil).toBe(expected);
   });

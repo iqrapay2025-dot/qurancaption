@@ -207,7 +207,7 @@ describe("paystack manual monthly confirm", () => {
     fetchMock.mockImplementation(() => Promise.resolve(jsonResp(manualTx)));
     await post("manual-ref-01");
     const last = updates[updates.length - 1];
-    const expected = new Date(new Date(future).getTime() + MONTHLY_PERIOD_DAYS * DAY).toISOString();
+const expected = (() => { const d = new Date(future); d.setUTCMonth(d.getUTCMonth() + 1); return d.toISOString(); })();
     expect(last.data.proUntil).toBe(expected);
   });
 
