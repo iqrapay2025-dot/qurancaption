@@ -72,7 +72,7 @@ export async function POST(req: Request) {
         month: { equals: month },
       },
       depth: 0,
-      limit: 1000,
+      limit: 1000, overrideAccess: true,
     });
     const recordedKeys = new Set(existing.docs.map((d: any) => d.verseKey));
     const newKeys = [...verseKeys].filter((k) => !recordedKeys.has(k));
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
         .create({
           collection: "usage-verses",
           data: { user: user.id, month, verseKey: k },
-          overrideAccess: false,
+          overrideAccess: true,
           depth: 0,
         })
         .catch(() => {
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
     const recount = await payload.find({
       collection: "usage-verses",
       where: { user: { equals: String(user.id) }, month: { equals: month } },
-      depth: 0, limit: 1000,
+      depth: 0, limit: 1000, overrideAccess: true,
     });
     if (recount.docs.length > FREE_MONTHLY_VERSES) {
       // Already recorded some keys due to a race; stop the export but leave the recorded keys.
