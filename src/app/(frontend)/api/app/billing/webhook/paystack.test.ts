@@ -174,7 +174,7 @@ describe("paystack webhook", () => {
     await post("charge.success", data);
     expect(updates).toHaveLength(0);
     const ev = events.get("paystack:charge:wrong-amount");
-    expect(ev).toMatchObject({ type: "paystack:charge:ignored" });
+    expect(ev).toMatchObject({ type: "paystack.charge", outcome: "ignored" });
     expect(ev.reason).toContain("807522");
   });
 
@@ -185,7 +185,7 @@ describe("paystack webhook", () => {
     await post("charge.success", data);
     expect(updates).toHaveLength(0);
     const ev = events.get("paystack:charge:wrong-currency");
-    expect(ev).toMatchObject({ type: "paystack:charge:ignored" });
+    expect(ev).toMatchObject({ type: "paystack.charge", outcome: "ignored" });
     expect(ev.reason).toContain("NGN");
   });
 
@@ -196,7 +196,7 @@ describe("paystack webhook", () => {
     await post("charge.success", data);
     expect(updates).toHaveLength(0);
     const ev = events.get("paystack:charge:wrong-plan");
-    expect(ev).toMatchObject({ type: "paystack:charge:ignored" });
+    expect(ev).toMatchObject({ type: "paystack.charge", outcome: "ignored" });
     expect(ev.reason).toContain("plan");
   });
 
@@ -242,7 +242,7 @@ describe("paystack webhook", () => {
     const res = await post("charge.success", { ...manual("manual-plan"), plan: { plan_code: "premium" } });
     expect(res.status).toBe(200);
     expect(updates).toHaveLength(0);
-    expect(events.get("paystack:charge:manual-plan")).toMatchObject({ type: "paystack:charge:ignored" });
+    expect(events.get("paystack:charge:manual-plan")).toMatchObject({ type: "paystack.charge", outcome: "ignored" });
     expect(events.get("paystack:charge:manual-plan").reason).toContain("manual");
   });
 

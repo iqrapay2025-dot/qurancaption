@@ -239,6 +239,15 @@ export async function releaseEvent(eventId: string) {
 // Provider-agnostic: extends proUntil by one period, once per (provider, reference).
 // Claim key is prefixed per provider, e.g. "paystack:charge:<ref>".
 // `validate` runs after the claim; returning reasons records the event as ignored and grants nothing.
+// Best-effort: fills in the claim row. A failure here must never undo or retry a grant.
+async function markEvent(eventId: string, fields: { reference?: string; user?: string; outcome: "granted" | "ignored"; reason?: string }) {
+  try {
+    const payload = await getPayloadClient();
+    await payload.update({ collection: "billing-events", where: { eventId: { equals: eventId } }, data: fields, overrideAccess: true, depth: 0 });
+  } catch (e) {
+    console.error("[billing] markEvent failed:", e instanceof Error ? e.name : "error");
+  }
+}
 export async function grantProPeriod(opts: {
   userId: string;
   provider: "paystack" | "flutterwave";
@@ -252,14 +261,7 @@ export async function grantProPeriod(opts: {
   try {
     const reasons = validate?.() ?? [];
     if (reasons.length > 0) {
-      const payload = await getPayloadClient();
-      await payload.update({
-        collection: "billing-events",
-        where: { eventId: { equals: key } },
-        data: { type: `${provider}:charge:ignored`, reason: reasons.join("; ") },
-        overrideAccess: true,
-        depth: 0,
-      });
+      await markEvent(key, { reference, user: userId, outcome: "ignored", reason: reasons.join("; ") });
       return { applied: false };
     }
     const acc = await getAccount(userId);
@@ -271,6 +273,7 @@ export async function grantProPeriod(opts: {
     };
     if (customerRef) patch.customerRef = customerRef;
     await setBilling(userId, patch);
+    await markEvent(key, { reference, user: userId, outcome: "granted" });
     return { applied: true };
   } catch (e) {
     await releaseEvent(key);
