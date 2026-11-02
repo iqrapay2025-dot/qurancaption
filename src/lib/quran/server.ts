@@ -199,12 +199,12 @@ async function getTajweed(surah: number) {
       const html = v.arabic.replace(/<span class=end>[^<]*<\/span>/g, "").trim();
       const segs: [string, string?][] = [];
       let last = 0;
-      const push = (t: string, rule?: string) => {
-        need(!/[<>]/.test(t), 0);
-        if (t) segs.push(rule ? [t, rule] : [t]);
+            const push = (t: string, rule?: string) => {
+        const clean = t.replace(/<[^>]*>/g, "");
+        if (clean) segs.push(rule ? [clean, rule] : [clean]);
       };
-      for (const m of html.matchAll(/<tajweed class=([a-z_]+)>([^<]*)<\/tajweed>/g)) {
-        push(html.slice(last, m.index));
+      for (const m of html.matchAll(/<tajweed class=["']?([a-z0-9_-]+)["']?>([^<]*)<\/tajweed>/g)) {
+                push(html.slice(last, m.index));
         push(m[2], m[1]);
         last = m.index! + m[0].length;
       }
@@ -221,8 +221,11 @@ export async function getVerses(surah: number, from: number, to: number, keys: s
   const all = await getSurah(surah);
   if (from > all.length) throw new ApiError("bad_request", `Surah ${surah} has only ${all.length} verses.`, 400);
   const want = new Set(keys);
-  const taj = tajweed ? await getTajweed(surah) : null;
-  const verses = all
+  let taj: Map<string, [string, string?][]> | null = null;
+  if (tajweed) {
+    try { taj = await getTajweed(surah); }
+    catch (e) { console.error("[quran-api] tajweed unavailable, surah", surah, e instanceof Error ? e.message : "error"); }
+  }  const verses = all
     .filter((v) => v.n >= from && v.n <= to)
     .map((v) => ({ ...v, translations: Object.fromEntries(Object.entries(v.translations).filter(([k]) => want.has(k))), ...(taj?.get(v.key) ? { tajweed: taj.get(v.key) } : {}) }));
   return { verses };
