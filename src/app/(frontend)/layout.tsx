@@ -84,6 +84,7 @@ export default function RootLayout({
   {renderHeadCustomCode(customScripts?.headEnd, "head-end")}
 </head>
       <body className="min-h-screen antialiased">
+        <SplashLoader />
         <BodyCustomCode html={customScripts?.bodyStart} />
         {addBypassLinks && (
           <a className="figma-bypass-link" href="#root">
