@@ -140,3 +140,60 @@
 .figma-bypass-link:focus {
   transform: translateY(0);
 }
+
+/* ── Splash loader ─────────────────────────────── */
+.ql-loader {
+  --spin: 0.5s;                                  /* one rotation */
+  --t-swipe: calc(var(--spin) * 3);              /* starts after 3 turns = 1.5s */
+  --t-write: calc(var(--t-swipe) + 0.3s);        /* overlaps the swipe's tail = 1.8s */
+  --t-exit: calc(var(--t-write) + 1.5s);         /* 0.9s write + 0.6s hold = 3.3s */
+
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--background);
+  color: var(--foreground);
+  animation: ql-exit 0.35s ease var(--t-exit) forwards;
+}
+html[data-splash="seen"] .ql-loader { display: none; }
+
+.ql-swipe {
+  grid-area: 1 / 1;
+  animation: ql-swipe 0.4s cubic-bezier(0.6, 0, 0.9, 0.4) var(--t-swipe) forwards;
+}
+
+.ql-spinner {
+  width: 50px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 8px solid;
+  border-color: var(--primary) transparent;
+  animation: ql-spin var(--spin) ease-in-out 3;
+}
+
+.ql-brand {
+  grid-area: 1 / 1;
+  scale: 1.4;
+}
+.ql-write {
+  clip-path: inset(-8px 100% -8px 0);
+  animation: ql-write 0.9s cubic-bezier(0.4, 0, 0.2, 1) var(--t-write) forwards;
+}
+
+@keyframes ql-spin  { to { transform: rotate(1turn); } }
+@keyframes ql-swipe { to { transform: translateX(-60vw); opacity: 0; } }
+@keyframes ql-write { to { clip-path: inset(-8px 0 -8px 0); } }
+@keyframes ql-exit  { to { opacity: 0; visibility: hidden; } }
+
+@media (max-width: 400px) {
+  .ql-brand { scale: 1.1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ql-swipe { display: none; }
+  .ql-write { clip-path: none; animation: none; }
+  .ql-loader { --t-exit: 0.8s; }
+}

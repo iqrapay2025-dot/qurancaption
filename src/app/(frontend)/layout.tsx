@@ -10,6 +10,7 @@ import { SITE } from "@/lib/site"
 import "./styles.css"
 import CookieConsent from "@/components/CookieConsent"
 import CookieSettingsBar from "@/components/CookieSettingsBar"
+import SplashLoader from "@/components/SplashLoader"
 
 const title = makeSiteSettings.title ?? `${SITE.name} | ${SITE.tagline}`
 const description = makeSiteSettings.description ?? SITE.description
@@ -74,9 +75,14 @@ export default function RootLayout({
   return (
     <html lang={language} suppressHydrationWarning>
       <head>
-        {renderHeadCustomCode(customScripts?.headStart, "head-start")}
-        {renderHeadCustomCode(customScripts?.headEnd, "head-end")}
-      </head>
+  <script
+    dangerouslySetInnerHTML={{
+      __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem("qcs-theme");if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)d.classList.add("dark");if(sessionStorage.getItem("qcs-splash"))d.dataset.splash="seen"}catch(e){}})()`,
+    }}
+  />
+  {renderHeadCustomCode(customScripts?.headStart, "head-start")}
+  {renderHeadCustomCode(customScripts?.headEnd, "head-end")}
+</head>
       <body className="min-h-screen antialiased">
         <BodyCustomCode html={customScripts?.bodyStart} />
         {addBypassLinks && (
