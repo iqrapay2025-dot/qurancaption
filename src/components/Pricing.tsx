@@ -51,9 +51,16 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-5 md:px-8">
-          <Logo onClick={onHome} />
-          <div className="ml-auto flex items-center gap-3">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-3 sm:gap-3 sm:px-5 md:px-8">
+          <Logo onClick={onHome} compact />
+          <button
+            type="button"
+            onClick={onHome}
+            className="shrink-0 rounded-sm border border-border px-2.5 py-2 text-xs font-semibold hover:bg-muted sm:px-3 sm:text-sm"
+          >
+            Go back to home
+          </button>
+          <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
             <ThemeToggle dark={dark} toggle={toggleTheme} />
             <AccountMenu user={user} onLogin={onLogin} onProjects={onProjects} onSettings={onSettings} onSignOut={onSignOut} />
           </div>

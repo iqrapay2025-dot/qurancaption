@@ -16,13 +16,21 @@ export default function GuidePage() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-4">
-          <Logo />
-          <Link
-            href="/#/editor"
-            className="rounded-sm bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-          >
-            Start creating
-          </Link>
+          <Logo compact />
+          <div className="flex flex-wrap justify-end gap-2">
+            <a
+              href="/"
+              className="rounded-sm border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"
+            >
+              Go back to home
+            </a>
+            <Link
+              href="/#/editor"
+              className="rounded-sm bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+            >
+              Start creating
+            </Link>
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-3xl px-5 py-10 sm:py-14">

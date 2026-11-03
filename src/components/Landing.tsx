@@ -1,7 +1,8 @@
 "use client";
 
-import { ArrowRight, Check, Download, ListChecks, Palette } from "lucide-react";
+import { ArrowRight, Check, Download, ListChecks, Menu, Palette, X } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { PRO_PRICE_NGN, FLUTTERWAVE_PRICE_USD } from "../lib/app/plans";
 import type { AppUser } from "../lib/app/client";
 import AccountMenu from "./AccountMenu";
@@ -30,6 +31,8 @@ function Mosque() {
 
 export default function Landing({ onStart, user, onLogin, onSignup, onProjects, onPricing, onSettings, onSignOut, dark, toggleTheme }: Props) {
   const v = { arabic: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", text: "In the name of Allah, the Entirely Merciful, the Especially Merciful." };
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const closeMobileMenu = () => setMobileMenuOpen(false);
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
@@ -40,15 +43,44 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
             <Link href="/how-it-works" className="hover:text-gold">How it works</Link>
             <Link href="/editors" className="hover:text-gold">Editors</Link>
             <Link href="/guide" className="hover:text-gold">Guide</Link>
-            <Link href="/pricing" className="hover:text-gold">Pricing</Link>
+            <button type="button" onClick={onPricing} className="hover:text-gold">Pricing</button>
           </nav>
           <div className="flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation"
+              className="grid size-9 place-items-center rounded-sm border border-border hover:bg-muted md:hidden"
+            >
+              {mobileMenuOpen ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
+            </button>
             <ThemeToggle dark={dark} toggle={toggleTheme} />
             {!user && <button onClick={onLogin} className="hidden text-sm font-semibold hover:text-gold sm:block">Log in</button>}
-            <button onClick={user ? onStart : onSignup} className="rounded-sm border border-foreground/80 px-4 py-2 text-sm font-semibold hover:bg-foreground hover:text-background">{user ? "Open editor" : "Sign up"}</button>
+            <button onClick={user ? onStart : onSignup} className="hidden rounded-sm border border-foreground/80 px-4 py-2 text-sm font-semibold hover:bg-foreground hover:text-background sm:inline-flex">{user ? "Open editor" : "Sign up"}</button>
             {user && <AccountMenu user={user} onLogin={onLogin} onProjects={onProjects} onSettings={onSettings} onSignOut={onSignOut} />}
           </div>
         </div>
+        {mobileMenuOpen && (
+          <nav id="mobile-navigation" aria-label="Main navigation" className="border-t border-border bg-card px-5 py-3 md:hidden">
+            <div className="mx-auto flex max-w-6xl flex-col">
+              <Link href="/home" onClick={closeMobileMenu} className="rounded-sm px-3 py-3 text-sm font-medium hover:bg-muted">Home</Link>
+              <Link href="/how-it-works" onClick={closeMobileMenu} className="rounded-sm px-3 py-3 text-sm font-medium hover:bg-muted">How it works</Link>
+              <Link href="/editors" onClick={closeMobileMenu} className="rounded-sm px-3 py-3 text-sm font-medium hover:bg-muted">Editors</Link>
+              <Link href="/guide" onClick={closeMobileMenu} className="rounded-sm px-3 py-3 text-sm font-medium hover:bg-muted">Guide</Link>
+              <button type="button" onClick={() => { closeMobileMenu(); onPricing(); }} className="rounded-sm px-3 py-3 text-left text-sm font-medium hover:bg-muted">Pricing</button>
+              {!user ? (
+                <div className="mt-2 grid grid-cols-2 gap-2 border-t border-border pt-3">
+                  <button type="button" onClick={() => { closeMobileMenu(); onLogin(); }} className="rounded-sm border border-border px-3 py-2.5 text-sm font-semibold hover:bg-muted">Log in</button>
+                  <button type="button" onClick={() => { closeMobileMenu(); onSignup(); }} className="rounded-sm bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">Sign up</button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => { closeMobileMenu(); onStart(); }} className="mt-2 rounded-sm bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">Open editor</button>
+              )}
+            </div>
+          </nav>
+        )}
       </header>
 
       <section id="top" className="scroll-mt-20 relative overflow-hidden bg-muted">

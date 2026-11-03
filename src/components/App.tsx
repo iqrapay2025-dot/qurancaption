@@ -14,6 +14,7 @@ import { useTheme } from "./shared";
 type Route = { view: "landing" } | { view: "editor"; id: string | null } | { view: "projects" } | { view: "pricing" } | { view: "settings"; provider: string; ref: string } | { view: "reset"; token: string };
 
 function read(): Route {
+  if (location.pathname === "/pricing") return { view: "pricing" };
   const h = location.hash;
   if (h.startsWith("#/reset")) return { view: "reset", token: new URLSearchParams(h.split("?")[1] ?? "").get("token") ?? "" };
   if (h === "#/projects") return { view: "projects" };
@@ -105,7 +106,10 @@ export default function App() {
           ready={session.ready}
           dark={dark}
           toggleTheme={toggle}
-          onHome={() => go("#/")}
+          onHome={() => {
+            if (location.pathname === "/pricing") location.assign("/");
+            else go("#/");
+          }}
           onStart={() => go("#/editor")}
           onLogin={() => requestAuth({ mode: "login" })}
           onSignup={(reason, after) => requestAuth({ mode: "signup", reason, after })}
