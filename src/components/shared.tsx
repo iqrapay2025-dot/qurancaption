@@ -6,14 +6,7 @@ import { useEffect, useState } from "react";
 export function Logo({ onClick, compact }: { onClick?: () => void; compact?: boolean }) {
   return (
     <Wrapper onClick={onClick}>
-      <svg className="shrink-0" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
-        <rect width="32" height="32" rx="7" className="fill-accent" />
-        <g fill="none" stroke="#fff" strokeWidth="1.6">
-          <rect x="9" y="9" width="14" height="14" />
-          <rect x="9" y="9" width="14" height="14" transform="rotate(45 16 16)" />
-        </g>
-        <circle cx="16" cy="16" r="2" fill="#fff" />
-      </svg>
+      <img src="/favicon-32x32.png" width="30" height="30" alt="" aria-hidden="true" className="shrink-0" />
       <span className={`font-display text-lg font-bold tracking-tight whitespace-nowrap ${compact ? "hidden md:inline" : ""}`}>
         <span className="text-gold">Quran</span> Caption Studio
       </span>
