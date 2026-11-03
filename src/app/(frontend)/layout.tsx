@@ -14,7 +14,6 @@ import SplashLoader from "@/components/SplashLoader"
 
 const title = makeSiteSettings.title ?? `${SITE.name} | ${SITE.tagline}`
 const description = makeSiteSettings.description ?? SITE.description
-const favicon = makeSiteSettings.icons?.icon
 const socialImage = makeSiteSettings.openGraph?.image
 const googleAnalyticsId = sanitizeHtmlAttribute(
   makeSiteSettings.analytics?.googleAnalyticsId,
@@ -47,7 +46,12 @@ export const metadata: Metadata = {
     process.env.ALLOW_INDEXING === "true"
       ? undefined
       : { index: false, follow: false },
-  icons: favicon ? { icon: favicon } : undefined,
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", type: "image/x-icon" },
+    ],
+  },
   openGraph: {
     type: "website",
     siteName: SITE.name,
@@ -81,7 +85,7 @@ export default function RootLayout({
     }}
   />
   {renderHeadCustomCode(customScripts?.headStart, "head-start")}
-  {renderHeadCustomCode(customScripts?.headEnd, "head-end")}<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" /><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" /><link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" /><link rel="manifest" href="/site.webmanifest" /></head>
+  {renderHeadCustomCode(customScripts?.headEnd, "head-end")}<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" /><link rel="manifest" href="/site.webmanifest" /></head>
       <body className="min-h-screen antialiased">
         <SplashLoader />
         <BodyCustomCode html={customScripts?.bodyStart} />
