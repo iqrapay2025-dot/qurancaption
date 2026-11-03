@@ -7,7 +7,7 @@ import { strToU8, zipSync } from "fflate";
 import { appFetch, type Upgrade } from "../lib/app/client";
 import { FREE_LIMITS } from "../lib/app/plans";
 import { overlaySupport, renderOverlay, type OverlayStyle, type Support } from "../lib/overlay";
-import { AUDIO_EXPORT_MAX_SECONDS, AUDIO_EXPORT_MAX_SOURCE_BYTES, AUDIO_EXPORT_MAX_SOURCE_SECONDS, AUDIO_EXPORT_PRO_ONLY, buildAudioFilename, concatenateSamples, encodeWav, fitSamplesToFrames, sampleRange, shiftSamples, type AudioSamples } from "../lib/audioExport";
+import { AUDIO_EXPORT_PRO_ONLY, buildAudioFilename, concatenateSamples, encodeWav, fitSamplesToFrames, sampleRange, shiftSamples, type AudioSamples } from "../lib/audioExport";
 import { DEFAULT_SPLIT, fmt, toArabicDigits, buildCaptions, creditLines, toSRT, toVTT, type Verse } from "../data";
 import { TRANSLITERATION_ID, type ApiVerse, type AyahFile, type Chapter, type Reciter, type TranslationRes } from "../lib/quran/types";
 
@@ -118,34 +118,9 @@ async function fetchAudioBytes(url: string) {
   try { parsed = new URL(url); }
   catch { throw new Error("The recitation audio URL is invalid."); }
   if (parsed.protocol !== "https:") throw new Error("Recitation audio must use a secure HTTPS URL.");
-  const response = await fetch(parsed, { mode: "cors", cache: "no-store", signal: AbortSignal.timeout(30_000) });
+  const response = await fetch(parsed, { mode: "cors", cache: "no-store" });
   if (!response.ok) throw new Error(`The recitation audio host returned HTTP ${response.status}.`);
-  const announced = Number(response.headers.get("content-length"));
-  if (Number.isFinite(announced) && announced > AUDIO_EXPORT_MAX_SOURCE_BYTES) {
-    throw new Error("This audio source is too large to safely decode on a phone. Try ayah-by-ayah mode or a shorter recording.");
-  }
-  if (!response.body) {
-    const bytes = await response.arrayBuffer();
-    if (bytes.byteLength > AUDIO_EXPORT_MAX_SOURCE_BYTES) throw new Error("This audio source is too large to safely decode on a phone.");
-    return bytes;
-  }
-  const reader = response.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let total = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.byteLength;
-    if (total > AUDIO_EXPORT_MAX_SOURCE_BYTES) {
-      await reader.cancel();
-      throw new Error("This audio source is too large to safely decode on a phone. Try ayah-by-ayah mode or a shorter recording.");
-    }
-    chunks.push(value);
-  }
-  const bytes = new Uint8Array(total);
-  let at = 0;
-  for (const chunk of chunks) { bytes.set(chunk, at); at += chunk.byteLength; }
-  return bytes.buffer;
+  return response.arrayBuffer();
 }
 
 function copyAudioBuffer(buffer: AudioBuffer): AudioSamples {
@@ -195,20 +170,16 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
               ? "The chapter audio has not loaded yet."
               : activeRange.from > 1
                 ? "This chapter recording has no absolute verse timestamps, so ranges starting after ayah 1 cannot be cut reliably. Use ayah-by-ayah mode."
-                : audioSourceDuration > AUDIO_EXPORT_MAX_SOURCE_SECONDS
-                  ? `The full chapter is longer than ${AUDIO_EXPORT_MAX_SOURCE_SECONDS / 60} minutes and cannot be safely decoded on a phone. Try ayah-by-ayah mode.`
-                  : null
+                : null
             : !audioTimingMeasured
               ? "Wait for the selected ayah audio lengths to finish measuring."
               : ayahFiles.length !== verses.length
                 ? "Audio is missing for one or more selected ayahs."
                 : null;
-  const audioLimitMessage = selectedAudioDuration > AUDIO_EXPORT_MAX_SECONDS
-    ? `Audio export is limited to ${AUDIO_EXPORT_MAX_SECONDS / 60} minutes to keep memory use manageable on phones. Select a shorter range.`
-    : selectedAudioDuration <= 0
+  const audioTimingError = selectedAudioDuration <= 0
       ? "The timing offset removes the entire audio range."
       : null;
-  const audioUnavailableMessage = audioUnavailable ?? audioLimitMessage;
+  const audioUnavailableMessage = audioUnavailable ?? audioTimingError;
   const audioAvailable = !audioUnavailableMessage;
   const [perRange, setPerRange] = useState(true);
   const [asZip, setAsZip] = useState(true);
@@ -305,10 +276,7 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
 
   const prepareAudio = async () => {
     if (!audioAvailable || !reciter) throw new Error(audioUnavailableMessage ?? "Recitation audio is unavailable.");
-    if (selectedAudioDuration > AUDIO_EXPORT_MAX_SECONDS) throw new Error(audioLimitMessage!);
-    if (audioMode === "chapter" && (!chapterAudioUrl || audioSourceDuration > AUDIO_EXPORT_MAX_SOURCE_SECONDS)) {
-      throw new Error(`The full chapter is longer than ${AUDIO_EXPORT_MAX_SOURCE_SECONDS / 60} minutes and cannot be safely decoded on a phone. Try ayah-by-ayah mode.`);
-    }
+    if (audioMode === "chapter" && !chapterAudioUrl) throw new Error("The chapter audio has not loaded.");
 
     const context = new AudioContext();
     try {
@@ -316,9 +284,6 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
       if (audioMode === "chapter") {
         setAudioProgress("Downloading chapter audio…");
         const decoded = await context.decodeAudioData(await fetchAudioBytes(chapterAudioUrl!));
-        if (decoded.duration > AUDIO_EXPORT_MAX_SOURCE_SECONDS) {
-          throw new Error(`The full chapter is longer than ${AUDIO_EXPORT_MAX_SOURCE_SECONDS / 60} minutes and cannot be safely decoded on a phone. Try ayah-by-ayah mode.`);
-        }
         const start = verses[0].start;
         const end = verses[verses.length - 1].end;
         const range = sampleRange(start, end, decoded.sampleRate, decoded.length);
@@ -336,9 +301,6 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
         for (const [i, item] of selected.entries()) {
           setAudioProgress(`Preparing ayah ${i + 1} of ${selected.length}…`);
           const decoded = await context.decodeAudioData(await fetchAudioBytes(item.file.audioUrl));
-          if (decoded.duration > AUDIO_EXPORT_MAX_SOURCE_SECONDS) {
-            throw new Error(`Ayah ${item.verse.key} is longer than ${AUDIO_EXPORT_MAX_SOURCE_SECONDS / 60} minutes and cannot be safely decoded.`);
-          }
           const duration = item.verse.end - item.verse.start;
           if (!Number.isFinite(duration) || duration <= 0) throw new Error(`The timing for ayah ${item.verse.key} is invalid.`);
           const frames = Math.round(duration * decoded.sampleRate);
@@ -350,9 +312,7 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
       }
 
       const duration = output.channels[0].length / output.sampleRate;
-      if (!duration || duration > AUDIO_EXPORT_MAX_SECONDS) {
-        throw new Error(`Audio export is limited to ${AUDIO_EXPORT_MAX_SECONDS / 60} minutes to keep memory use manageable on phones. Select a shorter range.`);
-      }
+      if (!Number.isFinite(duration) || duration <= 0) throw new Error("The selected audio range is empty.");
       setAudioProgress("Encoding WAV…");
       return {
         name: buildAudioFilename(chapter.nameSimple, activeRange.from, activeRange.to, reciter.name),
@@ -403,8 +363,8 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
       onExported?.();
       setTimeout(onClose, zipped ? 400 : out.length * 350 || 400);
     } catch (e) {
-      const message = e instanceof DOMException && e.name === "TimeoutError"
-        ? "Downloading recitation audio timed out. Check your connection and try again."
+      const message = e instanceof RangeError
+        ? "The browser ran out of memory while preparing this recording as WAV. Try ayah-by-ayah mode or another browser/device."
         : e instanceof TypeError
           ? "The browser could not read this recitation host. Check your connection or choose another reciter."
           : e instanceof Error ? e.message : "Audio export failed.";
@@ -494,7 +454,7 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
                   <button type="button" aria-label="Add 0.1 seconds" onClick={() => nudge(0.1)} className="grid size-9 place-items-center rounded-r-sm border border-border hover:bg-muted"><Plus size={14} /></button>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground">WAV export is limited to {AUDIO_EXPORT_MAX_SECONDS / 60} minutes; full chapter sources over {AUDIO_EXPORT_MAX_SOURCE_SECONDS / 60} minutes and files over {Math.round(AUDIO_EXPORT_MAX_SOURCE_BYTES / 1024 / 1024)} MB are not decoded in-browser to protect device memory.</p>
+              <p className="text-xs text-muted-foreground">There is no duration cap. Large recordings need more browser memory to decode and create a WAV; if your device cannot handle one, try ayah-by-ayah mode or another browser.</p>
               {audioProgress && <p role="status" aria-live="polite" className="flex items-center gap-2 text-xs"><Loader2 size={14} className="animate-spin" />{audioProgress}</p>}
               <div className="rounded-sm border border-border bg-muted/40 p-3">
                 <p className={legend}>Sources &amp; attribution</p>

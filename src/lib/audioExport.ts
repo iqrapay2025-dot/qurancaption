@@ -1,7 +1,4 @@
 export const AUDIO_EXPORT_PRO_ONLY = false;
-export const AUDIO_EXPORT_MAX_SECONDS = 120;
-export const AUDIO_EXPORT_MAX_SOURCE_SECONDS = 300;
-export const AUDIO_EXPORT_MAX_SOURCE_BYTES = 12 * 1024 * 1024;
 
 export type AudioSamples = { sampleRate: number; channels: Float32Array[] };
 
@@ -79,6 +76,9 @@ export function encodeWav({ sampleRate, channels }: AudioSamples) {
   const frames = channels[0].length;
   const blockAlign = channels.length * 2;
   const dataBytes = frames * blockAlign;
+  if (!Number.isSafeInteger(dataBytes) || dataBytes > 0xffffffff - 36) {
+    throw new Error("This audio exceeds the maximum size supported by standard WAV files.");
+  }
   const buffer = new ArrayBuffer(44 + dataBytes);
   const view = new DataView(buffer);
   const write = (at: number, value: string) => { for (let i = 0; i < value.length; i++) view.setUint8(at + i, value.charCodeAt(i)); };
