@@ -24,7 +24,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'
 //     Analytics snippet and Tailwind v4. Move to nonces later.
 //   * 'unsafe-eval' is added in development only: React uses eval() for
 //     debugging there and never uses it in production.
-//   * connect-src allows Google Analytics so its data requests are not blocked.
+//   * connect-src allows Google Analytics and the two public UmmahAPI audio hosts.
 //   * worker-src allows blob workers used by the Payload admin editor.
 //   * If an inline Paystack integration is added later, allow
 //     https://js.paystack.co in script-src and https://api.paystack.co in
@@ -37,7 +37,7 @@ const csp = [
   "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com",
+  "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://download.quranicaudio.com https://everyayah.com",
   "media-src 'self' https: blob:",
   "worker-src 'self' blob:",
   "frame-src 'none'",

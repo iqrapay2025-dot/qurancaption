@@ -7,8 +7,9 @@ import { strToU8, zipSync } from "fflate";
 import { appFetch, type Upgrade } from "../lib/app/client";
 import { FREE_LIMITS } from "../lib/app/plans";
 import { overlaySupport, renderOverlay, type OverlayStyle, type Support } from "../lib/overlay";
+import { AUDIO_EXPORT_MAX_SECONDS, AUDIO_EXPORT_MAX_SOURCE_BYTES, AUDIO_EXPORT_MAX_SOURCE_SECONDS, AUDIO_EXPORT_PRO_ONLY, buildAudioFilename, concatenateSamples, encodeWav, fitSamplesToFrames, sampleRange, shiftSamples, type AudioSamples } from "../lib/audioExport";
 import { DEFAULT_SPLIT, fmt, toArabicDigits, buildCaptions, creditLines, toSRT, toVTT, type Verse } from "../data";
-import { TRANSLITERATION_ID, type ApiVerse, type Chapter, type Reciter, type TranslationRes } from "../lib/quran/types";
+import { TRANSLITERATION_ID, type ApiVerse, type AyahFile, type Chapter, type Reciter, type TranslationRes } from "../lib/quran/types";
 
 export type Layers = { arabic: boolean; tr1: string | null; tr2: string | null; translit: boolean; verseKey: boolean };
 
@@ -16,7 +17,7 @@ export type RangeSnap = { surah: number; from: number; to: number; durs?: number
 
 type Format = "srt" | "vtt";
 type Mode = "combined" | "separate";
-type OptionId = "srt" | "vtt" | "combined" | "separate" | "overlay";
+type OptionId = "srt" | "vtt" | "combined" | "separate" | "overlay" | "audio";
 
 const EDITORS = ["CapCut", "Premiere Pro", "DaVinci Resolve", "Filmora"] as const;
 
@@ -44,6 +45,12 @@ const IMPORT: Record<Exclude<OptionId, "overlay">, Record<(typeof EDITORS)[numbe
     "Premiere Pro": "Import both files and place them on two caption tracks to style them separately.",
     "DaVinci Resolve": "Import both, and drop each onto its own subtitle track (right-click to add a track).",
     Filmora: "Import both files. Each becomes its own subtitle track you can style separately.",
+  },
+  audio: {
+    CapCut: "Import the WAV as an audio track and place it at 0:00 with the matching captions.",
+    "Premiere Pro": "Import the WAV, add it to an audio track, and place it at 0:00 with the matching captions.",
+    "DaVinci Resolve": "Import the WAV onto an audio track and align it at 0:00 with the matching captions.",
+    Filmora: "Import the WAV as an audio track and place it at 0:00 with the matching captions.",
   },
 };
 
@@ -84,7 +91,7 @@ function Option({
       <label className={`flex items-start gap-3 p-3.5 ${disabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-muted/60"}`}>
         <input
           type="radio" name={group} checked={checked} disabled={disabled} onChange={onSelect}
-          className="mt-1 size-4 shrink-0 accent-[var(--primary)]"
+          className="mt-1 size-4 shrink-0 accent-primary"
         />
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
@@ -106,10 +113,52 @@ function Option({
   );
 }
 
-export default function ExportDialog({ ranges, activeIndex, chapters, verses, layers, chapter, translations, reciter, isPro, requestUpgrade, onClose, onExported, style, ratio }: { style: OverlayStyle & { tajweed?: boolean }; ratio: string; ranges: RangeSnap[]; activeIndex: number; chapters: Chapter[]; isPro: boolean; requestUpgrade: (u: Upgrade) => void; verses: Verse[]; layers: Layers; chapter: Chapter; translations: TranslationRes[]; reciter?: Reciter | null; onClose: () => void; onExported?: () => void }) {
+async function fetchAudioBytes(url: string) {
+  let parsed: URL;
+  try { parsed = new URL(url); }
+  catch { throw new Error("The recitation audio URL is invalid."); }
+  if (parsed.protocol !== "https:") throw new Error("Recitation audio must use a secure HTTPS URL.");
+  const response = await fetch(parsed, { mode: "cors", cache: "no-store", signal: AbortSignal.timeout(30_000) });
+  if (!response.ok) throw new Error(`The recitation audio host returned HTTP ${response.status}.`);
+  const announced = Number(response.headers.get("content-length"));
+  if (Number.isFinite(announced) && announced > AUDIO_EXPORT_MAX_SOURCE_BYTES) {
+    throw new Error("This audio source is too large to safely decode on a phone. Try ayah-by-ayah mode or a shorter recording.");
+  }
+  if (!response.body) {
+    const bytes = await response.arrayBuffer();
+    if (bytes.byteLength > AUDIO_EXPORT_MAX_SOURCE_BYTES) throw new Error("This audio source is too large to safely decode on a phone.");
+    return bytes;
+  }
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > AUDIO_EXPORT_MAX_SOURCE_BYTES) {
+      await reader.cancel();
+      throw new Error("This audio source is too large to safely decode on a phone. Try ayah-by-ayah mode or a shorter recording.");
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(total);
+  let at = 0;
+  for (const chunk of chunks) { bytes.set(chunk, at); at += chunk.byteLength; }
+  return bytes.buffer;
+}
+
+function copyAudioBuffer(buffer: AudioBuffer): AudioSamples {
+  return {
+    sampleRate: buffer.sampleRate,
+    channels: Array.from({ length: Math.min(buffer.numberOfChannels, 2) }, (_, i) => buffer.getChannelData(i).slice()),
+  };
+}
+
+export default function ExportDialog({ ranges, activeIndex, chapters, verses, layers, chapter, translations, reciter, isPro, requestUpgrade, onClose, onExported, style, ratio, audioMode, chapterAudioUrl, ayahFiles, audioFailed, missingAudio, ownAudio, audioSourceDuration, audioTimingMeasured }: { style: OverlayStyle & { tajweed?: boolean }; ratio: string; ranges: RangeSnap[]; activeIndex: number; chapters: Chapter[]; isPro: boolean; requestUpgrade: (u: Upgrade) => void; verses: Verse[]; layers: Layers; chapter: Chapter; translations: TranslationRes[]; reciter?: Reciter | null; onClose: () => void; onExported?: () => void; audioMode: "chapter" | "ayah"; chapterAudioUrl?: string; ayahFiles: AyahFile[]; audioFailed: boolean; missingAudio: boolean; ownAudio: boolean; audioSourceDuration: number; audioTimingMeasured: boolean }) {
   const slugOf = (id: number) => (chapters.find((c) => c.id === id)?.nameSimple ?? `surah-${id}`).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const [format, setFormat] = useState<Format>("srt");
-  const [kind, setKind] = useState<"captions" | "overlay">("captions");
+  const [kind, setKind] = useState<"captions" | "audio" | "overlay">("captions");
   const [support, setSupport] = useState<Support | "checking" | null>(null);
   const [ov, setOv] = useState<{ phase: "idle" | "rendering" | "done" | "nocheck"; p: number; t: number; blob?: Blob; err?: string }>({ phase: "idle", p: 0, t: 0 });
   const abort = useRef<AbortController | null>(null);
@@ -131,8 +180,39 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
   const [verseKey, setVerseKey] = useState(layers.verseKey);
   const [help, setHelp] = useState<OptionId | null>("srt");
   const multi = ranges.length > 1;
+  const activeRange = ranges[activeIndex];
+  const selectedAudioDuration = verses.length ? verses[verses.length - 1].end - verses[0].start + offset : 0;
+  const audioUnavailable = ownAudio
+    ? "You already have your own file."
+    : audioFailed
+      ? "The recitation audio failed to load. Try another reciter."
+      : missingAudio
+        ? "Audio is missing for one or more selected ayahs."
+        : !reciter
+          ? "Select a reciter first."
+          : audioMode === "chapter"
+            ? !chapterAudioUrl || !Number.isFinite(audioSourceDuration) || audioSourceDuration <= 0
+              ? "The chapter audio has not loaded yet."
+              : activeRange.from > 1
+                ? "This chapter recording has no absolute verse timestamps, so ranges starting after ayah 1 cannot be cut reliably. Use ayah-by-ayah mode."
+                : audioSourceDuration > AUDIO_EXPORT_MAX_SOURCE_SECONDS
+                  ? `The full chapter is longer than ${AUDIO_EXPORT_MAX_SOURCE_SECONDS / 60} minutes and cannot be safely decoded on a phone. Try ayah-by-ayah mode.`
+                  : null
+            : !audioTimingMeasured
+              ? "Wait for the selected ayah audio lengths to finish measuring."
+              : ayahFiles.length !== verses.length
+                ? "Audio is missing for one or more selected ayahs."
+                : null;
+  const audioLimitMessage = selectedAudioDuration > AUDIO_EXPORT_MAX_SECONDS
+    ? `Audio export is limited to ${AUDIO_EXPORT_MAX_SECONDS / 60} minutes to keep memory use manageable on phones. Select a shorter range.`
+    : selectedAudioDuration <= 0
+      ? "The timing offset removes the entire audio range."
+      : null;
+  const audioUnavailableMessage = audioUnavailable ?? audioLimitMessage;
+  const audioAvailable = !audioUnavailableMessage;
   const [perRange, setPerRange] = useState(true);
   const [asZip, setAsZip] = useState(true);
+  const [audioProgress, setAudioProgress] = useState<string | null>(null);
 
   const trIds = [layers.tr1, layers.tr2].filter(Boolean) as string[];
   const hasTranslation = trIds.length > 0 || layers.translit;
@@ -223,32 +303,116 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
     URL.revokeObjectURL(url);
   };
 
+  const prepareAudio = async () => {
+    if (!audioAvailable || !reciter) throw new Error(audioUnavailableMessage ?? "Recitation audio is unavailable.");
+    if (selectedAudioDuration > AUDIO_EXPORT_MAX_SECONDS) throw new Error(audioLimitMessage!);
+    if (audioMode === "chapter" && (!chapterAudioUrl || audioSourceDuration > AUDIO_EXPORT_MAX_SOURCE_SECONDS)) {
+      throw new Error(`The full chapter is longer than ${AUDIO_EXPORT_MAX_SOURCE_SECONDS / 60} minutes and cannot be safely decoded on a phone. Try ayah-by-ayah mode.`);
+    }
+
+    const context = new AudioContext();
+    try {
+      let output: AudioSamples;
+      if (audioMode === "chapter") {
+        setAudioProgress("Downloading chapter audio…");
+        const decoded = await context.decodeAudioData(await fetchAudioBytes(chapterAudioUrl!));
+        if (decoded.duration > AUDIO_EXPORT_MAX_SOURCE_SECONDS) {
+          throw new Error(`The full chapter is longer than ${AUDIO_EXPORT_MAX_SOURCE_SECONDS / 60} minutes and cannot be safely decoded on a phone. Try ayah-by-ayah mode.`);
+        }
+        const start = verses[0].start;
+        const end = verses[verses.length - 1].end;
+        const range = sampleRange(start, end, decoded.sampleRate, decoded.length);
+        if (range.end <= range.start || end > decoded.duration + 0.05) throw new Error("The selected verse timings fall outside the loaded chapter audio.");
+        const channels = Array.from({ length: Math.min(decoded.numberOfChannels, 2) }, (_, i) => decoded.getChannelData(i).subarray(range.start, range.end).slice());
+        output = { sampleRate: decoded.sampleRate, channels: shiftSamples(channels, decoded.sampleRate, offset) };
+      } else {
+        const byVerse = new Map(ayahFiles.map((file) => [file.verseKey, file]));
+        const selected = verses.map((verse) => {
+          const file = byVerse.get(verse.key);
+          if (!file) throw new Error(`Audio is missing for ayah ${verse.key}.`);
+          return { verse, file };
+        });
+        const chunks: AudioSamples[] = [];
+        for (const [i, item] of selected.entries()) {
+          setAudioProgress(`Preparing ayah ${i + 1} of ${selected.length}…`);
+          const decoded = await context.decodeAudioData(await fetchAudioBytes(item.file.audioUrl));
+          if (decoded.duration > AUDIO_EXPORT_MAX_SOURCE_SECONDS) {
+            throw new Error(`Ayah ${item.verse.key} is longer than ${AUDIO_EXPORT_MAX_SOURCE_SECONDS / 60} minutes and cannot be safely decoded.`);
+          }
+          const duration = item.verse.end - item.verse.start;
+          if (!Number.isFinite(duration) || duration <= 0) throw new Error(`The timing for ayah ${item.verse.key} is invalid.`);
+          const frames = Math.round(duration * decoded.sampleRate);
+          const samples = copyAudioBuffer(decoded);
+          chunks.push({ sampleRate: decoded.sampleRate, channels: samples.channels.map((channel) => fitSamplesToFrames(channel, frames)) });
+        }
+        output = concatenateSamples(chunks);
+        output = { ...output, channels: shiftSamples(output.channels, output.sampleRate, offset) };
+      }
+
+      const duration = output.channels[0].length / output.sampleRate;
+      if (!duration || duration > AUDIO_EXPORT_MAX_SECONDS) {
+        throw new Error(`Audio export is limited to ${AUDIO_EXPORT_MAX_SECONDS / 60} minutes to keep memory use manageable on phones. Select a shorter range.`);
+      }
+      setAudioProgress("Encoding WAV…");
+      return {
+        name: buildAudioFilename(chapter.nameSimple, activeRange.from, activeRange.to, reciter.name),
+        bytes: encodeWav(output),
+      };
+    } finally {
+      await context.close();
+    }
+  };
+
   const download = async () => {
-    if (busy || loading || loadErr) return;
-    if (!isPro && totalVerses > FREE_LIMITS.verses) { onClose(); return requestUpgrade({ code: "verse_limit" }); }
+    const includesCaptions = kind === "captions" || zipped;
+    const includesAudio = kind === "audio" || zipped;
+    if (busy || (includesCaptions && (loading || loadErr))) return;
+    if (kind === "audio" && !audioAvailable) return setError(audioUnavailableMessage);
+    if (includesCaptions && !isPro && totalVerses > FREE_LIMITS.verses) { onClose(); return requestUpgrade({ code: "verse_limit" }); }
     setBusy(true);
     setError(null);
-    const r = await appFetch<{ files: { name: string; body: string }[] }>("/api/app/export", {
-      body: {
-        ranges: ranges.map((x, i) => ({ surah: x.surah, from: x.from, to: x.to, timings: rv[i]!.map((v) => ({ n: v.n, start: v.start, end: v.end })) })),
-        offset, format, split, credit,
-        files: files.map((f) => ({ name: f.name, layers: f.layers, ranges: f.ranges })),
-      },
-    });
-    setBusy(false);
-    if (!r.ok) {
-      if (r.status === 402) { onClose(); return requestUpgrade({ code: (r.code as any) ?? "verse_limit", message: r.error }); }
-      return setError(r.error);
+    try {
+      let out: { name: string; body: string }[] = [];
+      if (includesCaptions) {
+        const r = await appFetch<{ files: { name: string; body: string }[] }>("/api/app/export", {
+          body: {
+            ranges: ranges.map((x, i) => ({ surah: x.surah, from: x.from, to: x.to, timings: rv[i]!.map((v) => ({ n: v.n, start: v.start, end: v.end })) })),
+            offset, format, split, credit,
+            files: files.map((f) => ({ name: f.name, layers: f.layers, ranges: f.ranges })),
+          },
+        });
+        if (!r.ok) {
+          if (r.status === 402) { onClose(); return requestUpgrade({ code: (r.code as any) ?? "verse_limit", message: r.error }); }
+          setError(r.error);
+          return;
+        }
+        out = r.data.files.filter((f) => f.body.trim());
+      }
+
+      const audioFile = includesAudio && audioAvailable ? await prepareAudio() : null;
+      if (zipped) {
+        const entries: Record<string, Uint8Array> = Object.fromEntries(out.map((f) => [f.name, strToU8("\uFEFF" + f.body)]));
+        if (audioFile) entries[audioFile.name] = new Uint8Array(audioFile.bytes);
+        const zip = zipSync(entries, { level: 6 });
+        save(`quran-captions${audioFile ? "-and-audio" : ""}_${format}.zip`, new Blob([zip as BlobPart], { type: "application/zip" }));
+      } else if (kind === "audio" && audioFile) {
+        save(audioFile.name, new Blob([audioFile.bytes], { type: "audio/wav" }));
+      } else {
+        out.forEach((f, i) => setTimeout(() => save(f.name, new Blob(["\uFEFF" + f.body], { type: "text/plain;charset=utf-8" })), i * 350));
+      }
+      onExported?.();
+      setTimeout(onClose, zipped ? 400 : out.length * 350 || 400);
+    } catch (e) {
+      const message = e instanceof DOMException && e.name === "TimeoutError"
+        ? "Downloading recitation audio timed out. Check your connection and try again."
+        : e instanceof TypeError
+          ? "The browser could not read this recitation host. Check your connection or choose another reciter."
+          : e instanceof Error ? e.message : "Audio export failed.";
+      setError(message);
+    } finally {
+      setBusy(false);
+      setAudioProgress(null);
     }
-    const out = r.data.files.filter((f) => f.body.trim());
-    if (zipped) {
-      const zip = zipSync(Object.fromEntries(out.map((f) => [f.name, strToU8("\uFEFF" + f.body)])), { level: 6 });
-      save(`quran-captions_${format}.zip`, new Blob([zip as BlobPart], { type: "application/zip" }));
-    } else {
-      out.forEach((f, i) => setTimeout(() => save(f.name, new Blob(["\uFEFF" + f.body], { type: "text/plain;charset=utf-8" })), i * 350));
-    }
-    onExported?.();
-    setTimeout(onClose, zipped ? 400 : out.length * 350);
   };
 
   const overlayName = `${slugOf(ranges[activeIndex].surah)}_${ranges[activeIndex].from}-${ranges[activeIndex].to}_overlay.webm`;
@@ -288,7 +452,7 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
         <div className="flex items-start justify-between border-b border-border p-5">
           <div>
             <h2 className="font-display text-xl font-bold">Export captions</h2>
-            <p className="text-sm text-muted-foreground">{multi ? `${ranges.length} ranges · ${totalVerses} verses` : `${chapter.nameSimple} · ayat ${ranges[0].from}–${ranges[0].to}`} · UTF-8 · {format.toUpperCase()}</p>
+            <p className="text-sm text-muted-foreground">{multi ? `${ranges.length} ranges · ${totalVerses} verses` : `${chapter.nameSimple} · ayat ${ranges[0].from}–${ranges[0].to}`} · {kind === "audio" ? "WAV" : `UTF-8 · ${format.toUpperCase()}`}</p>
           </div>
           <button onClick={onClose} aria-label="Close" className="rounded-full p-2 hover:bg-secondary"><X size={18} /></button>
         </div>
@@ -299,10 +463,55 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
             <div className="space-y-2.5">
               <Option id="srt" group="format" checked={kind === "captions" && format === "srt"} title="SRT" badge="Recommended" desc="Works in nearly every video editor." helpOpen={help === "srt"} onHelp={toggleHelp("srt")} onSelect={pick("srt", () => { setKind("captions"); setFormat("srt"); })} />
               <Option id="vtt" group="format" checked={kind === "captions" && format === "vtt"} title="VTT" desc="WebVTT, for web players and some editors." helpOpen={help === "vtt"} onHelp={toggleHelp("vtt")} onSelect={pick("vtt", () => { setKind("captions"); setFormat("vtt"); })} />
+              <Option
+                id="audio" group="format" checked={kind === "audio"} disabled={!audioAvailable}
+                title="Recitation audio" badge={AUDIO_EXPORT_PRO_ONLY ? "Pro" : undefined}
+                desc={audioUnavailableMessage ?? "WAV for the currently open verse range, timed to match your captions."}
+                helpOpen={help === "audio"} onHelp={toggleHelp("audio")}
+                onSelect={() => {
+                  if (AUDIO_EXPORT_PRO_ONLY && !isPro) { onClose(); return requestUpgrade({ code: "general", message: "Recitation audio export is a Pro feature." }); }
+                  setKind("audio"); setHelp("audio");
+                }}
+              />
               <Option id="overlay" group="format" checked={kind === "overlay"} title="Transparent video overlay" badge="Pro" desc="WebM with alpha channel to drop above your footage. Captions only, no audio." helpOpen={help === "overlay"} onHelp={toggleHelp("overlay")} onSelect={() => { if (!isPro) { onClose(); return requestUpgrade({ code: "overlay_video" }); } setKind("overlay"); setHelp("overlay"); }} />
             </div>
             <p className="mt-2.5 text-xs text-muted-foreground">SRT and VTT files can&apos;t carry colors. Tajweed colors appear in the editor preview only; the transparent video does not draw them yet.</p>
           </fieldset>
+
+          {kind === "audio" && (
+            <div className="space-y-3 rounded-sm border border-border p-3.5 text-sm">
+              <p>Downloads a WAV covering {chapter.nameSimple} {activeRange.from}–{activeRange.to}. Import it at 0:00 alongside the matching captions.</p>
+              <p className="text-xs text-muted-foreground">
+                {audioMode === "chapter"
+                  ? `The selected verse timing is cut from the full chapter recording. The timing offset (${offset >= 0 ? "+" : ""}${offset}s) is applied as ${offset >= 0 ? "leading silence" : "a trim from the start"}.`
+                  : `Selected ayah files are joined in order with no gaps. The timing offset (${offset >= 0 ? "+" : ""}${offset}s) is applied as ${offset >= 0 ? "leading silence" : "a trim from the start"}.`}
+              </p>
+              <div className="flex items-center justify-between gap-3">
+                <label htmlFor="audio-offset" className="text-sm">Timing offset <span className="block text-xs text-muted-foreground">keeps audio aligned with the caption timing</span></label>
+                <div className="flex items-center">
+                  <button type="button" aria-label="Subtract 0.1 seconds" onClick={() => nudge(-0.1)} className="grid size-9 place-items-center rounded-l-sm border border-border hover:bg-muted"><Minus size={14} /></button>
+                  <input id="audio-offset" type="number" step="0.1" value={offset} onChange={(e) => setOffset(Number.isFinite(e.target.valueAsNumber) ? e.target.valueAsNumber : 0)} className="h-9 w-20 border-y border-border bg-background text-center font-mono text-sm" />
+                  <button type="button" aria-label="Add 0.1 seconds" onClick={() => nudge(0.1)} className="grid size-9 place-items-center rounded-r-sm border border-border hover:bg-muted"><Plus size={14} /></button>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">WAV export is limited to {AUDIO_EXPORT_MAX_SECONDS / 60} minutes; full chapter sources over {AUDIO_EXPORT_MAX_SOURCE_SECONDS / 60} minutes and files over {Math.round(AUDIO_EXPORT_MAX_SOURCE_BYTES / 1024 / 1024)} MB are not decoded in-browser to protect device memory.</p>
+              {audioProgress && <p role="status" aria-live="polite" className="flex items-center gap-2 text-xs"><Loader2 size={14} className="animate-spin" />{audioProgress}</p>}
+              <div className="rounded-sm border border-border bg-muted/40 p-3">
+                <p className={legend}>Sources &amp; attribution</p>
+                <Attribution translations={sourcesFor(translations, [...new Set([layers.tr1, layers.tr2, layers.translit ? TRANSLITERATION_ID : null])])} reciter={reciter} />
+              </div>
+            </div>
+          )}
+
+          {kind === "audio" && multi && (
+            <fieldset>
+              <legend className={legend}>Bundle</legend>
+              <label className={`flex items-center justify-between gap-3 rounded-sm border border-border p-3.5 text-sm ${files.length > 1 ? "cursor-pointer" : "opacity-60"}`}>
+                <span>Include captions in a .zip <span className="block text-xs text-muted-foreground">{files.length > 1 ? "Bundles all generated captions with the selected range's audio." : "A ZIP is available when more than one caption file will be created."}{!audioAvailable && ` Audio won't be included: ${audioUnavailableMessage}`}</span></span>
+                <input type="checkbox" role="switch" checked={asZip} disabled={files.length < 2} onChange={(e) => setAsZip(e.target.checked)} className="size-4 shrink-0 accent-primary" />
+              </label>
+            </fieldset>
+          )}
 
           {kind === "overlay" && (
             <div className="space-y-4">
@@ -318,7 +527,7 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
                 </div>
                 <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-border pt-3 text-sm">
                   <span>Show verse number <span translate="no" className="font-mono text-xs text-muted-foreground">﴿{toArabicDigits(verses[0].n)}﴾</span></span>
-                  <input type="checkbox" role="switch" checked={verseKey} onChange={(e) => setVerseKey(e.target.checked)} className="size-4 accent-[var(--primary)]" />
+                  <input type="checkbox" role="switch" checked={verseKey} onChange={(e) => setVerseKey(e.target.checked)} className="size-4 accent-primary" />
                 </label>
               </div>
               <div role="status" className="flex gap-2.5 rounded-sm border border-amber-500/40 bg-amber-500/10 p-3.5 text-xs">
@@ -379,11 +588,11 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
                 </p>
                 <label className="flex cursor-pointer items-center justify-between gap-3 text-sm">
                   <span>Export each range as a separate file <span className="block text-xs text-muted-foreground">Each file starts at 0:00. Turn off to join all ranges one after another in one timeline.</span></span>
-                  <input type="checkbox" role="switch" checked={perRange} onChange={(e) => setPerRange(e.target.checked)} className="size-4 shrink-0 accent-[var(--primary)]" />
+                  <input type="checkbox" role="switch" checked={perRange} onChange={(e) => setPerRange(e.target.checked)} className="size-4 shrink-0 accent-primary" />
                 </label>
                 <label className={`flex items-center justify-between gap-3 border-t border-border pt-3 text-sm ${files.length > 1 ? "cursor-pointer" : "opacity-60"}`}>
-                  <span>Download all as .zip <span className="block text-xs text-muted-foreground">{files.length > 1 ? `Bundles ${files.length} files into one download.` : "Only one file will be created."}</span></span>
-                  <input type="checkbox" role="switch" checked={asZip} disabled={files.length < 2} onChange={(e) => setAsZip(e.target.checked)} className="size-4 shrink-0 accent-[var(--primary)]" />
+                  <span>Download all as .zip <span className="block text-xs text-muted-foreground">{files.length > 1 ? `Bundles ${files.length} caption files${audioAvailable ? " and the current recitation audio" : `; audio unavailable: ${audioUnavailableMessage}`}.` : "Only one file will be created."}</span></span>
+                  <input type="checkbox" role="switch" checked={asZip} disabled={files.length < 2} onChange={(e) => setAsZip(e.target.checked)} className="size-4 shrink-0 accent-primary" />
                 </label>
                 {untimed && <p role="status" className="text-xs text-amber-700 dark:text-amber-400">Some ranges haven&apos;t been timed yet, so they use 5 seconds per verse. Open each range in the editor to measure its timing first.</p>}
               </div>
@@ -394,7 +603,7 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
             <legend className={legend}>Credit</legend>
             <label className="flex cursor-pointer items-center justify-between gap-3 rounded-sm border border-border p-3.5 text-sm">
               <span>Include translation credit <span className="block text-xs text-muted-foreground">{format === "srt" ? "Adds a final 3-second caption naming each translation source." : "Adds a NOTE comment naming each translation source. Players do not display it."}</span></span>
-              <input type="checkbox" role="switch" checked={credit} onChange={(e) => setCredit(e.target.checked)} className="size-4 shrink-0 accent-[var(--primary)]" />
+              <input type="checkbox" role="switch" checked={credit} onChange={(e) => setCredit(e.target.checked)} className="size-4 shrink-0 accent-primary" />
             </label>
           </fieldset>
 
@@ -417,7 +626,7 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
               </div>
               <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-border pt-3 text-sm">
                 <span>Split long verses <span className="block text-xs text-muted-foreground">Breaks at pause marks and punctuation; the verse&apos;s time is shared across the parts.</span></span>
-                <input type="checkbox" role="switch" checked={splitOn} onChange={(e) => setSplitOn(e.target.checked)} className="size-4 shrink-0 accent-[var(--primary)]" />
+                <input type="checkbox" role="switch" checked={splitOn} onChange={(e) => setSplitOn(e.target.checked)} className="size-4 shrink-0 accent-primary" />
               </label>
               <div className={`grid gap-3 sm:grid-cols-2 ${splitOn ? "" : "pointer-events-none opacity-50"}`}>
                 {([["Arabic", maxAr, setMaxAr, "maxAr"], ["Translation", maxTr, setMaxTr, "maxTr"]] as const).map(([label, val, set, id]) => (
@@ -429,7 +638,7 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
               </div>
               <label className="flex cursor-pointer items-center justify-between gap-3 border-t border-border pt-3 text-sm">
                 <span>Append verse key <span translate="no" className="font-mono text-xs text-muted-foreground">﴿{toArabicDigits(verses[0].n)}﴾</span></span>
-                <input type="checkbox" role="switch" checked={verseKey} onChange={(e) => setVerseKey(e.target.checked)} className="size-4 accent-[var(--primary)]" />
+                <input type="checkbox" role="switch" checked={verseKey} onChange={(e) => setVerseKey(e.target.checked)} className="size-4 accent-primary" />
               </label>
             </div>
           </fieldset>
@@ -470,10 +679,11 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
             )
           ) : (
           <button
-            onClick={download} disabled={empty || busy || loading || !!loadErr}
+            onClick={download}
+            disabled={busy || (kind === "audio" ? !audioAvailable || (zipped && (empty || loading || !!loadErr)) : empty || loading || !!loadErr)}
             className="flex w-full items-center justify-center gap-2 rounded-sm bg-primary py-3 font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
           >
-            <Download size={18} /> {busy ? "Preparing…" : zipped ? `Download ${rendered.length} files as .zip` : `Download ${rendered.length > 1 ? `${rendered.length} ${format.toUpperCase()} files` : `${format.toUpperCase()} file`}`}
+            {busy ? <><Loader2 size={18} className="animate-spin" /> {audioProgress ?? "Preparing…"}</> : <><Download size={18} /> {kind === "audio" ? zipped ? `Download captions + WAV as .zip` : "Download recitation WAV" : zipped ? `Download ${rendered.length} files${audioAvailable ? " + audio" : ""} as .zip` : `${rendered.length > 1 ? `${rendered.length} ${format.toUpperCase()} files` : `${format.toUpperCase()} file`}`}</>}
           </button>
           )}
         </div>

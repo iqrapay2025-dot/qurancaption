@@ -104,7 +104,7 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
                   </fieldset>
                 )}
                 {error && <p role="alert" className="mt-4 rounded-sm border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">{error}</p>}
-                <button onClick={upgrade} disabled={busy || !ready} className="mt-4 w-full rounded-sm bg-gradient-to-b from-[#2cbd6d] to-[#178f4a] px-5 py-3 text-sm font-semibold text-white shadow-md hover:brightness-95 disabled:opacity-60">
+                <button onClick={upgrade} disabled={busy || !ready} className="mt-4 w-full rounded-sm bg-linear-to-b from-[#2cbd6d] to-[#178f4a] px-5 py-3 text-sm font-semibold text-white shadow-md hover:brightness-95 disabled:opacity-60">
                   {busy ? "Redirecting to checkout…" : user ? `Upgrade to Pro with ${provider === "paystack" ? "Paystack" : "Flutterwave"}` : "Sign up to upgrade"}
                 </button>
               </>

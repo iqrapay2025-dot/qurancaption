@@ -37,7 +37,7 @@ export default function UpgradeDialog({ upgrade, signedIn, onClose, onPlans }: {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-center bg-black/55 p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 z-60 grid place-items-center bg-black/55 p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div role="dialog" aria-modal="true" aria-labelledby="upg-title" className="relative w-full max-w-md rounded-md border border-border bg-card p-7 shadow-2xl">
         <button onClick={onClose} aria-label="Close" className="absolute top-3 right-3 grid size-8 place-items-center rounded-sm hover:bg-secondary"><X size={16} /></button>
         <div className="grid size-11 place-items-center rounded-full bg-secondary text-primary"><Sparkles size={20} /></div>

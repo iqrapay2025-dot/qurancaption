@@ -68,7 +68,7 @@ function Range({ label, value, min, max, step = 1, onChange }: { label: string; 
   return (
     <label className="block">
       <span className={`${labelCls} flex justify-between`}><span>{label}</span><span className="font-mono">{value}</span></span>
-      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(+e.target.value)} className="w-full accent-[var(--primary)]" />
+      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(+e.target.value)} className="w-full accent-primary" />
     </label>
   );
 }
@@ -302,7 +302,8 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
   const audioSrc = ownActive ? own?.url : ayahMode ? ayahFiles.get(verses[Math.min(playIdx, verses.length - 1)]?.key ?? "")?.audioUrl : chapterAudio?.audioUrl;
   const mediaKey = ownActive ? own?.url : ayahMode ? rangeFiles.map((f) => f.audioUrl).join("|") : chapterAudio?.audioUrl;
   useEffect(() => setAudioFailed(false), [audioSrc]);
-  const ready = verses.length > 0 && verses.every((v) => Number.isFinite(v.start) && Number.isFinite(v.end)) && !!audioSrc && !missingAudio && !audioFailed;
+  const timingsReady = verses.length > 0 && verses.every((v) => Number.isFinite(v.start) && Number.isFinite(v.end));
+  const ready = timingsReady && !!audioSrc && !missingAudio && !audioFailed;
   const timed = ready ? verses : [];
   const t0 = ready ? verses[0].start : 0;
   const tEnd = ready ? verses[verses.length - 1].end : 0;
@@ -691,7 +692,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
         <div className="ml-auto flex items-center gap-2 md:ml-0">
           <SaveIndicator status={status} savedAt={savedAt} onRetry={save} onSignup={() => requestAuth({ mode: "signup", reason: "Create a free account and your work is saved automatically." })} />
           <ThemeToggle dark={dark} toggle={toggleTheme} />
-          <button onClick={tryExport} disabled={!ready} title={ready ? undefined : "Export is available once verses and timings have loaded"} className="flex items-center disabled:opacity-50 gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+          <button onClick={tryExport} disabled={!timingsReady} title={timingsReady ? undefined : "Export is available once verses and timings have loaded"} className="flex items-center disabled:opacity-50 gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
             <Upload size={15} /> Export
           </button>
           <AccountMenu user={user} onLogin={() => requestAuth({ mode: "login" })} onProjects={onProjects} onSettings={onSettings} onSignOut={onSignOut} />
@@ -1016,7 +1017,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
 
               <div className="mt-4 w-full max-w-xl rounded-sm border border-border bg-card p-4">
                 {audioSrc && <audio ref={audioRef} src={audioSrc} preload="metadata" onLoadedMetadata={onMeta} onEnded={onEnded} onPause={() => setPlaying(false)} onError={(e) => { console.error("audio error", (e.target as HTMLAudioElement)?.error); setAudioFailed(true); }} />}
-                <input aria-label="Scrub" type="range" disabled={!ready} min={0} max={total || 1} step={0.1} value={time} onChange={(e) => seek(+e.target.value)} className="w-full accent-[var(--primary)]" />
+                <input aria-label="Scrub" type="range" disabled={!ready} min={0} max={total || 1} step={0.1} value={time} onChange={(e) => seek(+e.target.value)} className="w-full accent-primary" />
                 <div className="mt-2 flex items-center justify-between">
                   <span className="w-24 font-mono text-xs text-muted-foreground">{fmt(time)} / {fmt(total)}</span>
                   <div className="flex items-center gap-2">
@@ -1084,7 +1085,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
         ))}
       </nav>
 
-      {exporting && ready && chapter && <ExportDialog ranges={allRanges} activeIndex={active} chapters={chapters} verses={verses} layers={layers} chapter={chapter} translations={translations} reciter={ownActive ? null : reciter} style={style} ratio={ratio} isPro={isPro} requestUpgrade={requestUpgrade} onClose={closeExport} onExported={onExported} />}
+      {exporting && timingsReady && chapter && <ExportDialog ranges={allRanges} activeIndex={active} chapters={chapters} verses={verses} layers={layers} chapter={chapter} translations={translations} reciter={ownActive ? null : reciter} style={style} ratio={ratio} isPro={isPro} requestUpgrade={requestUpgrade} onClose={closeExport} onExported={onExported} audioMode={ayahMode ? "ayah" : "chapter"} chapterAudioUrl={chapterAudio?.audioUrl} ayahFiles={rangeFiles} audioFailed={audioFailed} missingAudio={missingAudio} ownAudio={ownActive} audioSourceDuration={fileDur} audioTimingMeasured={!probing && (!ayahMode || manualKeys.size === 0)} />}
     </div>
   );
 }

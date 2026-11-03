@@ -87,7 +87,7 @@ export default function Projects({ user, ready, dark, toggleTheme, onHome, onNew
 
         {!ready || (user && items === null) ? (
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4" aria-busy="true">
-            {[0, 1, 2, 3].map((i) => <div key={i} className="aspect-[3/4] animate-pulse rounded-md bg-muted" />)}
+            {[0, 1, 2, 3].map((i) => <div key={i} className="aspect-3/4 animate-pulse rounded-md bg-muted" />)}
           </div>
         ) : !user ? (
           <div className="mt-10 rounded-md border border-dashed border-border p-10 text-center">

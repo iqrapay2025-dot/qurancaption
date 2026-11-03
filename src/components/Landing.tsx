@@ -16,12 +16,12 @@ const steps = [
 ];
 
 const editors = ["CapCut", "Premiere Pro", "DaVinci Resolve", "Filmora"];
-const btnGreen = "inline-flex items-center justify-center gap-2 rounded-sm bg-gradient-to-b from-[#2cbd6d] to-[#178f4a] px-7 py-3 text-sm font-semibold text-white shadow-md shadow-[#178f4a]/25 transition hover:brightness-95";
+const btnGreen = "inline-flex items-center justify-center gap-2 rounded-sm bg-linear-to-b from-[#2cbd6d] to-[#178f4a] px-7 py-3 text-sm font-semibold text-white shadow-md shadow-[#178f4a]/25 transition hover:brightness-95";
 const btnOutline = "inline-flex items-center justify-center rounded-sm border border-foreground/80 bg-card px-7 py-3 text-sm font-semibold transition hover:bg-foreground hover:text-background";
 
 function Mosque() {
   return (
-    <svg viewBox="0 0 600 360" aria-hidden="true" className="absolute right-0 bottom-0 h-full max-h-[420px] w-auto text-foreground opacity-[0.06]" fill="currentColor">
+    <svg viewBox="0 0 600 360" aria-hidden="true" className="absolute right-0 bottom-0 h-full max-h-105 w-auto text-foreground opacity-[0.06]" fill="currentColor">
       <path d="M40 360V150l20-40 20 40v210zM520 360V150l20-40 20 40v210zM140 360V220c0-60 40-100 100-130 10-40 30-60 60-90 30 30 50 50 60 90 60 30 100 70 100 130v140z" />
       <circle cx="430" cy="70" r="34" />
     </svg>
@@ -33,7 +33,7 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
-        <div className="mx-auto grid h-16 max-w-6xl grid-cols-[1fr_auto] items-center px-5 md:h-[72px] md:grid-cols-[1fr_auto_1fr] md:px-8">
+        <div className="mx-auto grid h-16 max-w-6xl grid-cols-[1fr_auto] items-center px-5 md:h-18 md:grid-cols-[1fr_auto_1fr] md:px-8">
           <div><Logo /></div>
           <nav className="hidden items-center gap-8 text-sm font-medium md:flex">
             <Link href="/home" className="hover:text-gold">Home</Link>
@@ -67,9 +67,9 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
             <p className="mt-4 text-sm text-muted-foreground">No signup needed for your first export.</p>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[22rem]">
+          <div className="relative mx-auto w-full max-w-88">
             <div className="absolute inset-x-6 -bottom-4 h-8 rounded-[50%] bg-foreground/20 blur-xl" />
-            <div className="checker relative aspect-[4/5] overflow-hidden rounded-md border-[6px] border-[#1a2547] shadow-2xl">
+            <div className="checker relative aspect-4/5 overflow-hidden rounded-md border-[6px] border-[#1a2547] shadow-2xl">
               <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-7 text-center text-white">
                 <p translate="no" dir="rtl" lang="ar" className="font-quran text-4xl leading-[1.9] [text-shadow:0_2px_12px_rgba(0,0,0,.7)] sm:text-5xl">{v.arabic}</p>
                 <p className="mx-auto mt-3 max-w-xs text-[15px] text-white/85 [text-shadow:0_1px_8px_rgba(0,0,0,.7)]">{v.text}</p>
@@ -91,7 +91,7 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
           {steps.map((s, i) => (
             <li key={s.title} className="rounded-md border border-border bg-card p-7 shadow-sm transition-shadow hover:shadow-lg">
               <div className="flex items-center justify-between">
-                <span className="grid size-12 place-items-center rounded-full bg-gradient-to-b from-[#2cbd6d] to-[#178f4a] text-white"><s.icon size={20} /></span>
+                <span className="grid size-12 place-items-center rounded-full bg-linear-to-b from-[#2cbd6d] to-[#178f4a] text-white"><s.icon size={20} /></span>
                 <span className="text-4xl font-bold text-foreground/10">0{i + 1}</span>
               </div>
               <h3 className="mt-5 mb-2 text-lg font-bold">{s.title}</h3>
