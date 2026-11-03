@@ -11,6 +11,7 @@ import "./styles.css"
 import CookieConsent from "@/components/CookieConsent"
 import CookieSettingsBar from "@/components/CookieSettingsBar"
 import SplashLoader from "@/components/SplashLoader"
+import BackToTop from "@/components/BackToTop"
 
 const title = makeSiteSettings.title ?? `${SITE.name} | ${SITE.tagline}`
 const description = makeSiteSettings.description ?? SITE.description
@@ -97,6 +98,7 @@ export default function RootLayout({
         <div id="root" tabIndex={-1}>
           {children}
         </div>
+        <BackToTop />
         {googleAnalyticsId && (
           <>
             <Script
