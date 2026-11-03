@@ -17,7 +17,7 @@ export function LegalPage({ title, children }: { title: string; children: ReactN
         <div className="mt-8 space-y-8 text-[15px] leading-relaxed [&_h2]:mb-2 [&_h2]:font-display [&_h2]:text-xl [&_h2]:font-bold [&_li]:ml-5 [&_li]:list-disc [&_a]:text-primary [&_a]:underline">{children}</div>
       </main>
       <footer className="border-t border-border px-5 py-6 text-center text-sm text-muted-foreground">
-        <Link className="underline" href="/terms">Terms of use</Link> · <Link className="underline" href="/privacy">Privacy policy</Link> · <a className="underline" href={`mailto:${SITE.email}`}>{SITE.email}</a>
+        <Link className="underline" href="/guide">Guide</Link> · <Link className="underline" href="/terms">Terms of use</Link> · <Link className="underline" href="/privacy">Privacy policy</Link> · <a className="underline" href={`mailto:${SITE.email}`}>{SITE.email}</a>
       </footer>
     </div>
   )

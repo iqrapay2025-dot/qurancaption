@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, Check, Plus, X, ChevronDown, Cloud, Loader2, Pause, Play, SkipBack, SkipForward, Upload } from "lucide-react";
+import { AlertCircle, Check, Plus, X, ChevronDown, CircleHelp, Cloud, Loader2, Pause, Play, SkipBack, SkipForward, Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { fmt, toArabicDigits, type Verse } from "../data";
 import { DEFAULT_TR1, DEFAULT_TR2, TRANSLITERATION_ID, type ApiErr, DEFAULT_RECITER, type ApiVerse, type SurahAudio, type Chapter, type Reciter, type TranslationRes } from "../lib/quran/types";
@@ -18,6 +18,8 @@ import type { AuthRequest } from "./App";
 import AccountMenu from "./AccountMenu";
 import { FREE_LIMITS } from "../lib/app/plans";
 import { Logo, ThemeToggle } from "./shared";
+import { GuideContent } from "./GuideContent";
+import { GUIDE_HINT_DISMISSED_KEY, shouldShowGuideHint } from "../lib/guideHint";
 
 type Ratio = "9:16" | "16:9" | "1:1";
 const RATIOS: Record<Ratio, { css: string; max: string; base: number; label: string }> = {
@@ -161,6 +163,33 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
   const [project, setProject] = useState("Quran recitation");
   const [exporting, setExporting] = useState(false);
   const [tab, setTab] = useState<"preview" | "controls" | "verses">("preview");
+  const [helpOpen, setHelpOpen] = useState(false);
+  const helpDialogRef = useRef<HTMLDialogElement>(null);
+  const [showGuideHint, setShowGuideHint] = useState(false);
+
+  useEffect(() => {
+    try {
+      setShowGuideHint(shouldShowGuideHint(localStorage.getItem(GUIDE_HINT_DISMISSED_KEY)));
+    } catch {
+      setShowGuideHint(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const dialog = helpDialogRef.current;
+    if (!dialog) return;
+    if (helpOpen && !dialog.open) dialog.showModal();
+    else if (!helpOpen && dialog.open) dialog.close();
+  }, [helpOpen]);
+
+  const dismissGuideHint = () => {
+    setShowGuideHint(false);
+    try {
+      localStorage.setItem(GUIDE_HINT_DISMISSED_KEY, "1");
+    } catch {
+      // The hint remains dismissed for this editor session.
+    }
+  };
 
   const [surahId, setSurahId] = useState(1);
   const [from, setFrom] = useState(1);
@@ -692,6 +721,14 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
         <div className="ml-auto flex items-center gap-2 md:ml-0">
           <SaveIndicator status={status} savedAt={savedAt} onRetry={save} onSignup={() => requestAuth({ mode: "signup", reason: "Create a free account and your work is saved automatically." })} />
           <ThemeToggle dark={dark} toggle={toggleTheme} />
+          <button
+            type="button"
+            onClick={() => setHelpOpen(true)}
+            aria-label="Open help guide"
+            className="grid size-9 place-items-center rounded-sm border border-border text-sm font-medium hover:bg-muted"
+          >
+            <CircleHelp size={18} aria-hidden="true" />
+          </button>
           <button onClick={tryExport} disabled={!timingsReady} title={timingsReady ? undefined : "Export is available once verses and timings have loaded"} className="flex items-center disabled:opacity-50 gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
             <Upload size={15} /> Export
           </button>
@@ -961,6 +998,31 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
         <main className="flex min-h-0 flex-col overflow-y-auto">
           <div className={`${show("preview")} bg-muted/50 p-4 sm:p-6`}>
             <div className="mx-auto flex max-w-3xl flex-col items-center">
+              {showGuideHint && (
+                <div className="mb-4 flex w-full items-center gap-3 rounded-sm border border-border bg-card p-3 text-sm">
+                  <p className="min-w-0 flex-1 text-muted-foreground">
+                    New here?{" "}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        dismissGuideHint();
+                        setHelpOpen(true);
+                      }}
+                      className="font-semibold text-primary underline underline-offset-2"
+                    >
+                      Take a 1-minute guide
+                    </button>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={dismissGuideHint}
+                    aria-label="Dismiss guide hint"
+                    className="grid size-8 shrink-0 place-items-center rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <X size={16} aria-hidden="true" />
+                  </button>
+                </div>
+              )}
               <div
                 className={`relative w-full overflow-hidden rounded-sm border border-border shadow-lg ${style.bg === "solid" ? "" : "checker"}`}
                 style={{ aspectRatio: R.css, maxWidth: R.max, containerType: "inline-size", background: style.bg === "solid" ? style.solid : undefined, maxHeight: "62vh" }}
@@ -1086,6 +1148,42 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
       </nav>
 
       {exporting && timingsReady && chapter && <ExportDialog ranges={allRanges} activeIndex={active} chapters={chapters} verses={verses} layers={layers} chapter={chapter} translations={translations} reciter={ownActive ? null : reciter} style={style} ratio={ratio} isPro={isPro} requestUpgrade={requestUpgrade} onClose={closeExport} onExported={onExported} audioMode={ayahMode ? "ayah" : "chapter"} chapterAudioUrl={chapterAudio?.audioUrl} ayahFiles={rangeFiles} audioFailed={audioFailed} missingAudio={missingAudio} ownAudio={ownActive} audioSourceDuration={fileDur} audioTimingMeasured={!probing && (!ayahMode || manualKeys.size === 0)} />}
+      <dialog
+        ref={helpDialogRef}
+        aria-labelledby="editor-help-title"
+        aria-modal="true"
+        onCancel={() => setHelpOpen(false)}
+        onClose={() => setHelpOpen(false)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") setHelpOpen(false);
+        }}
+        className="m-0 h-dvh max-h-dvh w-full max-w-none overflow-hidden border-0 bg-background p-0 text-foreground backdrop:bg-black/60 sm:m-auto sm:h-auto sm:max-h-[90dvh] sm:max-w-2xl sm:rounded-md sm:border sm:border-border"
+      >
+        <div className="flex max-h-dvh flex-col sm:max-h-[90dvh]">
+          <header className="flex shrink-0 items-center justify-between gap-4 border-b border-border bg-card px-4 py-3 sm:px-6">
+            <div>
+              <h2 id="editor-help-title" className="text-lg font-bold">
+                Your 1-minute guide
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Your editor work stays as it is while this guide is open.
+              </p>
+            </div>
+            <button
+              type="button"
+              autoFocus
+              onClick={() => setHelpOpen(false)}
+              aria-label="Close help guide"
+              className="grid size-10 shrink-0 place-items-center rounded-sm border border-border hover:bg-muted"
+            >
+              <X size={18} aria-hidden="true" />
+            </button>
+          </header>
+          <div className="overflow-y-auto px-4 py-5 sm:px-6">
+            <GuideContent compact />
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }

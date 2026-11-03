@@ -39,6 +39,7 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
             <Link href="/home" className="hover:text-gold">Home</Link>
             <Link href="/how-it-works" className="hover:text-gold">How it works</Link>
             <Link href="/editors" className="hover:text-gold">Editors</Link>
+            <Link href="/guide" className="hover:text-gold">Guide</Link>
             <Link href="/pricing" className="hover:text-gold">Pricing</Link>
           </nav>
           <div className="flex items-center justify-end gap-3">
@@ -149,7 +150,7 @@ export default function Landing({ onStart, user, onLogin, onSignup, onProjects, 
           <div>
             <h4 className="mb-3 text-sm font-bold text-white">Contact</h4>
             <a className="block text-sm hover:text-[#6fe3a0]" href="mailto:qurancaptionstudio@gmail.com">qurancaptionstudio@gmail.com</a>
-            <div className="mt-3 flex gap-4 text-sm"><a className="hover:text-[#6fe3a0]" href="/terms">Terms of use</a><a className="hover:text-[#6fe3a0]" href="/privacy">Privacy policy</a></div>
+            <div className="mt-3 flex flex-wrap gap-4 text-sm"><a className="hover:text-[#6fe3a0]" href="/guide">Guide</a><a className="hover:text-[#6fe3a0]" href="/editors">Editors</a><a className="hover:text-[#6fe3a0]" href="/terms">Terms of use</a><a className="hover:text-[#6fe3a0]" href="/privacy">Privacy policy</a></div>
           </div>
         </div>
         <div className="border-t border-white/10 px-5 py-5 text-center text-xs">© Quran Caption Studio</div>
