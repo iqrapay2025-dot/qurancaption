@@ -130,7 +130,7 @@ function copyAudioBuffer(buffer: AudioBuffer): AudioSamples {
   };
 }
 
-export default function ExportDialog({ ranges, activeIndex, chapters, verses, layers, chapter, translations, reciter, isPro, requestUpgrade, onClose, onExported, style, ratio, audioMode, chapterAudioUrl, ayahFiles, audioFailed, missingAudio, ownAudio, audioSourceDuration, audioTimingMeasured }: { style: OverlayStyle & { tajweed?: boolean }; ratio: string; ranges: RangeSnap[]; activeIndex: number; chapters: Chapter[]; isPro: boolean; requestUpgrade: (u: Upgrade) => void; verses: Verse[]; layers: Layers; chapter: Chapter; translations: TranslationRes[]; reciter?: Reciter | null; onClose: () => void; onExported?: () => void; audioMode: "chapter" | "ayah"; chapterAudioUrl?: string; ayahFiles: AyahFile[]; audioFailed: boolean; missingAudio: boolean; ownAudio: boolean; audioSourceDuration: number; audioTimingMeasured: boolean }) {
+export default function ExportDialog({ ranges, activeIndex, chapters, verses, layers, chapter, translations, reciter, isPro, requestUpgrade, onClose, onExported, style, ratio, audioMode, chapterAudioUrl, ayahFiles, audioFailed, missingAudio, ownAudio, audioSourceDuration, audioTimingReady }: { style: OverlayStyle & { tajweed?: boolean }; ratio: string; ranges: RangeSnap[]; activeIndex: number; chapters: Chapter[]; isPro: boolean; requestUpgrade: (u: Upgrade) => void; verses: Verse[]; layers: Layers; chapter: Chapter; translations: TranslationRes[]; reciter?: Reciter | null; onClose: () => void; onExported?: () => void; audioMode: "chapter" | "ayah"; chapterAudioUrl?: string; ayahFiles: AyahFile[]; audioFailed: boolean; missingAudio: boolean; ownAudio: boolean; audioSourceDuration: number; audioTimingReady: boolean }) {
   const slugOf = (id: number) => (chapters.find((c) => c.id === id)?.nameSimple ?? `surah-${id}`).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const [format, setFormat] = useState<Format>("srt");
   const [kind, setKind] = useState<"captions" | "audio" | "overlay">("captions");
@@ -171,7 +171,7 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
               : activeRange.from > 1
                 ? "This chapter recording has no absolute verse timestamps, so ranges starting after ayah 1 cannot be cut reliably. Use ayah-by-ayah mode."
                 : null
-            : !audioTimingMeasured
+            : !audioTimingReady
               ? "Wait for the selected ayah audio lengths to finish measuring."
               : ayahFiles.length !== verses.length
                 ? "Audio is missing for one or more selected ayahs."

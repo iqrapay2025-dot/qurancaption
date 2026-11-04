@@ -1,13 +1,13 @@
 import "server-only";
 
-import { csrf, fail, ok, readJson, rateLimited } from "@/lib/app/http";
-import { currentUser } from "@/lib/app/session";
+import { clientIp, csrf, fail, ok, readJson, rateLimited } from "@/lib/app/http";
 import { rateLimit } from "@/lib/app/rate-limit";
 import { PRO_PRICE_NGN, FLUTTERWAVE_PRICE_USD, FLUTTERWAVE_PRICE_GHS } from "@/lib/app/plans";
 import { flutterwavePlanIdForCurrency } from "@/lib/app/flutterwave-plan";
 import {
   flutterwaveVerify,
   flutterwaveVerifyByReference,
+  findUserId,
   grantProPeriod,
   parseFlutterwaveTxRef,
 } from "@/lib/app/billing";
@@ -17,8 +17,6 @@ const REF_RE = /^[A-Za-z0-9_\-.]{1,120}$/;
 export async function POST(req: Request) {
   const bad = csrf(req);
   if (bad) return bad;
-  const user = await currentUser().catch(() => null);
-  if (!user) return fail("Log in to confirm your payment.", 401);
 
   const payload = (await readJson(req)) as {
     provider?: string;
@@ -43,8 +41,7 @@ export async function POST(req: Request) {
     return fail("Invalid payment reference.", 400);
   }
 
-  const uid = String(user.id);
-  const rl = rateLimit(`app:flw-confirm:${uid}`, 100, 60 * 60 * 1000);
+  const rl = rateLimit(`app:flw-confirm:${clientIp(req)}`, 100, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
 
   try {
@@ -89,12 +86,12 @@ export async function POST(req: Request) {
       return fail("We couldn't confirm this payment.", 400);
     }
     const owner = metaUser || txRefUser;
-    if (owner !== uid) {
-      return fail("This payment does not belong to your account.", 403);
-    }
+    if (!owner) return fail("We couldn't find the account associated with this payment. Contact support for help.", 404);
+    const userId = await findUserId({ userId: owner });
+    if (!userId) return fail("We couldn't find the account associated with this payment. Contact support for help.", 404);
 
     const { applied } = await grantProPeriod({
-      userId: uid,
+      userId,
       provider: "flutterwave",
       reference: String(data.tx_ref ?? payload.ref),
     });

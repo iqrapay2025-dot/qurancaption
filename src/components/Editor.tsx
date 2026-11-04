@@ -1147,7 +1147,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
         ))}
       </nav>
 
-      {exporting && timingsReady && chapter && <ExportDialog ranges={allRanges} activeIndex={active} chapters={chapters} verses={verses} layers={layers} chapter={chapter} translations={translations} reciter={ownActive ? null : reciter} style={style} ratio={ratio} isPro={isPro} requestUpgrade={requestUpgrade} onClose={closeExport} onExported={onExported} audioMode={ayahMode ? "ayah" : "chapter"} chapterAudioUrl={chapterAudio?.audioUrl} ayahFiles={rangeFiles} audioFailed={audioFailed} missingAudio={missingAudio} ownAudio={ownActive} audioSourceDuration={fileDur} audioTimingMeasured={!probing && (!ayahMode || manualKeys.size === 0)} />}
+      {exporting && timingsReady && chapter && <ExportDialog ranges={allRanges} activeIndex={active} chapters={chapters} verses={verses} layers={layers} chapter={chapter} translations={translations} reciter={ownActive ? null : reciter} style={style} ratio={ratio} isPro={isPro} requestUpgrade={requestUpgrade} onClose={closeExport} onExported={onExported} audioMode={ayahMode ? "ayah" : "chapter"} chapterAudioUrl={chapterAudio?.audioUrl} ayahFiles={rangeFiles} audioFailed={audioFailed} missingAudio={missingAudio} ownAudio={ownActive} audioSourceDuration={fileDur} audioTimingReady={!probing} />}
       <dialog
         ref={helpDialogRef}
         aria-labelledby="editor-help-title"

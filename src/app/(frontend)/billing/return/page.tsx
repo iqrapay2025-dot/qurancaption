@@ -76,7 +76,7 @@ export default function ReturnPage() {
           if (r.ok) {
             setStatus("done");
             done.current = true;
-            window.location.replace(`/#/settings?provider=flutterwave&ref=${encodeURIComponent(txRef)}`);
+            window.location.replace("/#/");
             return;
           }
           // Flutterwave returns 400 while a payment is still settling (pending),
@@ -120,8 +120,7 @@ export default function ReturnPage() {
         if (r.ok) {
           setStatus("done");
           done.current = true;
-          // Confirm succeeded: refresh account state via the settings view.
-          window.location.replace(`/#/settings?provider=paystack&ref=${encodeURIComponent(ref)}`);
+          window.location.replace("/#/");
           return;
         }
         // 409 or 502 means Paystack hasn't recorded the charge yet (e.g. bank transfer, USSD, QR).
