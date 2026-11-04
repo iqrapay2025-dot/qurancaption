@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildCaptions } from "../data";
-import { buildAudioFilename, concatenateSamples, fitSamplesToFrames, sampleRange, shiftSamples } from "./audioExport";
+import { buildAudioFilename, concatenateSamples, sampleRange, shiftSamples } from "./audioExport";
 
 describe("sampleRange", () => {
   it("maps start and end seconds to a clamped, end-exclusive sample range", () => {
@@ -29,16 +29,12 @@ describe("caption-relative audio timing", () => {
 });
 
 describe("concatenateSamples", () => {
-  it("joins ayah samples in order without inserting gaps and duplicates mono to stereo", () => {
+  it("joins original ayah samples in order without stretching, gaps, or pitch changes", () => {
     const joined = concatenateSamples([
       { sampleRate: 4, channels: [Float32Array.of(1, 2)] },
       { sampleRate: 4, channels: [Float32Array.of(3, 4), Float32Array.of(30, 40)] },
     ]);
     expect(joined.channels.map((channel) => [...channel])).toEqual([[1, 2, 3, 4], [1, 2, 30, 40]]);
-  });
-
-  it("fits each ayah to the editor's measured sample duration", () => {
-    expect([...fitSamplesToFrames(Float32Array.of(0, 1), 3)]).toEqual([0, 0.5, 1]);
   });
 });
 

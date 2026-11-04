@@ -7,7 +7,7 @@ import { strToU8, zipSync } from "fflate";
 import { appFetch, type Upgrade } from "../lib/app/client";
 import { FREE_LIMITS } from "../lib/app/plans";
 import { overlaySupport, renderOverlay, type OverlayStyle, type Support } from "../lib/overlay";
-import { AUDIO_EXPORT_PRO_ONLY, buildAudioFilename, concatenateSamples, encodeWav, fitSamplesToFrames, sampleRange, shiftSamples, type AudioSamples } from "../lib/audioExport";
+import { AUDIO_EXPORT_PRO_ONLY, buildAudioFilename, concatenateSamples, encodeWav, sampleRange, shiftSamples, type AudioSamples } from "../lib/audioExport";
 import { DEFAULT_SPLIT, fmt, toArabicDigits, buildCaptions, creditLines, toSRT, toVTT, type Verse } from "../data";
 import { TRANSLITERATION_ID, type ApiVerse, type AyahFile, type Chapter, type Reciter, type TranslationRes } from "../lib/quran/types";
 
@@ -303,9 +303,7 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
           const decoded = await context.decodeAudioData(await fetchAudioBytes(item.file.audioUrl));
           const duration = item.verse.end - item.verse.start;
           if (!Number.isFinite(duration) || duration <= 0) throw new Error(`The timing for ayah ${item.verse.key} is invalid.`);
-          const frames = Math.round(duration * decoded.sampleRate);
-          const samples = copyAudioBuffer(decoded);
-          chunks.push({ sampleRate: decoded.sampleRate, channels: samples.channels.map((channel) => fitSamplesToFrames(channel, frames)) });
+          chunks.push(copyAudioBuffer(decoded));
         }
         output = concatenateSamples(chunks);
         output = { ...output, channels: shiftSamples(output.channels, output.sampleRate, offset) };

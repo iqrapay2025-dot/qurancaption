@@ -25,22 +25,6 @@ export function shiftSamples(channels: Float32Array[], sampleRate: number, offse
   });
 }
 
-export function fitSamplesToFrames(samples: Float32Array, frameCount: number) {
-  if (!Number.isInteger(frameCount) || frameCount < 0) throw new Error("Invalid audio frame count.");
-  if (samples.length === frameCount) return samples;
-  if (!frameCount || !samples.length) return new Float32Array(frameCount);
-  if (frameCount === 1) return Float32Array.of(samples[0]);
-  const fitted = new Float32Array(frameCount);
-  const scale = (samples.length - 1) / (frameCount - 1);
-  for (let i = 0; i < frameCount; i++) {
-    const position = i * scale;
-    const left = Math.floor(position);
-    const fraction = position - left;
-    fitted[i] = samples[left] * (1 - fraction) + samples[Math.min(left + 1, samples.length - 1)] * fraction;
-  }
-  return fitted;
-}
-
 export function concatenateSamples(chunks: AudioSamples[]): AudioSamples {
   if (!chunks.length) throw new Error("No recitation audio was selected.");
   const sampleRate = chunks[0].sampleRate;
