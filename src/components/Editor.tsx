@@ -780,7 +780,25 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
                 </select>
               </div>
               <div>
-                <label className={labelCls} htmlFor="to">End ayah</label>
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <label className="text-xs font-medium text-muted-foreground" htmlFor="to">End ayah</label>
+                  <button
+                    type="button"
+                    disabled={!chapter || to === count}
+                    onClick={() => {
+                      setTo(count);
+                      let f = from;
+                      if (count - f + 1 > maxVerses) {
+                        f = count - maxVerses + 1;
+                        requestUpgrade({ code: "verse_limit" });
+                      }
+                      setFrom(f);
+                    }}
+                    className="text-xs font-medium text-gold underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Last verse{chapter ? ` (${count})` : ""}
+                  </button>
+                </div>
                 <select id="to" value={to} disabled={!chapter} onChange={(e) => {
                   const n = +e.target.value; setTo(n);
                   let f = from > n ? n : from;

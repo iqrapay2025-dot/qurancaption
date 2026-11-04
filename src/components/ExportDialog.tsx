@@ -7,7 +7,7 @@ import { strToU8, zipSync } from "fflate";
 import { appFetch, type Upgrade } from "../lib/app/client";
 import { FREE_LIMITS } from "../lib/app/plans";
 import { overlaySupport, renderOverlay, type OverlayStyle, type Support } from "../lib/overlay";
-import { AUDIO_EXPORT_PRO_ONLY, buildAudioFilename, concatenateSamples, encodeWav, sampleRange, shiftSamples, type AudioSamples } from "../lib/audioExport";
+import { AUDIO_EXPORT_PRO_ONLY, buildAudioFilename, createWavBlobBuilder, encodeWav, sampleRange, shiftSamples, type AudioSamples } from "../lib/audioExport";
 import { DEFAULT_SPLIT, fmt, toArabicDigits, buildCaptions, creditLines, toSRT, toVTT, type Verse } from "../data";
 import { TRANSLITERATION_ID, type ApiVerse, type AyahFile, type Chapter, type Reciter, type TranslationRes } from "../lib/quran/types";
 
@@ -126,9 +126,22 @@ async function fetchAudioBytes(url: string) {
 function copyAudioBuffer(buffer: AudioBuffer): AudioSamples {
   return {
     sampleRate: buffer.sampleRate,
-    channels: Array.from({ length: Math.min(buffer.numberOfChannels, 2) }, (_, i) => buffer.getChannelData(i).slice()),
+    channels: Array.from({ length: Math.min(buffer.numberOfChannels, 2) }, (_, i) => buffer.getChannelData(i)),
   };
 }
+
+type WavFileWritable = {
+  write: (data: ArrayBuffer | { type: "write"; position: number; data: ArrayBuffer }) => Promise<void>;
+  close: () => Promise<void>;
+  abort: (reason?: unknown) => Promise<void>;
+};
+
+type WavFileHandle = { createWritable: () => Promise<WavFileWritable> };
+
+type SaveFilePicker = (options: {
+  suggestedName: string;
+  types: { description: string; accept: Record<string, string[]> }[];
+}) => Promise<WavFileHandle>;
 
 export default function ExportDialog({ ranges, activeIndex, chapters, verses, layers, chapter, translations, reciter, isPro, requestUpgrade, onClose, onExported, style, ratio, audioMode, chapterAudioUrl, ayahFiles, audioFailed, missingAudio, ownAudio, audioSourceDuration, audioTimingReady }: { style: OverlayStyle & { tajweed?: boolean }; ratio: string; ranges: RangeSnap[]; activeIndex: number; chapters: Chapter[]; isPro: boolean; requestUpgrade: (u: Upgrade) => void; verses: Verse[]; layers: Layers; chapter: Chapter; translations: TranslationRes[]; reciter?: Reciter | null; onClose: () => void; onExported?: () => void; audioMode: "chapter" | "ayah"; chapterAudioUrl?: string; ayahFiles: AyahFile[]; audioFailed: boolean; missingAudio: boolean; ownAudio: boolean; audioSourceDuration: number; audioTimingReady: boolean }) {
   const slugOf = (id: number) => (chapters.find((c) => c.id === id)?.nameSimple ?? `surah-${id}`).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -271,16 +284,17 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
     document.body.appendChild(a);
     a.click();
     a.remove();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 5 * 60_000);
   };
 
-  const prepareAudio = async () => {
+  const prepareAudio = async (writable?: WavFileWritable) => {
     if (!audioAvailable || !reciter) throw new Error(audioUnavailableMessage ?? "Recitation audio is unavailable.");
     if (audioMode === "chapter" && !chapterAudioUrl) throw new Error("The chapter audio has not loaded.");
 
     const context = new AudioContext();
     try {
-      let output: AudioSamples;
+      let output: AudioSamples | null = null;
+      let audioBlob: Blob | null;
       if (audioMode === "chapter") {
         setAudioProgress("Downloading chapter audio…");
         const decoded = await context.decodeAudioData(await fetchAudioBytes(chapterAudioUrl!));
@@ -290,6 +304,10 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
         if (range.end <= range.start || end > decoded.duration + 0.05) throw new Error("The selected verse timings fall outside the loaded chapter audio.");
         const channels = Array.from({ length: Math.min(decoded.numberOfChannels, 2) }, (_, i) => decoded.getChannelData(i).subarray(range.start, range.end).slice());
         output = { sampleRate: decoded.sampleRate, channels: shiftSamples(channels, decoded.sampleRate, offset) };
+        const duration = output.channels[0].length / output.sampleRate;
+        if (!Number.isFinite(duration) || duration <= 0) throw new Error("The selected audio range is empty.");
+        setAudioProgress("Encoding WAV…");
+        audioBlob = new Blob([encodeWav(output)], { type: "audio/wav" });
       } else {
         const byVerse = new Map(ayahFiles.map((file) => [file.verseKey, file]));
         const selected = verses.map((verse) => {
@@ -297,24 +315,28 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
           if (!file) throw new Error(`Audio is missing for ayah ${verse.key}.`);
           return { verse, file };
         });
-        const chunks: AudioSamples[] = [];
+        const wav = createWavBlobBuilder(offset, writable ? {
+          write: async (chunk) => { await writable.write(chunk); },
+          finish: async (header) => {
+            await writable.write({ type: "write", position: 0, data: header });
+            await writable.close();
+          },
+        } : undefined);
         for (const [i, item] of selected.entries()) {
           setAudioProgress(`Preparing ayah ${i + 1} of ${selected.length}…`);
           const decoded = await context.decodeAudioData(await fetchAudioBytes(item.file.audioUrl));
           const duration = item.verse.end - item.verse.start;
           if (!Number.isFinite(duration) || duration <= 0) throw new Error(`The timing for ayah ${item.verse.key} is invalid.`);
-          chunks.push(copyAudioBuffer(decoded));
+          setAudioProgress(`Encoding ayah ${i + 1} of ${selected.length}…`);
+          await wav.append(copyAudioBuffer(decoded));
         }
-        output = concatenateSamples(chunks);
-        output = { ...output, channels: shiftSamples(output.channels, output.sampleRate, offset) };
+        setAudioProgress(writable ? "Finishing WAV file…" : "Assembling the WAV download in browser memory…");
+        audioBlob = await wav.finish();
       }
 
-      const duration = output.channels[0].length / output.sampleRate;
-      if (!Number.isFinite(duration) || duration <= 0) throw new Error("The selected audio range is empty.");
-      setAudioProgress("Encoding WAV…");
       return {
         name: buildAudioFilename(chapter.nameSimple, activeRange.from, activeRange.to, reciter.name),
-        bytes: encodeWav(output),
+        blob: audioBlob,
       };
     } finally {
       await context.close();
@@ -329,7 +351,17 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
     if (includesCaptions && !isPro && totalVerses > FREE_LIMITS.verses) { onClose(); return requestUpgrade({ code: "verse_limit" }); }
     setBusy(true);
     setError(null);
+    let writable: WavFileWritable | null = null;
     try {
+      const fileWindow = window as Window & { showSaveFilePicker?: SaveFilePicker };
+      if (kind === "audio" && !zipped && audioMode === "ayah" && fileWindow.showSaveFilePicker) {
+        const handle = await fileWindow.showSaveFilePicker({
+          suggestedName: buildAudioFilename(chapter.nameSimple, activeRange.from, activeRange.to, reciter?.name ?? ""),
+          types: [{ description: "WAV audio", accept: { "audio/wav": [".wav"] } }],
+        });
+        writable = await handle.createWritable();
+      }
+
       let out: { name: string; body: string }[] = [];
       if (includesCaptions) {
         const r = await appFetch<{ files: { name: string; body: string }[] }>("/api/app/export", {
@@ -347,14 +379,15 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
         out = r.data.files.filter((f) => f.body.trim());
       }
 
-      const audioFile = includesAudio && audioAvailable ? await prepareAudio() : null;
+      const audioFile = includesAudio && audioAvailable ? await prepareAudio(writable ?? undefined) : null;
+      if (writable && !audioFile?.blob) writable = null;
       if (zipped) {
         const entries: Record<string, Uint8Array> = Object.fromEntries(out.map((f) => [f.name, strToU8("\uFEFF" + f.body)]));
-        if (audioFile) entries[audioFile.name] = new Uint8Array(audioFile.bytes);
+        if (audioFile?.blob) entries[audioFile.name] = new Uint8Array(await audioFile.blob.arrayBuffer());
         const zip = zipSync(entries, { level: 6 });
-        save(`quran-captions${audioFile ? "-and-audio" : ""}_${format}.zip`, new Blob([zip as BlobPart], { type: "application/zip" }));
-      } else if (kind === "audio" && audioFile) {
-        save(audioFile.name, new Blob([audioFile.bytes], { type: "audio/wav" }));
+        save(`quran-captions${audioFile?.blob ? "-and-audio" : ""}_${format}.zip`, new Blob([zip as BlobPart], { type: "application/zip" }));
+      } else if (kind === "audio" && audioFile?.blob) {
+        save(audioFile.name, audioFile.blob);
       } else {
         out.forEach((f, i) => setTimeout(() => save(f.name, new Blob(["\uFEFF" + f.body], { type: "text/plain;charset=utf-8" })), i * 350));
       }
@@ -372,7 +405,17 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
         : e instanceof TypeError
           ? "The browser could not read this recitation host. Check your connection or choose another reciter."
           : e instanceof Error ? e.message : "Audio export failed.";
-      setError(message);
+      let cleanupMessage = "";
+      if (writable) {
+        try {
+          await writable.abort(e);
+          writable = null;
+        } catch (abortError) {
+          cleanupMessage = ` The incomplete file could not be removed: ${abortError instanceof Error ? abortError.message : "file cleanup failed"}.`;
+        }
+      }
+      if (e instanceof DOMException && e.name === "AbortError") return;
+      setError(message + cleanupMessage);
     } finally {
       setBusy(false);
       setAudioProgress(null);
@@ -458,7 +501,7 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
                   <button type="button" aria-label="Add 0.1 seconds" onClick={() => nudge(0.1)} className="grid size-9 place-items-center rounded-r-sm border border-border hover:bg-muted"><Plus size={14} /></button>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground">There is no duration cap. Large recordings need more browser memory to decode and create a WAV; if your device cannot handle one, try ayah-by-ayah mode or another browser.</p>
+              <p className="text-xs text-muted-foreground">WAV files are uncompressed, so a full long surah takes time and storage. In Chrome, ayah-by-ayah exports write chunks directly to the file you choose, avoiding a large in-memory assembly. Other browsers may take extra time to assemble the final download.</p>
               {audioProgress && <p role="status" aria-live="polite" className="flex items-center gap-2 text-xs"><Loader2 size={14} className="animate-spin" />{audioProgress}</p>}
               <div className="rounded-sm border border-border bg-muted/40 p-3">
                 <p className={legend}>Sources &amp; attribution</p>
