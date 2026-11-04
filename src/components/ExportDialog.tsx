@@ -363,7 +363,13 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
       onExported?.();
       setTimeout(onClose, zipped ? 400 : out.length * 350 || 400);
     } catch (e) {
-      const message = e instanceof RangeError
+      const decodeFailed = e instanceof Error && (
+        (e instanceof DOMException && e.name === "EncodingError") ||
+        /unable to decode audio data|could not decode audio/i.test(e.message)
+      );
+      const message = decodeFailed
+        ? "Chrome couldn't decode this full-chapter recording. In the editor, change Audio type to “Ayah by ayah” and try again. For a very long surah, you can also export a smaller verse range."
+        : e instanceof RangeError
         ? "The browser ran out of memory while preparing this recording as WAV. Try ayah-by-ayah mode or another browser/device."
         : e instanceof TypeError
           ? "The browser could not read this recitation host. Check your connection or choose another reciter."
