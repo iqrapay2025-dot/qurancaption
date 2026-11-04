@@ -253,6 +253,8 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
   const [audioFailed, setAudioFailed] = useState(false);
   const [manualDur, setManualDur] = useState<Record<string, number>>({});
   const [probed, setProbed] = useState<Record<string, number | null>>({});
+  const probedRef = useRef(probed);
+  probedRef.current = probed;
   const [fileDur, setFileDur] = useState(0);
   const [playIdx, setPlayIdx] = useState(0);
   const playIdxRef = useRef(0);
@@ -269,21 +271,55 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
   }, [ayahAudio]);
   const rangeFiles = useMemo(() => rangeVerses.flatMap((v) => (ayahFiles.get(v.key) ? [ayahFiles.get(v.key)!] : [])), [rangeVerses, ayahFiles]);
   const probing = ayahMode && rangeFiles.some((f) => !(f.audioUrl in probed));
+  const measuredAudioCount = rangeFiles.length - rangeFiles.filter((f) => !(f.audioUrl in probed)).length;
   useEffect(() => {
-    const todo = rangeFiles.filter((f) => !(f.audioUrl in probed));
+    const todo = rangeFiles.filter((f) => !(f.audioUrl in probedRef.current));
     if (!todo.length) return;
     let dead = false;
-    Promise.all(todo.map((f) => new Promise<[string, number | null]>((resolve) => {
-      const a = new Audio();
-      a.preload = "metadata";
-      const finish = (d: number | null) => { clearTimeout(timer); a.onloadedmetadata = a.onerror = null; resolve([f.audioUrl, d]); };
+    let next = 0;
+    let completed = 0;
+    const results: Record<string, number | null> = {};
+    const active = new Map<HTMLAudioElement, () => void>();
+    const probe = (url: string) => new Promise<number | null>((resolve) => {
+      const audio = new Audio();
+      audio.preload = "metadata";
+      const finish = (duration: number | null) => {
+        clearTimeout(timer);
+        audio.onloadedmetadata = audio.onerror = null;
+        audio.pause();
+        audio.removeAttribute("src");
+        audio.load();
+        active.delete(audio);
+        resolve(duration);
+      };
       const timer = setTimeout(() => finish(null), 10_000);
-      a.onloadedmetadata = () => finish(Number.isFinite(a.duration) && a.duration > 0 ? a.duration : null);
-      a.onerror = () => finish(null);
-      a.src = f.audioUrl;
-    }))).then((r) => { if (!dead) setProbed((p) => ({ ...p, ...Object.fromEntries(r) })); });
-    return () => { dead = true; };
-  }, [rangeFiles, probed]);
+      active.set(audio, () => finish(null));
+      audio.onloadedmetadata = () => finish(Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : null);
+      audio.onerror = () => finish(null);
+      audio.src = url;
+    });
+    const worker = async () => {
+      while (!dead) {
+        const file = todo[next++];
+        if (!file) return;
+        const duration = await probe(file.audioUrl);
+        if (dead) continue;
+        results[file.audioUrl] = duration;
+        completed++;
+        if (completed % 4 === 0 || completed === todo.length) {
+          setProbed((current) => {
+            const fresh = Object.fromEntries(Object.entries(results).filter(([url]) => current[url] === undefined));
+            return Object.keys(fresh).length ? { ...current, ...fresh } : current;
+          });
+        }
+      }
+    };
+    void Promise.all(Array.from({ length: Math.min(4, todo.length) }, () => worker()));
+    return () => {
+      dead = true;
+      active.forEach((cancel) => cancel());
+    };
+  }, [rangeFiles]);
 
   const { verses, manualKeys, missingAudio } = useMemo(() => {
     const manual = new Set<string>();
@@ -314,7 +350,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
       return { verses: list, manualKeys: manual, missingAudio: false };
     }
     let acc = 0;
-    const loaded = !!ayahAudio && !probing;
+    const loaded = !!ayahAudio;
     const list: Verse[] = rangeVerses.map((v) => {
       const f = ayahFiles.get(v.key);
       if (!f) missing = true;
@@ -326,12 +362,13 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
       return { ...v, start, end: acc };
     });
     return { verses: list, manualKeys: manual, missingAudio: missing };
-  }, [ayahMode, rangeVerses, chapterAudio, ayahAudio, ayahFiles, probed, probing, manualDur, fileDur, chapter, from, ownActive, own]);
+  }, [ayahMode, rangeVerses, chapterAudio, ayahAudio, ayahFiles, probed, manualDur, fileDur, chapter, from, ownActive, own]);
 
   const audioSrc = ownActive ? own?.url : ayahMode ? ayahFiles.get(verses[Math.min(playIdx, verses.length - 1)]?.key ?? "")?.audioUrl : chapterAudio?.audioUrl;
   const mediaKey = ownActive ? own?.url : ayahMode ? rangeFiles.map((f) => f.audioUrl).join("|") : chapterAudio?.audioUrl;
   useEffect(() => setAudioFailed(false), [audioSrc]);
   const timingsReady = verses.length > 0 && verses.every((v) => Number.isFinite(v.start) && Number.isFinite(v.end));
+  const exportTimingsReady = timingsReady && (!ayahMode || !probing);
   const ready = timingsReady && !!audioSrc && !missingAudio && !audioFailed;
   const timed = ready ? verses : [];
   const t0 = ready ? verses[0].start : 0;
@@ -344,11 +381,11 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
     if (ranges.length > 1) {
       const kept = ranges[active];
       const keptOk = kept?.durs && kept.surah === surahId && kept.from === from && kept.to === to ? kept.durs : undefined;
-      const durs = ready ? verses.map((v) => Math.round((v.end - v.start) * 100) / 100) : keptOk;
+      const durs = exportTimingsReady ? verses.map((v) => Math.round((v.end - v.start) * 100) / 100) : keptOk;
       if (durs && durs.length === to - from + 1 && durs.every((d) => Number.isFinite(d) && d >= 0.5 && d <= 3600)) snap.durs = durs;
     }
     return snap;
-  }, [ranges, active, surahId, from, to, ready, verses]);
+  }, [ranges, active, surahId, from, to, exportTimingsReady, verses]);
   const allRanges = useMemo(() => (ranges.length > 1 ? ranges.map((r, k) => (k === active ? liveSnap : r)) : [liveSnap]), [ranges, active, liveSnap]);
   const multi = allRanges.length > 1;
   const totalAll = allRanges.reduce((n, r) => n + (r.to - r.from + 1), 0);
@@ -473,6 +510,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
     if (i === active || next.length < 2) loadRange(next[next.length > 1 ? nextActive : 0]);
   };
   const tryExport = () => {
+    if (!exportTimingsReady) return;
     if (tooLong) return requestUpgrade({ code: "verse_limit" });
     if (user || Number(localStorage.getItem(EXPORT_KEY) ?? 0) < 1) return setExporting(true);
     requestAuth({ mode: "signup", reason: "Your free export is used. Create a free account to keep exporting and to save your projects.", after: () => setExporting(true) });
@@ -525,7 +563,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
     setTime(0);
     setManualIdx(0);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [t0, tEnd, mediaKey, ready]);
+  }, [mediaKey, ready, surahId, from, to]);
 
   useEffect(() => {
     if (!playing) return;
@@ -534,20 +572,20 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
       const a = audioRef.current;
       if (a) {
         const now = mediaNow();
-        if (now >= tEnd) {
+        if (!ayahMode && now >= tEnd) {
           a.pause();
           setTime(total);
           setPlaying(false);
           return;
         }
-        setTime(Math.max(0, now - t0));
+        setTime(Math.min(total, Math.max(0, now - t0)));
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playing, t0, tEnd, total]);
+  }, [playing, t0, tEnd, total, ayahMode]);
 
   const seek = (t: number) => {
     const c = Math.max(0, Math.min(total, t));
@@ -618,6 +656,9 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
   const onMeta = () => {
     const a = audioRef.current;
     if (a && !ayahMode && !ownActive && Number.isFinite(a.duration)) setFileDur(a.duration);
+    if (a && ayahMode && audioSrc && Number.isFinite(a.duration) && a.duration > 0) {
+      setProbed((current) => current[audioSrc] === undefined ? { ...current, [audioSrc]: a.duration } : current);
+    }
     const p = pending.current;
     if (!a || !p) return;
     pending.current = null;
@@ -636,7 +677,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
     setTime(total);
   };
 
-  const timeIdx = timed.findIndex((v) => time + t0 >= v.start && time + t0 < v.end);
+  const timeIdx = ayahMode ? playIdx : timed.findIndex((v) => time + t0 >= v.start && time + t0 < v.end);
   const idx = ready ? Math.max(0, timeIdx) : Math.min(manualIdx, Math.max(0, verses.length - 1));
   const cur: Verse | undefined = verses[idx];
   const hlPieces = useMemo<[string, string?][]>(
@@ -729,7 +770,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
           >
             <CircleHelp size={18} aria-hidden="true" />
           </button>
-          <button onClick={tryExport} disabled={!timingsReady} title={timingsReady ? undefined : "Export is available once verses and timings have loaded"} className="flex items-center disabled:opacity-50 gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+          <button onClick={tryExport} disabled={!exportTimingsReady} title={exportTimingsReady ? undefined : "Export is available once verse audio measurements have finished"} className="flex items-center disabled:opacity-50 gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
             <Upload size={15} /> Export
           </button>
           <AccountMenu user={user} onLogin={() => requestAuth({ mode: "login" })} onProjects={onProjects} onSettings={onSettings} onSignOut={onSignOut} />
@@ -1092,7 +1133,8 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
                 {ayahMode && ayahAudio && missingAudio && <div role="alert" className="rounded-sm border border-amber-500/40 bg-amber-500/10 p-4 text-sm">This recitation has no audio for some of the selected ayahs. Narrow the range or pick another recitation.</div>}
                 {manualKeys.size > 0 && !probing && <div role="status" className="rounded-sm border border-amber-500/40 bg-amber-500/10 p-4 text-sm"><strong>Manual timing.</strong> {ayahMode ? "Some ayah files could not be measured." : "UmmahAPI does not provide verse timestamps for continuous audio."} Captions are spaced by an estimate (verse length across the whole recording, or 5 s per verse for partial ranges), so they may drift from the recitation. Press play, then use <strong>Tap to mark end</strong> (or Space) as each verse finishes, or set durations by hand under <strong>Verses &amp; timing</strong>. Your edits are kept when you change translations or reciter.</div>}
                 {audioFailed && <div role="alert" className="rounded-sm border border-red-500/40 bg-red-500/10 p-4 text-sm">The audio file could not be played. Try another reciter or convert the file to mp3/wav. (Check the browser console for details.)</div>}
-                {(versesQ.loading || audioQ.loading || probing) && !versesQ.error && !audioQ.error && <Loading label={audioQ.loading ? "Loading recitation audio…" : probing ? "Measuring ayah audio lengths…" : "Loading verses…"} />}
+                {(versesQ.loading || audioQ.loading) && !versesQ.error && !audioQ.error && <Loading label={audioQ.loading ? "Loading recitation audio…" : "Loading verses…"} />}
+                {probing && ayahMode && <p role="status" aria-live="polite" className="text-xs text-muted-foreground">Measuring ayah audio lengths in small batches ({measuredAudioCount} of {rangeFiles.length}). You can start playback now; timing may be estimated until each file is measured.</p>}
               </div>
 
               <div className="mt-4 w-full max-w-xl rounded-sm border border-border bg-card p-4">
@@ -1165,7 +1207,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
         ))}
       </nav>
 
-      {exporting && timingsReady && chapter && <ExportDialog ranges={allRanges} activeIndex={active} chapters={chapters} verses={verses} layers={layers} chapter={chapter} translations={translations} reciter={ownActive ? null : reciter} style={style} ratio={ratio} isPro={isPro} requestUpgrade={requestUpgrade} onClose={closeExport} onExported={onExported} audioMode={ayahMode ? "ayah" : "chapter"} chapterAudioUrl={chapterAudio?.audioUrl} ayahFiles={rangeFiles} audioFailed={audioFailed} missingAudio={missingAudio} ownAudio={ownActive} audioSourceDuration={fileDur} audioTimingReady={!probing} />}
+      {exporting && exportTimingsReady && chapter && <ExportDialog ranges={allRanges} activeIndex={active} chapters={chapters} verses={verses} layers={layers} chapter={chapter} translations={translations} reciter={ownActive ? null : reciter} style={style} ratio={ratio} isPro={isPro} requestUpgrade={requestUpgrade} onClose={closeExport} onExported={onExported} audioMode={ayahMode ? "ayah" : "chapter"} chapterAudioUrl={chapterAudio?.audioUrl} ayahFiles={rangeFiles} audioFailed={audioFailed} missingAudio={missingAudio} ownAudio={ownActive} audioSourceDuration={fileDur} audioTimingReady={!probing} />}
       <dialog
         ref={helpDialogRef}
         aria-labelledby="editor-help-title"
