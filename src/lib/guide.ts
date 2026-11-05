@@ -65,8 +65,8 @@ export const GUIDE_TROUBLESHOOTING: GuideIssue[] = [
     solution: "Press Try again, or choose a smaller range and make sure the surah is supported by the current data connection.",
   },
   {
-    problem: "Arabic appears as boxes in a video editor.",
-    solution: "Choose a font that supports Arabic in the video editor, or use the transparent overlay export if your editor handles alpha channels better.",
+    problem: "Arabic appears as boxes or is shaped differently in a video editor.",
+    solution: "SRT and VTT files contain only text and timing, not embedded fonts. The editor chooses its own Arabic fallback font and spacing, so results can vary by app. Use a font that supports Arabic in the editor, or export the transparent overlay if you need the exact look from the web app.",
   },
   {
     problem: "VTT will not import.",
