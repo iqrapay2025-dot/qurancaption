@@ -9,6 +9,14 @@ import AccountMenu from "../components/AccountMenu";
 import { Logo, ThemeToggle } from "../components/shared";
 
 const FREE = ["Up to 3 saved projects", "SRT and VTT export", "Up to 20 verses per export"];
+const FAQ: [string, string][] = [
+  ["What does the Free plan include?", "Up to 3 saved projects, SRT and VTT export, and up to 20 verses per export. Free accounts can export up to 40 unique verses per month (UTC calendar month). Re-exporting a verse you already exported that month does not use more of your allowance."],
+  ["Can I cancel any time?", "Yes. Cancel auto-renew in Settings and you keep Pro until the end of the period you have paid for. If you pay each month, nothing renews by itself, so there is nothing to cancel."],
+  ["What is the difference between auto-renew and pay monthly?", "Auto-renew charges your card every month. Pay monthly lets you pay with a card, bank transfer, USSD or QR, and gives you Pro for one period at a time. You pay again when you want to continue."],
+  ["Why is the price shown in naira or another currency?", "Paystack charges in naira. Flutterwave charges in dollars, or in local currency where we support it. The amount shown is what you will be charged at checkout."],
+  ["Will I lose my projects if Pro ends?", "No. Your projects are kept and your account returns to the Free plan limits."],
+  ["How do I get a refund?", "Read our refund policy and contact us with your account email and payment reference."],
+]
 const PRO = ["Unlimited projects and verses", "SRT and VTT export", "Custom style presets", "Priority support"];
 
 export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStart, onLogin, onSignup, onProjects, onSettings, onSignOut }: {
@@ -118,6 +126,17 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
             )}
           </div>
         </div>
+              <section aria-labelledby="faq-h" className="mx-auto mt-16 max-w-2xl">
+          <h2 id="faq-h" className="text-center font-display text-2xl font-bold">Frequently asked questions</h2>
+          <div className="mt-6 divide-y divide-border rounded-md border border-border bg-card">
+            {FAQ.map(([q, a]) => (
+              <details key={q} className="group px-5 py-4">
+                <summary className="cursor-pointer list-none text-sm font-semibold marker:hidden">{q}</summary>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{a}{q === "How do I get a refund?" && <> <a className="underline" href="/refunds">Refund policy</a> · <a className="underline" href="/contact">Contact us</a></>}</p>
+              </details>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );

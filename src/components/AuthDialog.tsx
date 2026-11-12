@@ -48,7 +48,7 @@ const [sent, setSent] = useState(false);
   };
 
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-end bg-black/50 backdrop-blur-sm sm:place-items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-60 grid place-items-end bg-black/50 backdrop-blur-sm sm:place-items-center" onClick={onClose}>
       <div role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={(e) => e.stopPropagation()} className="max-h-[94vh] w-full overflow-y-auto rounded-none border border-border bg-card shadow-2xl sm:max-w-md sm:rounded-md">
         <div className="flex items-start justify-between p-5 pb-2">
           <div>
@@ -95,6 +95,15 @@ const [sent, setSent] = useState(false);
             <button type="submit" disabled={busy} className="w-full rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60">
               {busy ? "Please wait…" : { signup: "Create account", login: "Log in", forgot: "Send reset link", reset: "Save new password" }[mode]}
             </button>
+
+            {(mode === "signup" || mode === "login") && (
+              <p className="text-center text-xs leading-relaxed text-muted-foreground">
+                {mode === "signup" ? "By creating an account" : "By logging in"}, you agree to our{" "}
+                <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2 hover:text-primary">Terms of use</a>
+                {" "}and{" "}
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2 hover:text-primary">Privacy policy</a>.
+              </p>
+            )}
 
             <p className="text-center text-sm text-muted-foreground">
               {mode === "signup" && <>Already have an account? <button type="button" onClick={() => switchTo("login")} className="font-semibold text-primary hover:underline">Log in</button></>}

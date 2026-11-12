@@ -1,6 +1,6 @@
 "use client";
 
-import { CreditCard, Loader2 } from "lucide-react";
+import { CreditCard, Download, Loader2, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { appFetch, type AppUser } from "../lib/app/client";
 import { FREE_LIMITS, FREE_MONTHLY_VERSES, MONTHLY_PERIOD_DAYS, PRO_PRICE_NGN } from "../lib/app/plans";
@@ -22,6 +22,10 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
   const [confirmState, setConfirmState] = useState<"idle" | "working" | "done" | "failed">(checkout ? "working" : "idle");
   const [verseUsage, setVerseUsage] = useState<{ used: number; limit: number | null; remaining: number | null; resetAt: string | null } | null>(null);
   const ran = useRef(false);
+    const [deleting, setDeleting] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!checkout || !user || ran.current) return;
@@ -80,6 +84,15 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
     else setError(r.error);
   };
 
+    const deleteAccount = async () => {
+    setDeleteBusy(true);
+    setDeleteError(null);
+    const r = await appFetch("/api/app/account", { method: "DELETE", body: { password: deletePassword } });
+    setDeleteBusy(false);
+    if (!r.ok) return setDeleteError(r.error);
+    await onSignOut();
+    onHome();
+  };
   const b = user?.billing;
   const pro = user?.plan === "pro";
   const providerName = b?.provider === "paystack" ? "Paystack" : b?.provider === "flutterwave" ? "Flutterwave" : null;
@@ -164,6 +177,34 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
                 </div>
               ) : (
                 <button onClick={() => setConfirming(true)} className="rounded-sm border border-border px-4 py-2.5 text-sm font-medium hover:bg-secondary">Cancel subscription</button>
+              )}
+            </div>
+          </section>
+        )}
+              {user && (
+          <section aria-labelledby="data-h" className="mt-6 rounded-md border border-border bg-card p-6">
+            <h2 id="data-h" className="flex items-center gap-2 font-display text-xl font-bold"><Download size={18} /> Your data</h2>
+            <p className="mt-3 text-sm text-muted-foreground">Download a copy of your account details, projects and style presets as a JSON file.</p>
+            <a href="/api/app/account/export" download className="mt-4 inline-block rounded-sm border border-border px-4 py-2.5 text-sm font-medium hover:bg-secondary">Download my data</a>
+
+            <div className="mt-6 border-t border-border pt-5">
+              <h3 className="flex items-center gap-2 text-sm font-bold text-red-700 dark:text-red-300"><Trash2 size={15} /> Delete account</h3>
+              {!deleting ? (
+                <>
+                  <p className="mt-2 text-sm text-muted-foreground">Permanently deletes your account, projects and usage records. This cannot be undone. Any auto-renewing subscription is cancelled first.</p>
+                  <button onClick={() => setDeleting(true)} className="mt-4 rounded-sm border border-red-500/50 px-4 py-2.5 text-sm font-medium text-red-700 hover:bg-red-500/10 dark:text-red-300">Delete my account</button>
+                </>
+              ) : (
+                <div className="mt-3 space-y-3 text-sm">
+                  <label className="block font-medium">Enter your password to confirm
+                    <input type="password" value={deletePassword} onChange={(e) => setDeletePassword(e.target.value)} autoComplete="current-password" className="mt-1.5 w-full rounded-sm border border-border bg-background px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                  </label>
+                  {deleteError && <p role="alert" className="rounded-sm border border-red-500/40 bg-red-500/10 p-3 text-red-700 dark:text-red-300">{deleteError}</p>}
+                  <div className="flex flex-wrap gap-3">
+                    <button onClick={deleteAccount} disabled={deleteBusy || !deletePassword} className="rounded-sm bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-700 disabled:opacity-60">{deleteBusy ? "Deleting…" : "Permanently delete"}</button>
+                    <button onClick={() => { setDeleting(false); setDeletePassword(""); setDeleteError(null); }} className="rounded-sm border border-border px-4 py-2 hover:bg-secondary">Keep my account</button>
+                  </div>
+                </div>
               )}
             </div>
           </section>

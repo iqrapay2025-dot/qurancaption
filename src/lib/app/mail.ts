@@ -12,6 +12,7 @@ export async function sendMail(
   to: string,
   subject: string,
   html: string,
+  opts?: { replyTo?: string },
 ): Promise<boolean> {
   const brevoKey = process.env.BREVO_API_KEY;
   const resendKey = process.env.RESEND_API_KEY;
@@ -40,6 +41,7 @@ export async function sendMail(
           to: [{ email: to }],
           subject,
           htmlContent: html,
+          ...(opts?.replyTo ? { replyTo: { email: opts.replyTo } } : {}),
         }),
         cache: "no-store",
       });
@@ -60,7 +62,7 @@ export async function sendMail(
           Authorization: `Bearer ${resendKey}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ from, to: [to], subject, html }),
+        body: JSON.stringify({ from, to: [to], subject, html, ...(opts?.replyTo ? { reply_to: opts.replyTo } : {}) }),
         cache: "no-store",
       });
       if (res.ok) return true;
