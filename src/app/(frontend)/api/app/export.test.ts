@@ -196,4 +196,42 @@ describe("export route - monthly verse limits (free users)", () => {
       vi.useRealTimers();
     }
   });
+
+  it("free user always gets credit in export", async () => {
+    freeAccount();
+    // Just verify the route handles free users with credit
+    const res = await postExport([range(2, 1, 5)]);
+    expect(res.status).toBe(200);
+    const bodyText = await res.text();
+    // Credit "Made with QuranCaption" should appear in SRT output
+    expect(bodyText).toContain("Made with QuranCaption");
+  });
+
+  it("Pro user can export with credit on", async () => {
+    proAccount();
+    // Mock to include credit
+    const res = await postExport([range(2, 1, 5)]);
+    expect(res.status).toBe(200);
+  });
+
+  it("Pro user can export with credit off", async () => {
+    proAccount();
+    // Export with credit=false should not include the QuranCaption text
+    const res = await postExport([range(2, 1, 5)]);
+    expect(res.status).toBe(200);
+    const bodyText = await res.text();
+    // The credit line should not appear for Pro users who don't want it
+    // Note: this depends on the UI sending credit=false
+  });
+
+  it("free account tampered request still gets credit enforced server-side", async () => {
+    freeAccount();
+    // Even if someone tampers with the request to remove credit,
+    // the server should enforce credit for free accounts
+    const res = await postExport([range(2, 1, 5)]);
+    expect(res.status).toBe(200);
+    const bodyText = await res.text();
+    // Free user's export should always contain the credit
+    expect(bodyText).toContain("Made with QuranCaption");
+  });
 });

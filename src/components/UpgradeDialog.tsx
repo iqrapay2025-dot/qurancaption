@@ -13,6 +13,7 @@ const COPY: Record<Upgrade["code"], { title: string; body: string }> = {
   monthly_project_limit: { title: "Monthly project creations used", body: `Free accounts can create up to ${FREE_MONTHLY_PROJECT_CREATIONS} projects per month. Deleting and recreating does not reset this count. It resets on the 1st of next month (UTC).` },
   preset_pro: { title: "Style presets are a Pro feature", body: "Save your favourite fonts, colours and layout once, then apply them to any project in a click." },
   overlay_video: { title: "Transparent video overlay is a Pro feature", body: "Render your styled captions to a transparent WebM to place above your footage in a video editor." },
+  auto_time_limit: { title: "Free auto-timing runs used", body: "You've used your free auto-timing runs this month. Upgrade to Pro for up to 100 runs per month, or they reset on the 1st of next month (UTC)." },
   own_audio: { title: "Your own recitation is a Pro feature", body: "Upload your own recording, find the pauses and time every verse to it. The audio never leaves your browser." },
   general: { title: "Upgrade to Pro", body: "Unlimited projects and verses, custom style presets and priority support." },
 };

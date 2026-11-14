@@ -7,6 +7,8 @@
     "@payloadcms/storage-vercel-blob": "4.0.0-beta.3",
     "@payloadcms/translations": "4.0.0-beta.3",
     "@payloadcms/ui": "4.0.0-beta.3",
+    "@upstash/ratelimit": "^2.2.1",
+    "@upstash/redis": "^1.41.0",
     "fflate": "^0.8.3",
     "graphql": "^16.8.1",
     "html-react-parser": "^5.2.10",

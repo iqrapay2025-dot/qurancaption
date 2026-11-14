@@ -212,6 +212,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
   const translationsQ = useApi<{ translations: TranslationRes[] }>("/api/quran/translations");
   const ownPro = user?.plan === "pro";
   const [verseUsage, setVerseUsage] = useState<{ used: number; limit: number | null; remaining: number | null; resetAt: string | null } | null>(null);
+const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number | null } | null>(null);
   const [ownOn, setOwnOn] = useState(false);
   const [own, setOwn] = useState<OwnAudio | null>(null);
   const [ownBusy, setOwnBusy] = useState(false);
@@ -228,6 +229,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
       if (!r || cancelled) return;
       const j = await r.json().catch(() => null);
       if (!cancelled && j?.verses) setVerseUsage(j.verses);
+    if (!cancelled && j?.autoTime != null) setAutoTimeUsage(j.autoTime);
     })();
     return () => { cancelled = true; };
   }, [user, sessionReady]);
@@ -1172,9 +1174,12 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
             {ownActive && own && (
               <OwnTiming
                 own={own} keys={verses.map((v) => v.key)} weights={verses.map((v) => verseWeight(v.arabic))}
+                arabic={verses.map((v) => v.arabic)}
                 now={t0 + time} playing={playing} onTogglePlay={togglePlay} onSeek={(t) => seek(t - t0)}
                 onChange={(p) => setOwn((o) => (o ? { ...o, ...p } : o))}
                 canTap={canTap} tapIdx={tapIdx} onTap={tapMark} onRestartTap={() => setTapIdx(0)}
+                autoTimeUsage={autoTimeUsage}
+                onUpgrade={() => requestUpgrade({ code: "auto_time_limit", message: "You've used your free auto-timing runs this month. Upgrade to Pro for up to 100 runs per month." })}
               />
             )}
             <ul ref={listRef} className="relative max-h-80 overflow-y-auto">

@@ -9,7 +9,7 @@ vi.mock("@/lib/app/billing", () => ({
   paystackCancel: vi.fn(),
   setBilling: vi.fn(),
 }));
-vi.mock("@/lib/app/rate-limit", () => ({ rateLimit: vi.fn(() => ({ ok: true, retryAfter: 0 })) }));
+vi.mock("@/lib/app/rate-limit", () => ({ rateLimit: vi.fn().mockResolvedValue({ ok: true, retryAfter: 0 }) }));
 
 import { currentUser } from "@/lib/app/session";
 import { getAccount, paystackDisable, paystackCancel, setBilling } from "@/lib/app/billing";
@@ -93,7 +93,7 @@ describe("cancel route", () => {
   });
 
   it("unknown provider returns 400 and does not call Paystack", async () => {
-    (getAccount as any).mockResolvedValue(account({ provider: "stripe", customerRef: "cust" }));
+    (getAccount as any).mockResolvedValue(account({ provider: "unknown", customerRef: "cust" }));
     const res = await call();
     expect(res.status).toBe(400);
     expect(paystackDisable).not.toHaveBeenCalled();

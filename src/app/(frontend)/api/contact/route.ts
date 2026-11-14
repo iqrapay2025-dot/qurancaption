@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const bad = csrf(req); if (bad) return bad;
   const b = (await readJson(req)) as Record<string, unknown> | null;
   const ip = clientIp(req);
-  const rl = rateLimit(`app:contact:${ip}`, 5, 60 * 60 * 1000);
+  const rl = await rateLimit(`app:contact:${ip}`, 5, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
   // Honeypot: pretend success so bots learn nothing.
   if (typeof b?.website === "string" && b.website.trim()) return ok();

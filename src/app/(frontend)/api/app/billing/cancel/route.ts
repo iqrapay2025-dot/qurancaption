@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   if (!user) return fail("Log in first.", 401);
   const uid = String(user.id);
 
-  const rl = rateLimit(`app:cancel:${uid}`, 10, 60 * 60 * 1000);
+  const rl = await rateLimit(`app:cancel:${uid}`, 10, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
 
   const acc = await getAccount(uid);

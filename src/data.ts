@@ -33,6 +33,9 @@ export type CaptionLine = { start: number; end: number; lines: string[] };
 export type SplitOpts = { enabled: boolean; maxAr: number; maxTr: number };
 export const DEFAULT_SPLIT: SplitOpts = { enabled: true, maxAr: 60, maxTr: 90 };
 
+// Credit text for free users
+export const FREE_CREDIT_TEXT = "Made with QuranCaption";
+
 // Waqf marks that allow a stop. U+06D9 (laa, "do not stop") is deliberately excluded.
 const WAQF = /[\u06D6\u06D7\u06D8\u06DA\u06DB\u06DC]$/;
 const MARKS_ONLY = /^[\p{M}\u06D6-\u06ED]+$/u;
@@ -151,12 +154,14 @@ export function creditLines(sources: CreditSource[]) {
   return [...lines, "Quran data via UmmahAPI"];
 }
 
-export function toSRT(caps: CaptionLine[], credit?: string[]) {
-  const all = credit?.length && caps.length ? [...caps, { start: caps[caps.length - 1].end, end: caps[caps.length - 1].end + 3, lines: credit }] : caps;
+export function toSRT(caps: CaptionLine[], credit?: string[], isFree: boolean = false) {
+  const creditToAdd = isFree && !credit?.length ? [FREE_CREDIT_TEXT] : (credit?.length ? credit : []);
+  const all = creditToAdd.length && caps.length ? [...caps, { start: caps[caps.length - 1].end, end: caps[caps.length - 1].end + 3, lines: creditToAdd }] : caps;
   return all.map((c, i) => `${i + 1}\n${stamp(c.start, ",")} --> ${stamp(c.end, ",")}\n${c.lines.join("\n")}\n`).join("\n");
 }
 
-export function toVTT(caps: CaptionLine[], credit?: string[]) {
-  const note = credit?.length ? `NOTE\n${credit.join("\n").replace(/-->/g, "->")}\n\n` : "";
+export function toVTT(caps: CaptionLine[], credit?: string[], isFree: boolean = false) {
+  const creditToAdd = isFree && !credit?.length ? [FREE_CREDIT_TEXT] : (credit?.length ? credit : []);
+  const note = creditToAdd.length ? `NOTE${creditToAdd.join("\n").replace(/-->/g, "->")}\n\n` : "";
   return "WEBVTT\n\n" + note + caps.map((c) => `${stamp(c.start, ".")} --> ${stamp(c.end, ".")}\n${c.lines.join("\n")}\n`).join("\n");
 }

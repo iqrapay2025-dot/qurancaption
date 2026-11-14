@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     return fail("Invalid signature.", 401);
   }
 
-  const rl = rateLimit("flutterwave:webhook", 1000, 60 * 60 * 1000);
+  const rl = await rateLimit("flutterwave:webhook", 1000, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
 
   const raw = await req.text().catch(() => "");

@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     return fail("Invalid payment reference.", 400);
   }
 
-  const rl = rateLimit(`app:flw-confirm:${clientIp(req)}`, 100, 60 * 60 * 1000);
+  const rl = await rateLimit(`app:flw-confirm:${clientIp(req)}`, 100, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
 
   try {

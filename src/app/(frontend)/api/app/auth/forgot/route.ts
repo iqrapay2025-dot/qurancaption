@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const b = (await readJson(req)) as Record<string, unknown> | null;
   const email = typeof b?.email === "string" ? b.email.trim().toLowerCase() : "";
   const ip = clientIp(req);
-  const rl = rateLimit(`app:forgot:${email || "unknown"}:${ip}`, 3, 60 * 60 * 1000);
+  const rl = await rateLimit(`app:forgot:${email || "unknown"}:${ip}`, 3, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
   if (!validEmail(email)) return fail("Enter a valid email address.");
   try {

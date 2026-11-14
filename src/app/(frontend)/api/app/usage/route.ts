@@ -2,7 +2,7 @@ import { getPayloadClient } from "@/lib/payload";
 import { getAccount } from "@/lib/app/billing";
 import { fail, ok } from "@/lib/app/http";
 import { currentUser } from "@/lib/app/session";
-import { FREE_MONTHLY_VERSES, monthKey } from "@/lib/app/plans";
+import { FREE_MONTHLY_VERSES, monthKey, AUTO_TIME_MONTHLY_RUNS } from "@/lib/app/plans";
 
 export async function GET() {
   const user = await currentUser().catch(() => null);
@@ -11,7 +11,7 @@ export async function GET() {
   const month = monthKey();
   const acc = await getAccount(String(user.id));
   if (acc.plan === "pro") {
-    return ok({ plan: "pro", verses: { used: 0, limit: null, remaining: null }, resetAt: null });
+    return ok({ plan: "pro", verses: { used: 0, limit: null, remaining: null }, autoTime: { used: 0, limit: null, remaining: null, resetAt: null }, resetAt: null });
   }
   const uv = await payload.find({
     collection: "usage-verses",
@@ -29,10 +29,20 @@ export async function GET() {
   const { totalDocs: savedCount } = await payload.count({
     collection: "projects", user, overrideAccess: false,
   });
+  const uvAuto = await payload.find({
+    collection: "usage-auto-time",
+    where: { user: { equals: String(user.id) }, month: { equals: month } },
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  });
+  const autoUsed = uvAuto.docs[0]?.count ?? 0;
+  const autoLimit = AUTO_TIME_MONTHLY_RUNS.free;
   const resetAt = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 1)).toISOString();
   return ok({
     plan: "free",
     verses: { used, limit: FREE_MONTHLY_VERSES, remaining },
+    autoTime: { used: autoUsed, limit: autoLimit, remaining: Math.max(0, autoLimit - autoUsed), resetAt },
     projects: { created: projectsCreated, limit: 10, savedLimit: 3, savedCount: 0 },
     resetAt,
   });

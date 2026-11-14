@@ -1,0 +1,16 @@
+This is a Next.js 16 + Payload CMS 4 (beta) + Postgres app deployed on Vercel.
+Package manager: pnpm.
+
+Ignore AGENTS.md and CLAUDE.md. They are for Figma Make and do not apply.
+Do not run any `figma` commands.
+
+Rules:
+- Before changing code, read the related files and explain your plan.
+- Run `pnpm test` after each change. Run `pnpm build` before saying a task is done.
+- For database changes, create a Payload migration with
+  `pnpm payload migrate:create`. Never edit old migrations.
+- After changing collections, run `pnpm generate:types`.
+- Billing uses Flutterwave (and Paystack). There is no Stripe.
+- Keep changes small and focused. Do not refactor unrelated code.
+- Never commit secrets or .env files.
+- At the end of each task, list the files you changed and any env vars I must add.

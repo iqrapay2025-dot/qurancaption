@@ -12,7 +12,7 @@ vi.mock("@/lib/payload", () => ({ getPayloadClient: vi.fn(() => ({
 vi.mock("@/lib/app/session", () => ({
   currentUser: vi.fn(async () => ({ id: "123", email: "alice@example.com", name: "Alice" })),
 }));
-vi.mock("@/lib/app/rate-limit", () => ({ rateLimit: vi.fn(() => ({ ok: true, retryAfter: 0 })) }));
+vi.mock("@/lib/app/rate-limit", () => ({ rateLimit: vi.fn().mockResolvedValue({ ok: true, retryAfter: 0 }) }));
 
 let fetchMock: ReturnType<typeof vi.spyOn>;
 let origKey: string | undefined;

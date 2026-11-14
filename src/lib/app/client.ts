@@ -4,8 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { Billing, Plan } from "./plans";
 
-export type AppUser = { id: string; email: string; name?: string | null; plan?: Plan; billing?: Billing };
-export type Upgrade = { code: "project_limit" | "verse_limit" | "preset_pro" | "own_audio" | "overlay_video" | "general" | "monthly_verse_limit" | "monthly_project_limit"; message?: string };
+export type AppUser = { id: string; email: string; name?: string | null; plan?: Plan; billing?: Billing; emailVerified?: boolean; };
+export type Upgrade = { code: "project_limit" | "verse_limit" | "preset_pro" | "own_audio" | "overlay_video" | "general" | "monthly_verse_limit" | "monthly_project_limit" | "auto_time_limit"; message?: string };
 export type Preset = { id: string; name: string; style: Record<string, string | number | boolean> };
 
 export async function appFetch<T>(url: string, init?: { method?: string; body?: unknown }): Promise<{ ok: true; data: T } | { ok: false; status: number; error: string; code?: string }> {

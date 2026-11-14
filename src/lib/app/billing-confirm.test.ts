@@ -21,7 +21,7 @@ vi.mock("./billing", () => ({
 }));
 
 vi.mock("./rate-limit", () => ({
-  rateLimit: vi.fn(() => ({ ok: true, retryAfter: 0 })),
+  rateLimit: vi.fn().mockResolvedValue({ ok: true, retryAfter: 0 }),
 }));
 
 const request = (body: Record<string, unknown>) => {

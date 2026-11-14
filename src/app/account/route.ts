@@ -10,7 +10,7 @@ export async function DELETE(req: Request) {
   const user = await currentUser().catch(() => null);
   if (!user) return fail("Log in first.", 401);
   const uid = String(user.id);
-  const rl = rateLimit(`app:delete-account:${uid}`, 5, 60 * 60 * 1000);
+  const rl = await rateLimit(`app:delete-account:${uid}`, 5, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
 
   const b = (await readJson(req)) as Record<string, unknown> | null;

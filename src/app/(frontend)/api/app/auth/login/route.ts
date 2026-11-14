@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   const email = typeof b?.email === "string" ? b.email.trim().toLowerCase() : "";
   const password = typeof b?.password === "string" ? b.password : "";
   const ip = clientIp(req);
-  const rl = rateLimit(`app:login:${email || "unknown"}:${ip}`, 5, 15 * 60 * 1000);
+  const rl = await rateLimit(`app:login:${email || "unknown"}:${ip}`, 5, 15 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
   if (!email || !password) return fail("Enter your email and password.");
   const payload = await getPayloadClient();

@@ -1,17 +1,84 @@
 "use client";
-import { Loader2, Pause, Play, Plus, Trash2, Hand, Waves, ZoomIn, ZoomOut } from "lucide-react";
+import { Loader2, Pause, Play, Plus, Trash2, Hand, Waves, ZoomIn, ZoomOut, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fmt } from "../data";
 import { computeBounds, detectPauses, type Mark, type OwnAudio } from "../lib/ownAudio";
 
 type Patch = Partial<Pick<OwnAudio, "marks" | "startT" | "endT" | "src">>;
+type AutoTiming = { verseKey: string; start: number; end: number; confidence: number };
+
+const AUTO_TIME_CLIENT_BYTES = 4.5 * 1024 * 1024; // ~4.5 MB Vercel serverless body limit
+
+// Encodes mono 16-bit PCM to a WAV file (header + little-endian samples).
+function encodeWav(pcm: Int16Array, sampleRate: number): ArrayBuffer {
+  const bytes = pcm.length * 2;
+  const buf = new ArrayBuffer(44 + bytes);
+  const v = new DataView(buf);
+  const write = (o: number, str: string) => {
+    for (let i = 0; i < str.length; i++) v.setUint8(o + i, str.charCodeAt(i));
+  };
+  write(0, "RIFF");
+  v.setUint32(4, 36 + bytes, true);
+  write(8, "WAVE");
+  write(12, "fmt ");
+  v.setUint32(16, 16, true);
+  v.setUint16(20, 1, true);
+  v.setUint16(22, 1, true);
+  v.setUint32(24, sampleRate, true);
+  v.setUint32(28, sampleRate * 2, true);
+  v.setUint16(32, 2, true);
+  v.setUint16(34, 16, true);
+  write(36, "data");
+  v.setUint32(40, bytes, true);  for (let i = 0; i < pcm.length; i++) v.setInt16(44 + i * 2, pcm[i], true);
+  return buf;
+}
+
+
+// Re-encodes the user's own audio to mono, 16 kHz, 16-bit PCM WAV (~32 KB per
+// second) so the upload stays under the serverless body limit. The user's
+// original audio is never touched, stored or exported.
+async function reencodeOwnAudio(own: OwnAudio): Promise<File> {
+  const res = await fetch(own.url);
+  if (!res.ok) throw new Error("Could not read your audio file.");
+  const Ctx = window.OfflineAudioContext || (window as unknown as { webkitOfflineAudioContext?: typeof OfflineAudioContext }).webkitOfflineAudioContext;
+  const ACtx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!Ctx || !ACtx) throw new Error("Audio re-encoding is not supported in this browser.");
+  const ctx = new ACtx();
+  const buf = await ctx.decodeAudioData(await res.arrayBuffer());
+  await ctx.close().catch(() => {});
+  if (!Number.isFinite(buf.duration) || buf.duration > 300) {
+    throw new Error("That recording is too long for auto-timing. Use a shorter recording (about 2 minutes or less).");
+  }
+  const frames = Math.ceil(buf.duration * 16000);
+  const offline = new Ctx(1, frames, 16000);
+  const src = offline.createBufferSource();
+  src.buffer = buf;
+  src.connect(offline.destination);
+  src.start(0);
+  const rendered = await offline.startRendering();
+  const channel = rendered.getChannelData(0);
+  const pcm = new Int16Array(channel.length);
+  for (let i = 0; i < channel.length; i++) {
+    let v = channel[i];
+    if (v > 1) v = 1;
+    if (v < -1) v = -1;
+    pcm[i] = v * 0x7fff;
+  }
+  const wav = encodeWav(pcm, 16000);
+  if (wav.byteLength > AUTO_TIME_CLIENT_BYTES) {
+    throw new Error("That recitation is too long for auto-timing. Please use a shorter recording (about 2 minutes or less) or time the verses by hand.");
+  }
+  const name = own.name.replace(/\.[^.]+$/, "") + ".wav";
+  return new File([wav], name, { type: "audio/wav" });
+}
 
 const btn = "inline-flex items-center gap-1.5 rounded-sm border border-border bg-background px-2.5 py-1.5 text-xs font-medium hover:bg-secondary disabled:opacity-50";
 
-export default function OwnTiming({ own, keys, weights, now, playing, onTogglePlay, onSeek, onChange, canTap, tapIdx, onTap, onRestartTap }: {
-  own: OwnAudio; keys: string[]; weights: number[]; now: number; playing: boolean;
+export default function OwnTiming({ own, keys, weights, arabic, now, playing, onTogglePlay, onSeek, onChange, canTap, tapIdx, onTap, onRestartTap, autoTimeUsage, onUpgrade }: {
+  own: OwnAudio; keys: string[]; weights: number[]; arabic: string[]; now: number; playing: boolean;
   onTogglePlay: () => void; onSeek: (t: number) => void; onChange: (p: Patch) => void;
   canTap: boolean; tapIdx: number; onTap: () => void; onRestartTap: () => void;
+  autoTimeUsage: { used: number; limit: number | null } | null; onUpgrade?: () => void;
 }) {
   const need = keys.length - 1;
   const wrap = useRef<HTMLDivElement>(null);
@@ -21,6 +88,10 @@ export default function OwnTiming({ own, keys, weights, now, playing, onTogglePl
   const [sel, setSel] = useState<number | null>(null);
   const [detecting, setDetecting] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [autoBusy, setAutoBusy] = useState(false);
+  const [autoErr, setAutoErr] = useState<string | null>(null);
+  const [autoNote, setAutoNote] = useState<string | null>(null);
+  const [checkKeys, setCheckKeys] = useState<Set<string>>(new Set());
   const H = 104;
 
   useEffect(() => {
@@ -91,6 +162,8 @@ export default function OwnTiming({ own, keys, weights, now, playing, onTogglePl
     window.addEventListener("pointerup", up);
   };
 
+  const removeAt = (i: number) => { onChange({ marks: own.marks.filter((_, k) => k !== i), src: "edit" }); setSel(null); };
+
   const nudge = (i: number) => (e: React.KeyboardEvent) => {
     const step = e.shiftKey ? 0.5 : 0.05;
     if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
@@ -104,7 +177,6 @@ export default function OwnTiming({ own, keys, weights, now, playing, onTogglePl
     }
   };
 
-  const removeAt = (i: number) => { onChange({ marks: own.marks.filter((_, k) => k !== i), src: "edit" }); setSel(null); };
   const addAt = (t: number) => {
     if (t <= own.startT + 0.1 || t >= own.endT - 0.1) { setMsg("Place a marker between the recitation's start and end handles."); return; }
     const next: Mark[] = [...own.marks, { t, w: 99 }].sort((a, b) => a.t - b.t);
@@ -129,6 +201,57 @@ export default function OwnTiming({ own, keys, weights, now, playing, onTogglePl
     }, 30);
   };
 
+  const autoBlocked = autoTimeUsage?.limit != null && autoTimeUsage.used >= autoTimeUsage.limit;
+
+  const runAutoTime = async () => {
+    setAutoErr(null);
+    setAutoNote(null);
+    if (autoBlocked) { onUpgrade?.(); return; }
+    if (arabic.length !== keys.length) {
+      setAutoErr("Verse texts are unavailable for this range. Time the verses by hand instead.");
+      return;
+    }
+    setAutoBusy(true);
+    try {
+      const encoded = await reencodeOwnAudio(own);
+      const form = new FormData();
+      form.append("file", encoded);
+      form.append("verses", JSON.stringify(keys.map((k, i) => ({ verseKey: k, text: arabic[i] ?? "" }))));
+      const res = await fetch("/api/app/auto-time", { method: "POST", body: form, credentials: "same-origin" });
+      const json = await res.json().catch(() => ({}));
+      if (res.status === 402 && (json as { code?: string })?.code === "auto_time_limit") {
+        onUpgrade?.();
+        return;
+      }
+      if (!res.ok) throw new Error((json as { error?: string })?.error ?? "Auto-timing failed. Please try again.");
+      const timings = (json as { timings?: AutoTiming[] })?.timings;
+      if (!Array.isArray(timings) || timings.length !== keys.length) {
+        throw new Error("The server returned incomplete timings. Please try again.");
+      }
+      const marks: Mark[] = [];
+      for (let i = 0; i < timings.length - 1; i++) {
+        const t = (Number(timings[i].end) + Number(timings[i + 1].start)) / 2;
+        marks.push({ t, w: 99 });
+      }
+      const first = Number(timings[0].start);
+      const last = Number(timings[timings.length - 1].end);
+      onChange({
+        startT: Math.max(0, Math.min(first, own.duration)),
+        endT: Math.max(0, Math.min(last, own.duration)),
+        marks,
+        src: "edit",
+      });
+      const low = new Set(timings.filter((t) => Number(t.confidence) < 0.6).map((t) => t.verseKey));
+      setCheckKeys(low);
+      if (low.size) setAutoNote(`Applied. Low confidence on ${[...low].join(", ")} — check them by ear.`);
+      else setAutoNote("Applied. Check the markers by ear and adjust if needed.");
+    } catch (e) {
+      setAutoErr(e instanceof Error ? e.message : "Auto-timing failed. Please try again.");
+    } finally {
+      setAutoBusy(false);
+    }
+  };
+
   const status = (() => {
     const found = own.marks.length;
     if (keys.length < 2) return { tone: "ok", text: "One verse in this range: it spans the whole recitation between the start and end handles." };
@@ -144,7 +267,18 @@ export default function OwnTiming({ own, keys, weights, now, playing, onTogglePl
       </p>
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <button type="button" onClick={onTogglePlay} className={btn}>{playing ? <Pause size={13} /> : <Play size={13} />}{playing ? "Pause" : "Play"}</button>
-        <button type="button" onClick={detect} disabled={detecting} className={`${btn} border-primary/50 text-primary`}>{detecting ? <Loader2 size={13} className="animate-spin" /> : <Waves size={13} />}Detect pauses</button>
+        <button type="button" onClick={detect} disabled={detecting} className={`${btn} border-primary/50 text-primary`}>
+          {detecting ? <Loader2 size={13} className="animate-spin" /> : <Waves size={13} />}Detect pauses
+        </button>
+        <button type="button" onClick={runAutoTime} disabled={autoBusy} title="Automatically time every verse from this recitation" className={btn}>
+          {autoBusy ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+          {autoBusy ? "Timing…" : "Auto-time"}
+        </button>
+        {autoTimeUsage?.limit != null && (
+          <span className="whitespace-nowrap text-[10px] text-muted-foreground">
+            {autoBlocked ? "Limit reached this month" : `${autoTimeUsage.limit - autoTimeUsage.used} auto-time run${autoTimeUsage.limit - autoTimeUsage.used === 1 ? "" : "s"} left this month`}
+          </span>
+        )}
         <button type="button" onClick={onTap} disabled={!canTap} title="Space" className={btn}>
           <Hand size={13} />{tapIdx >= keys.length ? "All verses marked" : `Tap to mark end of ${keys[tapIdx]}`}<kbd className="rounded-sm border border-border px-1 font-mono text-[10px]">Space</kbd>
         </button>
@@ -161,7 +295,10 @@ export default function OwnTiming({ own, keys, weights, now, playing, onTogglePl
         <div className="relative select-none" style={{ width: inner, height: H + 22 }}>
           <div className="absolute inset-x-0 top-0 h-[22px]">
             {keys.map((k, i) => bounds[i + 1] !== undefined && (
-              <span key={k} className="absolute top-1 truncate px-1 text-[10px] font-medium text-muted-foreground" style={{ left: x(bounds[i]), width: Math.max(0, x(bounds[i + 1]) - x(bounds[i])) }}>{k}</span>
+              <span key={k} className="absolute top-1" style={{ left: x(bounds[i]), width: Math.max(0, x(bounds[i + 1]) - x(bounds[i])) }}>
+                <span className="truncate px-1 text-[10px] font-medium text-muted-foreground">{k}</span>
+                {checkKeys.has(k) && <span className="mt-0.5 text-[10px] font-bold text-amber-500" aria-label={`Low confidence — check ${k}`}>⚠</span>}
+              </span>
             ))}
           </div>
           <canvas
@@ -202,6 +339,9 @@ export default function OwnTiming({ own, keys, weights, now, playing, onTogglePl
 
       <p role="status" className={`mt-3 rounded-sm border p-3 text-xs ${status.tone === "ok" ? "border-border bg-muted/50" : "border-amber-500/40 bg-amber-500/10"}`}>{status.text}</p>
       {msg && <p role="alert" className="mt-2 rounded-sm border border-amber-500/40 bg-amber-500/10 p-3 text-xs">{msg}</p>}
+      {autoErr && <p role="alert" className="mt-2 rounded-sm border border-red-500/40 bg-red-500/10 p-3 text-xs">{autoErr}</p>}
+      {autoNote && <p className="mt-2 rounded-sm border border-border bg-muted/50 p-3 text-xs">{autoNote}</p>}
+      {checkKeys.size > 0 && <p className="mt-2 text-[10px] text-amber-500">⚠ Marked verses have low auto-timing confidence — listen and adjust their markers by ear.</p>}
       <p className="mt-2 text-[11px] text-muted-foreground">Drag a marker, or focus it and use the arrow keys (Shift for bigger steps). Delete removes it. Click the waveform to seek. The dark handles set where the recitation starts and ends.</p>
     </div>
   );

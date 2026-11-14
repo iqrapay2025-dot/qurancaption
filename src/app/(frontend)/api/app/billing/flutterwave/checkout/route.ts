@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   if (bad) return bad;
   const user = await currentUser().catch(() => null);
   if (!user) return fail("Log in or create an account to upgrade.", 401);
-  const rl = rateLimit(`app:checkout:${String(user.id)}`, 10, 60 * 60 * 1000);
+  const rl = await rateLimit(`app:checkout:${String(user.id)}`, 10, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
   if (!process.env.FLUTTERWAVE_SECRET_KEY) {
     return fail("Flutterwave isn't set up yet. Please check back soon.", 500);

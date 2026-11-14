@@ -9,7 +9,7 @@ export async function GET() {
   const user = await currentUser().catch(() => null);
   if (!user) return fail("Log in first.", 401);
   const uid = String(user.id);
-  const rl = rateLimit(`app:data-export:${uid}`, 5, 60 * 60 * 1000);
+  const rl = await rateLimit(`app:data-export:${uid}`, 5, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
 
   const payload = await getPayloadClient();

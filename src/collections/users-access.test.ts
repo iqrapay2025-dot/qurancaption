@@ -33,10 +33,9 @@ describe("Users access", () => {
     });
   }
 
-  it("provider options include paystack, flutterwave and stripe", () => {
+  it("provider options include paystack and flutterwave", () => {
     const f = get("provider");
     expect(f.options).toContain("paystack");
     expect(f.options).toContain("flutterwave");
-    expect(f.options).toContain("stripe");
   });
 });

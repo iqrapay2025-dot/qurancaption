@@ -89,6 +89,7 @@ export interface Config {
     'billing-events': BillingEvent;
     'usage-verses': UsageVerse;
     'usage-projects': UsageProject;
+    'usage-auto-time': UsageAutoTime;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -106,6 +107,7 @@ export interface Config {
     'billing-events': BillingEventsSelect<false> | BillingEventsSelect<true>;
     'usage-verses': UsageVersesSelect<false> | UsageVersesSelect<true>;
     'usage-projects': UsageProjectsSelect<false> | UsageProjectsSelect<true>;
+    'usage-auto-time': UsageAutoTimeSelect<false> | UsageAutoTimeSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -220,10 +222,14 @@ export interface User {
   id: number;
   name?: string | null;
   googleId?: string | null;
-  provider?: ('paystack' | 'stripe' | 'flutterwave') | null;
+  provider?: ('paystack' | 'flutterwave') | null;
   customerRef?: string | null;
   subscriptionRef?: string | null;
   emailToken?: string | null;
+  emailTokenExpires?: string | null;
+  emailVerified?: boolean | null;
+  emailVerifiedAt?: string | null;
+  emailVerificationSource?: string | null;
   billingStatus?: ('none' | 'active' | 'past_due' | 'canceled') | null;
   proUntil?: string | null;
   cancelAtPeriodEnd?: boolean | null;
@@ -554,6 +560,36 @@ export interface UsageProject {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "usage-auto-time".
+ */
+export interface UsageAutoTime {
+  id: number;
+  user: number | User;
+  month: string;
+  count: number;
+  createdBy?:
+    | ({
+        relationTo: 'admins';
+        value: number | Admin;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null);
+  updatedBy?:
+    | ({
+        relationTo: 'admins';
+        value: number | Admin;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null);
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -611,6 +647,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'usage-projects';
         value: number | UsageProject;
+      } | null)
+    | ({
+        relationTo: 'usage-auto-time';
+        value: number | UsageAutoTime;
       } | null);
   globalSlug?: string | null;
   user:
@@ -794,6 +834,10 @@ export interface UsersSelect<T extends boolean = true> {
   customerRef?: T;
   subscriptionRef?: T;
   emailToken?: T;
+  emailTokenExpires?: T;
+  emailVerified?: T;
+  emailVerifiedAt?: T;
+  emailVerificationSource?: T;
   billingStatus?: T;
   proUntil?: T;
   cancelAtPeriodEnd?: T;
@@ -874,6 +918,19 @@ export interface UsageVersesSelect<T extends boolean = true> {
  * via the `definition` "usage-projects_select".
  */
 export interface UsageProjectsSelect<T extends boolean = true> {
+  user?: T;
+  month?: T;
+  count?: T;
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "usage-auto-time_select".
+ */
+export interface UsageAutoTimeSelect<T extends boolean = true> {
   user?: T;
   month?: T;
   count?: T;
@@ -974,7 +1031,8 @@ export interface CollectionQueryWidget {
       | 'projects'
       | 'billing-events'
       | 'usage-verses'
-      | 'usage-projects';
+      | 'usage-projects'
+      | 'usage-auto-time';
     where?:
       | {
           [k: string]: unknown;
@@ -1007,6 +1065,7 @@ export interface ActivityWidget {
           | 'billing-events'
           | 'usage-verses'
           | 'usage-projects'
+          | 'usage-auto-time'
         )[]
       | null;
   };

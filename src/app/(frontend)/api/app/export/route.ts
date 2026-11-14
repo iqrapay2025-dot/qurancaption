@@ -32,10 +32,13 @@ function parseRange(r: unknown): { surah: number; from: number; to: number; timi
 }
 
 export async function POST(req: Request) {
-  const csrfBad = csrf(req); if (csrfBad) return csrfBad;
+  const csrfBad = csrf(req);
+  if (csrfBad) return csrfBad;
+
   const b = await readJson(req);
   const bad = () => fail("Invalid export request.");
   if (!isObj(b)) return bad();
+
   const offset = num(b.offset, -3600, 3600);
   const format = b.format === "srt" || b.format === "vtt" ? b.format : undefined;
   if (offset === undefined || !format || !Array.isArray(b.ranges) || !b.ranges.length || b.ranges.length > MAX_RANGES) return bad();
@@ -49,70 +52,61 @@ export async function POST(req: Request) {
   }
 
   const user = await currentUser().catch(() => null);
-  const rl = rateLimit(`app:export:${user ? String(user.id) : clientIp(req)}`, 30, 60 * 60 * 1000);
+
+  // Unverified users cannot export.
+  if (user && !user.emailVerified) {
+    return fail("Please verify your email address before exporting.", 403);
+  }
+
+  const rl = await rateLimit(`app:export:${user ? String(user.id) : clientIp(req)}`, 30, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
+
   const plan = user ? (await getAccount(String(user.id))).plan : "free";
   const total = ranges.reduce((n, r) => n + (r.to - r.from + 1), 0);
-  if (plan !== "pro" && total > FREE_LIMITS.verses)
-    return deny("verse_limit", `Free exports cover up to ${FREE_LIMITS.verses} verses in total across all ranges. Upgrade to Pro for longer passages.`);
+  if (plan !== "pro" && total > FREE_LIMITS.verses) {
+    return deny(
+      "verse_limit",
+      "Free exports cover up to " + FREE_LIMITS.verses + " verses in total across all ranges. Upgrade to Pro for longer passages.",
+    );
+  }
 
   // Monthly unique-verse allowance for free accounts.
   // Re-exporting already-recorded verses costs nothing; only new verse keys consume allowance.
+  const recordedKeys = new Set<string>();
+  const requestedVerseKeys = new Set<string>();
+  for (const r of ranges) {
+    for (let n = r.from; n <= r.to; n++) requestedVerseKeys.add(`${r.surah}:${n}`);
+  }
+
   if (user && plan !== "pro") {
     const payload = await getPayloadClient();
     const month = monthKey();
-    const verseKeys = new Set<string>();
-    for (const r of ranges) {
-      for (let n = r.from; n <= r.to; n++) verseKeys.add(`${r.surah}:${n}`);
-    }
-    const existing = await payload.find({
-      collection: "usage-verses",
-      where: {
-        user: { equals: String(user.id) },
-        month: { equals: month },
-      },
-      depth: 0,
-      limit: 1000, overrideAccess: true,
-    });
-    const recordedKeys = new Set(existing.docs.map((d: any) => d.verseKey));
-    const newKeys = [...verseKeys].filter((k) => !recordedKeys.has(k));
-    if (recordedKeys.size + newKeys.length > FREE_MONTHLY_VERSES) {
-      const remaining = Math.max(0, FREE_MONTHLY_VERSES - recordedKeys.size);
-      return deny(
-        "monthly_verse_limit",
-        `You've used ${recordedKeys.size} of ${FREE_MONTHLY_VERSES} free verses this month. ${remaining} verse${remaining === 1 ? "" : "s"} left this month. Upgrade for unlimited verses, or they reset on the 1st of next month (UTC).`,
-      );
-    }
-    // Record new verse keys (skip any that appeared concurrently via unique index).
-    for (const k of newKeys) {
-      await payload
-        .create({
-          collection: "usage-verses",
-          data: { user: user.id, month, verseKey: k },
-          overrideAccess: true,
-          depth: 0,
-        })
-        .catch(() => {
-          // Concurrent insert already recorded this key – it costs nothing.
-        });
-    }
-    // Re-count after recording to catch concurrent inserts that pushed us over the limit.
-    const recount = await payload.find({
+
+    // Step 1: check the allowance first (read-only, nothing is recorded yet).
+    const alreadyRecorded = await payload.find({
       collection: "usage-verses",
       where: { user: { equals: String(user.id) }, month: { equals: month } },
-      depth: 0, limit: 1000, overrideAccess: true,
+      pagination: false,
+      depth: 0,
+      overrideAccess: true,
     });
-    if (recount.docs.length > FREE_MONTHLY_VERSES) {
-      // Already recorded some keys due to a race; stop the export but leave the recorded keys.
+    for (const doc of alreadyRecorded.docs) {
+      if (doc.verseKey) recordedKeys.add(doc.verseKey);
+    }
+
+    const newVerseKeys = [...requestedVerseKeys].filter((k) => !recordedKeys.has(k));
+    if (recordedKeys.size + newVerseKeys.length > FREE_MONTHLY_VERSES) {
       return deny(
         "monthly_verse_limit",
-        `You've used ${recount.docs.length} of ${FREE_MONTHLY_VERSES} free verses this month. No verses left this month. Upgrade for unlimited verses, or they reset on the 1st of next month (UTC).`,
+        `You've used your free monthly allowance of ${FREE_MONTHLY_VERSES} verses. Upgrade to Pro for unlimited verses, or they reset on the 1st of next month (UTC).`,
       );
     }
   }
 
+  // Step 2: validate the split settings and files, then build the export.
   const sp = isObj(b.split) ? b.split : null;
-  const maxAr = sp ? num(sp.maxAr, 10, 500) : undefined, maxTr = sp ? num(sp.maxTr, 10, 500) : undefined;
+  const maxAr = sp ? num(sp.maxAr, 10, 500) : undefined;
+  const maxTr = sp ? num(sp.maxTr, 10, 500) : undefined;
   if (!sp || typeof sp.enabled !== "boolean" || maxAr === undefined || maxTr === undefined) return bad();
   const split = { enabled: sp.enabled, maxAr, maxTr };
 
@@ -120,26 +114,31 @@ export async function POST(req: Request) {
   const names = new Set<string>();
   const wanted = new Set<string>();
   for (const f of b.files) {
-    if (!isObj(f) || typeof f.name !== "string" || !NAME.test(f.name) || !f.name.endsWith(`.${format}`) || !isObj(f.layers) || names.has(f.name)) return bad();
+    if (!isObj(f) || typeof f.name !== "string" || !NAME.test(f.name) || !f.name.endsWith("." + format) || !isObj(f.layers) || names.has(f.name)) return bad();
     if (!Array.isArray(f.ranges) || !f.ranges.length || !f.ranges.every((i) => Number.isInteger(i) && i >= 0 && i < ranges.length)) return bad();
     names.add(f.name);
     const l = f.layers, tr1 = key(l.tr1), tr2 = key(l.tr2);
     if (tr1 === undefined || tr2 === undefined || typeof l.arabic !== "boolean" || typeof l.translit !== "boolean" || typeof l.verseKey !== "boolean") return bad();
     if (tr1) wanted.add(tr1);
-    if (tr2) wanted.add(tr2);
-    if (l.translit) wanted.add("transliteration");
+    if (tr2) wanted.add("transliteration");
     files.push({ name: f.name, layers: { arabic: l.arabic, tr1, tr2, translit: l.translit, verseKey: l.verseKey }, ranges: f.ranges as number[] });
   }
 
   try {
-    const timedRanges: Verse[][] = await Promise.all(ranges.map(async (r) => {
-      const { verses } = await getVerses(r.surah, r.from, r.to, [...wanted]);
-      const timed: Verse[] = verses.map((v) => ({ ...v, ...(r.timings.get(v.n) ?? { start: NaN, end: NaN }) }));
-      if (timed.length !== r.timings.size || timed.some((v) => !Number.isFinite(v.start))) throw new RangeError("timings");
-      return timed;
-    }));
-    const credit = b.credit === true;
-    const trs = credit ? (await getTranslations()).translations : [];
+    const timedRanges: Verse[][] = await Promise.all(
+      ranges.map(async (r) => {
+        const { verses } = await getVerses(r.surah, r.from, r.to, [...wanted]);
+        const timed: Verse[] = verses.map((v) => ({ ...v, ...(r.timings.get(v.n) ?? { start: NaN, end: NaN }) }));
+        if (timed.length !== r.timings.size || timed.some((v) => !Number.isFinite(v.start))) throw new RangeError("timings");
+        return timed;
+      }),
+    );
+
+    // Determine if credit should be included: Pro users can opt-out, free users always get it
+    const isFree = plan === "free";
+    const userRequestedCredit = b.credit === true;
+    const includeCredit = isFree ? true : userRequestedCredit;  // Free always, Pro respects toggle
+    const trs = includeCredit ? (await getTranslations()).translations : [];
     const out = files.map((f) => {
       let run = 0;
       const caps: CaptionLine[] = [];
@@ -148,11 +147,32 @@ export async function POST(req: Request) {
         caps.push(...buildCaptions(vs, f.layers, offset + run, split));
         run += vs[vs.length - 1].end - vs[0].start;
       }
-      const cr = credit ? creditLines(trs.filter((t) => t.id === f.layers.tr1 || t.id === f.layers.tr2)) : undefined;
-      const body = (format === "srt" ? toSRT(caps, cr) : toVTT(caps, cr)).replace(/\r?\n/g, "\r\n");
+      const cr = includeCredit ? creditLines(trs.filter((t) => t.id === f.layers.tr1 || t.id === f.layers.tr2)) : undefined;
+      const body = (format === "srt" ? toSRT(caps, cr, isFree) : toVTT(caps, cr, isFree)).replace(/\r?\n/g, "\r\n");
       return { name: f.name, body, empty: caps.length === 0 };
     });
-    return ok({ files: out });
+    const response = ok({ files: out });
+
+    // Step 3: record NEW verse keys only after the export was built successfully.
+    if (user && plan !== "pro") {
+      const payload = await getPayloadClient();
+      const month = monthKey();
+      for (const k of requestedVerseKeys) {
+        if (recordedKeys.has(k)) continue;
+        await payload
+          .create({
+            collection: "usage-verses",
+            data: { user: user.id, month, verseKey: k },
+            overrideAccess: true,
+            depth: 0,
+          })
+          .catch(() => {
+            // Already recorded (unique index on user, month, verseKey): costs nothing.
+          });
+      }
+    }
+
+    return response;
   } catch (e) {
     if (e instanceof RangeError) return bad();
     if (e instanceof ApiError) return fail(e.message, e.status >= 400 && e.status < 600 ? e.status : 502);

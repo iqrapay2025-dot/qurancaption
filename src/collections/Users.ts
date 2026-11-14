@@ -5,7 +5,8 @@ const isSelf: Access = ({ req }) =>
 
 const selfOrAdminRead: Access = (args) => (args.req.user?.collection === 'admins' ? true : isSelf(args))
 
-const serverOnly = { create: () => false, update: () => false, read: () => false }
+const adminRead = (args: { req?: { user?: { collection?: string } | null } }) =>
+  !!(args?.req?.user?.collection === 'admins')
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -27,13 +28,25 @@ export const Users: CollectionConfig = {
       index: true,
       access: { create: () => false, update: () => false, read: () => false },
     },
-    { name: 'provider', type: 'select', options: ['paystack', 'stripe', 'flutterwave'], access: { create: () => false, update: () => false, read: (args) => !!(args?.req?.user?.collection === 'admins') } },
+    { name: 'provider', type: 'select', options: ['paystack', 'flutterwave'], access: { create: () => false, update: () => false, read: adminRead } },
     { name: 'customerRef', type: 'text', index: true, access: { create: () => false, update: () => false, read: () => false } },
     { name: 'subscriptionRef', type: 'text', access: { create: () => false, update: () => false, read: () => false } },
     { name: 'emailToken', type: 'text', access: { create: () => false, update: () => false, read: () => false } },
-    { name: 'billingStatus', type: 'select', options: ['none', 'active', 'past_due', 'canceled'], defaultValue: 'none', access: { create: () => false, update: () => false, read: (args) => !!(args?.req?.user?.collection === 'admins') } },
-    { name: 'proUntil', type: 'date', access: { create: () => false, update: () => false, read: (args) => !!(args?.req?.user?.collection === 'admins') } },
-    { name: 'cancelAtPeriodEnd', type: 'checkbox', defaultValue: false, access: { create: () => false, update: () => false, read: (args) => !!(args?.req?.user?.collection === 'admins') } },
+    { name: 'emailTokenExpires', type: 'date', access: { create: () => false, update: () => false, read: () => false } },
+    {
+      name: 'emailVerified',
+      type: 'checkbox',
+      defaultValue: false,
+      index: true,
+      // Readable by the signed-in owner (and admins) so /api/app/auth/me can return it.
+      // Never writable from the client; the server writes it with overrideAccess.
+      access: { create: () => false, update: () => false, read: ({ req }) => !!req?.user },
+    },
+    { name: 'emailVerifiedAt', type: 'date', access: { create: () => false, update: () => false, read: adminRead } },
+    { name: 'emailVerificationSource', type: 'text', access: { create: () => false, update: () => false, read: adminRead } },
+    { name: 'billingStatus', type: 'select', options: ['none', 'active', 'past_due', 'canceled'], defaultValue: 'none', access: { create: () => false, update: () => false, read: adminRead } },
+    { name: 'proUntil', type: 'date', access: { create: () => false, update: () => false, read: adminRead } },
+    { name: 'cancelAtPeriodEnd', type: 'checkbox', defaultValue: false, access: { create: () => false, update: () => false, read: adminRead } },
     { name: 'presets', type: 'json', access: { create: () => false, update: () => false, read: () => false } },
   ],
   versions: false,

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     return fail("Invalid payment reference.", 400);
   }
   if (!REF.test(b.ref)) return fail("Invalid payment reference.", 400);
-  const rl = rateLimit(`app:confirm:${clientIp(req)}`, 30, 60 * 60 * 1000);
+  const rl = await rateLimit(`app:confirm:${clientIp(req)}`, 30, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
   try {
     if (b.provider === "paystack") {

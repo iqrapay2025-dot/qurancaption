@@ -23,6 +23,7 @@ vi.mock("@/lib/payload", () => ({
 vi.mock("@/lib/app/session", () => ({
   currentUser: vi.fn(async () => ({ id: "u1", email: "alice@example.com", name: "Alice" } as any)),
 }));
+vi.mock("@/lib/app/rate-limit", () => ({ rateLimit: vi.fn().mockResolvedValue({ ok: true, retryAfter: 0 }) }));
 
 const baseData = {
   id: 1,

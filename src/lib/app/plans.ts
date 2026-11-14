@@ -1,6 +1,8 @@
 export const FREE_LIMITS = { projects: 3, verses: 20 } as const;
 export const FREE_MONTHLY_VERSES = 40;
 export const FREE_MONTHLY_PROJECT_CREATIONS = 10;
+// Auto-timing runs per calendar month, per account. Pro is a safety cap to protect costs.
+export const AUTO_TIME_MONTHLY_RUNS = { free: 3, pro: 100 } as const;
 export const PRO_PRICE_NGN = 8075.22;
 export const PRO_PRICE_NGN_KOBO = 807522;
 export const FLUTTERWAVE_PRICE_USD = 6;
@@ -25,7 +27,7 @@ export const nextMonthStart = (d: Date = new Date()) => {
 };
 
 export type Billing = {
-  provider: "paystack" | "stripe" | "flutterwave" | null;
+  provider: "paystack" | "flutterwave" | null;
   status: "none" | "active" | "past_due" | "canceled";
   proUntil: string | null;
   cancelAtPeriodEnd: boolean;

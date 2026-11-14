@@ -32,7 +32,7 @@ async function fetchRate(): Promise<{ rate: number | null; updated: string | nul
 
 export async function GET(req: Request) {
   const ip = clientIp(req);
-  const rl = rateLimit(`app:rate:${ip}`, 60, 60 * 1000);
+  const rl = await rateLimit(`app:rate:${ip}`, 60, 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
 
   const country = req.headers.get("x-vercel-ip-country") ?? null;
