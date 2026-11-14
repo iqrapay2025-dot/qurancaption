@@ -1,6 +1,8 @@
 import React from "react"
 import type { Metadata } from "next"
 import Script from "next/script"
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { BodyCustomCode, renderHeadCustomCode } from "@/lib/make-custom-code"
 import {
   makeSiteSettings,
@@ -118,6 +120,8 @@ gtag('config', ${JSON.stringify(googleAnalyticsId)});
         <BodyCustomCode html={customScripts?.bodyEnd} />
         <CookieSettingsBar />
         <CookieConsent />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
