@@ -1,5 +1,3 @@
-"use server";
-
 import { RateLimitResult } from "@/lib/app/rate-limit";
 
 /**
