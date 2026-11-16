@@ -45,7 +45,8 @@ export async function POST(req: Request) {
       console.error("[auth] login after signup failed:", loginError);
     }
     return ok({ user: { email, name: name || null, emailVerified: false }, requiresVerification: true }, 201);
-  } catch {
+  } catch (e) {
+    console.error("[auth] signup failed:", e);
     return fail("We couldn't create your account. Please try again.", 500);
   }
 }
