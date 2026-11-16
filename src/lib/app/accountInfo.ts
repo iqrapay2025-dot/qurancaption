@@ -12,3 +12,8 @@ export async function userWithPlan(u: User) {
 
   return { ...publicUser(u), plan: a.plan, billing: a.billing, emailVerified };
 }
+
+export function isEmailVerified(user: User): boolean {
+  const raw = user as unknown as { emailVerified?: boolean | null; emailVerifiedAt?: string | null };
+  return raw.emailVerified ?? !!raw.emailVerifiedAt;
+}

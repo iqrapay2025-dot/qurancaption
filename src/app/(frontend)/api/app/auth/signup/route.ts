@@ -1,20 +1,9 @@
 import { getPayloadClient } from "@/lib/payload";
 import { csrf, fail, ok, readJson, rateLimited, clientIp } from "@/lib/app/http";
-import { publicUser, setSession } from "@/lib/app/session";
+import { setSession } from "@/lib/app/session";
 import { validEmail, validPassword } from "@/lib/app/validate";
 import { rateLimit } from "@/lib/app/rate-limit";
-import crypto from "node:crypto";
-import { sendMail } from "@/lib/app/mail";
-import { siteUrl } from "@/lib/app/billing";
-
-const VERIFICATION_EXPIRY_HOURS = 24;
-
-function generateVerificationToken(): { token: string; hash: string; expiresAt: Date } {
-  const randomBytes = crypto.randomBytes(32).toString("hex");
-  const hash = crypto.createHash("sha256").update(randomBytes).digest("hex");
-  const expiresAt = new Date(Date.now() + VERIFICATION_EXPIRY_HOURS * 60 * 60 * 1000);
-  return { token: randomBytes, hash, expiresAt };
-}
+import { issueVerificationEmail } from "@/lib/app/verification";
 
 export async function POST(req: Request) {
   const bad = csrf(req); if (bad) return bad;
@@ -30,44 +19,32 @@ export async function POST(req: Request) {
   const existing = await payload.count({ collection: "users", where: { email: { equals: email } }, overrideAccess: true });
   if (existing.totalDocs > 0) return fail("An account with this email already exists. Try logging in instead.", 409);
   try {
-    const { token, hash, expiresAt } = generateVerificationToken();
-    await payload.create({
+    // emailVerified defaults to false, so it isn't passed here.
+    const createdUser = await payload.create({
       collection: "users",
-      data: {
-        email,
-        password: b.password as string,
-        name,
-        emailVerified: false,
-        emailToken: hash,
-        emailTokenExpires: expiresAt.toISOString(),
-      },
+      data: { email, password: b.password as string, name },
       overrideAccess: false,
     });
-    const verificationLink = `${siteUrl()}/api/verify?token=${encodeURIComponent(token)}`;
-    const sent = await sendMail(
-      email,
-      "Verify your email address",
-      `<p>Click the link below to verify your email address:</p><p><a href="${verificationLink}">Verify Email</a></p><p>This link expires in 24 hours.</p>`
-    );
-    if (!sent) {
-      console.error(`[auth] verification email failed for ${email}`);
-      // Still allow signup even if email fails; user can retry resend
-    }
-    // Log the user in so they can start using the app immediately,
-    // but they'll have restrictions until they verify
+
+    // Don't fail signup if the email or token step breaks; the user can use "resend".
     try {
-      const { token: loginToken, exp, user } = await payload.login({
+      const sent = await issueVerificationEmail(String(createdUser.id), email);
+      if (!sent) console.error(`[auth] verification email failed for ${email}`);
+    } catch (e) {
+      console.error("[auth] could not issue verification email:", e instanceof Error ? e.message : e);
+    }
+
+    // Log in so they can start using the app; paid features stay locked until verified.
+    try {
+      const { token: loginToken, exp } = await payload.login({
         collection: "users",
         data: { email, password: b.password as string },
       });
-      if (loginToken) {
-        await setSession(loginToken, exp);
-      }
+      if (loginToken) await setSession(loginToken, exp);
     } catch (loginError) {
-      // If login fails for some reason, still return success but warn
       console.error("[auth] login after signup failed:", loginError);
     }
-    return ok({ user: { email, name: name ?? null, emailVerified: false }, requiresVerification: true }, 201);
+    return ok({ user: { email, name: name || null, emailVerified: false }, requiresVerification: true }, 201);
   } catch {
     return fail("We couldn't create your account. Please try again.", 500);
   }

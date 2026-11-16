@@ -115,7 +115,7 @@ describe("POST /api/app/auto-time validation", () => {
   });
 
   it("returns 400 for an unsupported file type", async () => {
-    const r = await POST(formBody(fileInput("notes.txt", 1000), verses));
+    const r = await POST(formBody(fileInput("notes.txt", 1000, "text/plain"), verses));
     expect(r.status).toBe(400);
   });
 

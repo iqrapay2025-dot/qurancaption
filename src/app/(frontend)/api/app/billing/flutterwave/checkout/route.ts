@@ -11,6 +11,7 @@ export async function POST(req: Request) {
   if (bad) return bad;
   const user = await currentUser().catch(() => null);
   if (!user) return fail("Log in or create an account to upgrade.", 401);
+  if (!user.emailVerified) return fail("Please verify your email address before upgrading.", 403);
   const rl = await rateLimit(`app:checkout:${String(user.id)}`, 10, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
   if (!process.env.FLUTTERWAVE_SECRET_KEY) {

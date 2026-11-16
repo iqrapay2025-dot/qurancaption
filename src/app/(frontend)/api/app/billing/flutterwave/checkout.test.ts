@@ -8,7 +8,7 @@ let origSite: string | undefined;
 
 vi.mock("@/lib/payload", () => ({ getPayloadClient: vi.fn() }));
 vi.mock("@/lib/app/session", () => ({
-  currentUser: vi.fn(async () => ({ id: "u1", email: "alice@example.com", name: "Alice" } as any)),
+  currentUser: vi.fn(async () => ({ id: "u1", email: "alice@example.com", name: "Alice", emailVerified: true } as any)),
 }));
 
 function post() {

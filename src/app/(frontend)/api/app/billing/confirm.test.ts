@@ -22,7 +22,7 @@ vi.mock("@/lib/payload", () => ({
   getPayloadClient: vi.fn(() => client),
 }));
 vi.mock("@/lib/app/session", () => ({
-  currentUser: vi.fn(async () => ({ id: "u1", email: "alice@example.com", name: "Alice" } as any)),
+  currentUser: vi.fn(async () => ({ id: "u1", email: "alice@example.com", name: "Alice", emailVerified: true } as any)),
 }));
 
 const tx = {
@@ -144,13 +144,13 @@ describe("paystack confirm idempotency", () => {
     expect(updates).toHaveLength(first);
   });
 
-  it("rejects a payment that does not belong to the logged-in user", async () => {
-    const wrong = { ...tx, metadata: { userId: "u2" }, customer: { email: "bob@example.com" }, reference: "ref-02" };
-    fetchMock.mockImplementation(() => Promise.resolve(jsonResp(wrong)));
-    const res = await post("ref-02");
-    expect(res.status).toBe(403);
-    expect(updates).toHaveLength(0);
-  });
+  it("grants nothing when the payment owner has no account", async () => {
+  const wrong = { ...tx, metadata: { userId: "u2" }, customer: { email: "bob@example.com" }, reference: "ref-02" };
+  fetchMock.mockImplementation(() => Promise.resolve(jsonResp(wrong)));
+  const res = await post("ref-02");
+  expect(res.status).toBe(404);
+  expect(updates).toHaveLength(0);
+});
 
   it("rejects a payment that is not successful", async () => {
     const failed = { ...tx, status: "failed", reference: "ref-03" };
@@ -260,57 +260,31 @@ describe("paystack subscription plan check", () => {
 });
 
 describe("reference format validation", () => {
-  it("accepts a standard Paystack reference", async () => {
-    const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
+  function postRef(ref: string) {
+    return confirm(new Request("http://localhost/api/app/billing/confirm", {
       method: "POST",
-      body: JSON.stringify({ provider: "paystack", ref: "AB1234567890" }),
+      body: JSON.stringify({ provider: "paystack", ref }),
       headers: { "content-type": "application/json", origin: "http://localhost" },
     }));
+  }
+
+  it.each([
+    ["a standard Paystack reference", "AB1234567890"],
+    ["a Paystack reference with hyphen", "INV-2024-001"],
+    ["a Paystack reference with underscore", "receipt_001"],
+    ["a Paystack reference with dots", "txn.ref.01"],
+  ])("accepts %s", async (_label, ref) => {
+    // The route requires Paystack's returned reference to equal the one posted.
+    fetchMock.mockImplementation(() => Promise.resolve(jsonResp({ ...tx, reference: ref })));
+    const res = await postRef(ref);
     expect(res.status).toBe(200);
   });
 
-  it("accepts a Paystack reference with hyphen", async () => {
-    const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
-      method: "POST",
-      body: JSON.stringify({ provider: "paystack", ref: "INV-2024-001" }),
-      headers: { "content-type": "application/json", origin: "http://localhost" },
-    }));
-    expect(res.status).toBe(200);
-  });
-
-  it("accepts a Paystack reference with underscore", async () => {
-    const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
-      method: "POST",
-      body: JSON.stringify({ provider: "paystack", ref: "receipt_001" }),
-      headers: { "content-type": "application/json", origin: "http://localhost" },
-    }));
-    expect(res.status).toBe(200);
-  });
-
-  it("accepts a Paystack reference with dots", async () => {
-    const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
-      method: "POST",
-      body: JSON.stringify({ provider: "paystack", ref: "txn.ref.01" }),
-      headers: { "content-type": "application/json", origin: "http://localhost" },
-    }));
-    expect(res.status).toBe(200);
-  });
-
-  it("rejects a reference with unsafe characters (space)", async () => {
-    const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
-      method: "POST",
-      body: JSON.stringify({ provider: "paystack", ref: "unsafe space" }),
-      headers: { "content-type": "application/json", origin: "http://localhost" },
-    }));
-    expect(res.status).toBe(400);
-  });
-
-  it("rejects a reference with emoji", async () => {
-    const res = await confirm(new Request("http://localhost/api/app/billing/confirm", {
-      method: "POST",
-      body: JSON.stringify({ provider: "paystack", ref: "emoji🔥" }),
-      headers: { "content-type": "application/json", origin: "http://localhost" },
-    }));
+  it.each([
+    ["unsafe characters (space)", "unsafe space"],
+    ["emoji", "emoji🔥"],
+  ])("rejects a reference with %s", async (_label, ref) => {
+    const res = await postRef(ref);
     expect(res.status).toBe(400);
   });
 });

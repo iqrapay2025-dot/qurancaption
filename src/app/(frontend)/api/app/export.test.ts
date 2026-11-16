@@ -80,7 +80,7 @@ const JSON_HEADERS = {
 
 beforeEach(() => {
   usageDocs.length = 0;
-  vi.mocked(currentUser).mockResolvedValue({ id: 1, email: "test@example.com", name: "Test User" } as any);
+  vi.mocked(currentUser).mockResolvedValue({ id: 1, email: "test@example.com", name: "Test User", emailVerified: true } as any);
   vi.mocked(getAccount).mockResolvedValue({
     plan: "free",
     billing: { provider: null, status: "none", proUntil: null, cancelAtPeriodEnd: false, subscriptionRef: null },
@@ -93,7 +93,7 @@ afterEach(() => {
 });
 
 function freeAccount() {
-  vi.mocked(currentUser).mockResolvedValue({ id: 1, email: "test@example.com", name: "Test User" } as any);
+  vi.mocked(currentUser).mockResolvedValue({ id: 1, email: "test@example.com", name: "Test User", emailVerified: true } as any);
   vi.mocked(getAccount).mockResolvedValue({
     plan: "free",
     billing: { provider: null, status: "none", proUntil: null, cancelAtPeriodEnd: false, subscriptionRef: null },
@@ -102,7 +102,7 @@ function freeAccount() {
 }
 
 function proAccount() {
-  vi.mocked(currentUser).mockResolvedValue({ id: 1, email: "test@example.com", name: "Test User" } as any);
+  vi.mocked(currentUser).mockResolvedValue({ id: 1, email: "test@example.com", name: "Test User", emailVerified: true } as any);
   vi.mocked(getAccount).mockResolvedValue({
     plan: "pro",
     billing: { provider: null, status: "active", proUntil: "2030-01-01", cancelAtPeriodEnd: false, subscriptionRef: null },

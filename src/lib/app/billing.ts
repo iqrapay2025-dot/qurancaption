@@ -47,6 +47,8 @@ export async function setBilling(userId: string, data: Patch) {
 export async function findUserId(by: { userId?: string | null; customerRef?: string | null; email?: string | null }): Promise<string | null> {
   const payload = await getPayloadClient();
   if (by.userId) {
+    const doc = await payload.findByID({ collection: "users", id: by.userId, depth: 0, overrideAccess: true }).catch(() => null);
+    if (doc) return String(doc.id);
     const r = await payload.find({ collection: "users", where: { id: { equals: by.userId } }, limit: 1, depth: 0, overrideAccess: true }).catch(() => null);
     if (r?.docs[0]) return String(r.docs[0].id);
   }

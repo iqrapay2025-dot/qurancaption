@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       await payload.update({
         collection: "users",
         id: String(user.id),
-        data: { emailVerified: true, emailToken: undefined, emailTokenExpires: undefined },
+        data: { emailVerified: true },
         overrideAccess: true,
         depth: 0,
       });

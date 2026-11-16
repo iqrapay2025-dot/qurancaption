@@ -154,14 +154,20 @@ export function creditLines(sources: CreditSource[]) {
   return [...lines, "Quran data via UmmahAPI"];
 }
 
+// Free exports always carry the "Made with QuranCaption" line, even when translation/data credits are present.
+function withFreeCredit(credit: string[] | undefined, isFree: boolean): string[] {
+  const base = credit?.length ? credit : [];
+  return isFree && !base.includes(FREE_CREDIT_TEXT) ? [FREE_CREDIT_TEXT, ...base] : base;
+}
+
 export function toSRT(caps: CaptionLine[], credit?: string[], isFree: boolean = false) {
-  const creditToAdd = isFree && !credit?.length ? [FREE_CREDIT_TEXT] : (credit?.length ? credit : []);
+  const creditToAdd = withFreeCredit(credit, isFree);
   const all = creditToAdd.length && caps.length ? [...caps, { start: caps[caps.length - 1].end, end: caps[caps.length - 1].end + 3, lines: creditToAdd }] : caps;
   return all.map((c, i) => `${i + 1}\n${stamp(c.start, ",")} --> ${stamp(c.end, ",")}\n${c.lines.join("\n")}\n`).join("\n");
 }
 
 export function toVTT(caps: CaptionLine[], credit?: string[], isFree: boolean = false) {
-  const creditToAdd = isFree && !credit?.length ? [FREE_CREDIT_TEXT] : (credit?.length ? credit : []);
-  const note = creditToAdd.length ? `NOTE${creditToAdd.join("\n").replace(/-->/g, "->")}\n\n` : "";
+  const creditToAdd = withFreeCredit(credit, isFree);
+  const note = creditToAdd.length ? `NOTE\n${creditToAdd.join("\n").replace(/-->/g, "->")}\n\n` : "";
   return "WEBVTT\n\n" + note + caps.map((c) => `${stamp(c.start, ".")} --> ${stamp(c.end, ".")}\n${c.lines.join("\n")}\n`).join("\n");
 }

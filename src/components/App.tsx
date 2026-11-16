@@ -13,7 +13,7 @@ import { useTheme } from "./shared";
 
 type Route = { view: "landing" } | { view: "editor"; id: string | null } | { view: "projects" } | { view: "pricing" } | { view: "settings"; provider: string; ref: string } | { view: "reset"; token: string };
 
-// Must match the folder of the route: src/app/(frontend)/api/resend-verification/route.ts
+// Must match the folder of the route: src/app/(frontend)/api/app/resend-verification/route.ts
 const RESEND_VERIFICATION_URL = "/api/resend-verification";
 const RESEND_COOLDOWN_MS = 60_000;
 const GENERIC_RESEND_ERROR = "Could not send the email. Please try again in a few minutes.";

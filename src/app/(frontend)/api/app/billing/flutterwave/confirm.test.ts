@@ -21,7 +21,7 @@ vi.mock("@/lib/payload", () => ({
 }));
 
 vi.mock("@/lib/app/session", () => ({
-  currentUser: vi.fn(async () => ({ id: "u1", email: "alice@example.com", name: "Alice" } as any)),
+  currentUser: vi.fn(async () => ({ id: "u1", email: "alice@example.com", name: "Alice", emailVerified: true } as any)),
 }));
 vi.mock("@/lib/app/rate-limit", () => ({ rateLimit: vi.fn().mockResolvedValue({ ok: true, retryAfter: 0 }) }));
 
@@ -144,11 +144,10 @@ describe("flutterwave confirm", () => {
     expect(updates).toHaveLength(0);
   });
 
-  it("rejects a payment not belonging to the logged-in user", async () => {
+  it("grants nothing when the payment owner has no account", async () => {
     fetchMock.mockResolvedValueOnce(verify({ meta: { userId: "u2", currency: "USD", amount: 6, plan: "247120" } }));
     const res = await post("foo_123");
-    expect(res.status).toBe(403);
-    expect((await res.json()).error).toContain("does not belong to your account");
+    expect(res.status).toBe(404);
     expect(updates).toHaveLength(0);
   });
 

@@ -8,13 +8,11 @@ type Mode = "auto" | "manual";
 export async function POST(req: Request) {
   const bad = csrf(req); if (bad) return bad;
   const user = await currentUser().catch(() => null);
+  if (!user) return fail("Log in or create an account to upgrade.", 401);
+  // Unverified users cannot upgrade/checkout
+  if (!user.emailVerified) return fail("Please verify your email address before upgrading.", 403);
 
-// Unverified users cannot upgrade/checkout
-if (user && !user.emailVerified) {
-  return fail("Please verify your email address before upgrading.", 403);
-}
-if (!user) return fail("Log in or create an account to upgrade.", 401);
-const rl = await rateLimit(`app:checkout:${String(user.id)}`, 10, 60 * 60 * 1000);
+  const rl = await rateLimit(`app:checkout:${String(user.id)}`, 10, 60 * 60 * 1000);
   if (!rl.ok) return rateLimited(rl.retryAfter);
   const b = (await readJson(req)) as { provider?: string; mode?: Mode } | null;
   const provider = b?.provider;
@@ -31,7 +29,10 @@ const rl = await rateLimit(`app:checkout:${String(user.id)}`, 10, 60 * 60 * 1000
     if (provider === "paystack") {
       url = mode === "manual" ? await paystackCheckoutManual({ id: String(user.id), email: user.email }) : await paystackCheckout({ id: String(user.id), email: user.email });
     } else {
-      url = await flutterwaveCheckout({ id: String(user.id), email: user.email });
+      url = await flutterwaveCheckout(
+        { id: String(user.id), email: user.email, name: user.name },
+        req.headers.get("x-vercel-ip-country"),
+      );
     }
     return ok({ url });
   } catch (e) {

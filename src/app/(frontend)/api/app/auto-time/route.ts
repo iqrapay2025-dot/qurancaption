@@ -67,7 +67,11 @@ export async function POST(req: Request) {
   const fileError = checkFile(file);
   if (fileError) return fail(fileError, 400);
 
-  const verses = parseVerses(form.get("verses"));
+  let rawVerses: unknown = form.get("verses");
+if (typeof rawVerses === "string") {
+  try { rawVerses = JSON.parse(rawVerses); } catch { rawVerses = null; }
+}
+const verses = parseVerses(rawVerses);
   if (!verses) return fail("Provide the verse keys and Arabic text (1–200 verses).", 400);
 
   let words: { word: string; start: number; end: number }[];

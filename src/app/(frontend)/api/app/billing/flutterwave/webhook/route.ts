@@ -3,7 +3,7 @@ import "server-only";
 import { fail, ok, rateLimited } from "@/lib/app/http";
 import { rateLimit } from "@/lib/app/rate-limit";
 import { safeEqual } from "@/lib/app/billing";
-import { findUserId, flutterwaveVerify, flutterwaveExtractOwner, flutterwaveValidateTransaction, parseFlutterwaveTxRef, recordBillingEvent, grantProPeriod } from "@/lib/app/billing";
+import { findUserId, flutterwaveVerify, flutterwaveVerifyByReference, flutterwaveExtractOwner, flutterwaveValidateTransaction, parseFlutterwaveTxRef, recordBillingEvent, grantProPeriod } from "@/lib/app/billing";
 
 // One-time Pro upgrade from a Flutterwave `charge.completed` webhook.
 // Verifies the signature, re-verifies the transaction, enforces ownership, and
@@ -58,7 +58,9 @@ export async function POST(req: Request) {
 
   let verified: any;
   try {
-    verified = await flutterwaveVerify(ref);
+    // /transactions/:id/verify needs the numeric transaction id, not the tx_ref.
+    const txId = String((data as Record<string, unknown>).id ?? "");
+    verified = /^\d+$/.test(txId) ? await flutterwaveVerify(txId) : await flutterwaveVerifyByReference(ref);
   } catch (e) {
     console.error("[billing] flutterwave webhook verify failed:", e instanceof Error ? e.message : e);
     return fail("Could not verify the payment.", 500);
@@ -148,4 +150,3 @@ export async function POST(req: Request) {
   });
   return ok({ ok: true, alreadyApplied: true });
 }
-
