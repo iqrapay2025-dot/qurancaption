@@ -1,8 +1,10 @@
 import { getPayloadClient } from "@/lib/payload";
 import { csrf, fail, ok, readJson, rateLimited, clientIp } from "@/lib/app/http";
-import { publicUser, setSession } from "@/lib/app/session";
+import { setSession } from "@/lib/app/session";
+import { userWithPlan } from "@/lib/app/accountInfo";
 import { validPassword } from "@/lib/app/validate";
 import { rateLimit } from "@/lib/app/rate-limit";
+import type { User } from "@/payload-types";
 
 export async function POST(req: Request) {
   const bad = csrf(req); if (bad) return bad;
@@ -16,17 +18,24 @@ export async function POST(req: Request) {
     const payload = await getPayloadClient();
     const { token, user } = await payload.resetPassword({ collection: "users", data: { token: b.token, password: b.password }, overrideAccess: true });
     if (token) await setSession(token);
-    // Also mark email as verified on password reset
+    // Also mark email as verified on password reset and clear any lingering verification tokens
     if (user) {
       await payload.update({
         collection: "users",
         id: String(user.id),
-        data: { emailVerified: true },
+        data: {
+          emailVerified: true,
+          emailVerifiedAt: new Date().toISOString(),
+          emailVerificationSource: "password_reset",
+          emailToken: null,
+          emailTokenExpires: null,
+        },
         overrideAccess: true,
         depth: 0,
       });
     }
-    return ok({ user: user ? publicUser(user as never) : null });
+    const accountUser = user ? await userWithPlan(user as unknown as User) : null;
+    return ok({ user: accountUser });
   } catch {
     return fail("This reset link is invalid or has expired. Request a new one.", 400);
   }

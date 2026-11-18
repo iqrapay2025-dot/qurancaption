@@ -2,7 +2,7 @@ import "server-only";
 import crypto from "node:crypto";
 import { getPayloadClient } from "@/lib/payload";
 import { sendMail } from "@/lib/app/mail";
-import { siteUrl } from "@/lib/app/billing";
+import { siteUrl } from "@/lib/site";
 
 export const VERIFICATION_EXPIRY_HOURS = 24;
 

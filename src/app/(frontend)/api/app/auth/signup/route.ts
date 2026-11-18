@@ -19,11 +19,11 @@ export async function POST(req: Request) {
   const existing = await payload.count({ collection: "users", where: { email: { equals: email } }, overrideAccess: true });
   if (existing.totalDocs > 0) return fail("An account with this email already exists. Try logging in instead.", 409);
   try {
-    // emailVerified defaults to false, so it isn't passed here.
+    // emailVerified defaults to false. Use overrideAccess: true so system default and fields apply reliably.
     const createdUser = await payload.create({
       collection: "users",
       data: { email, password: b.password as string, name },
-      overrideAccess: false,
+      overrideAccess: true,
     });
 
     // Don't fail signup if the email or token step breaks; the user can use "resend".
@@ -44,8 +44,19 @@ export async function POST(req: Request) {
     } catch (loginError) {
       console.error("[auth] login after signup failed:", loginError);
     }
-    return ok({ user: { email, name: name || null, emailVerified: false }, requiresVerification: true }, 201);
-  } catch (e) {
+    const userObj = {
+      id: String(createdUser.id),
+      email,
+      name: name || null,
+      emailVerified: false,
+      plan: "free" as const,
+      billing: { status: "none" as const, provider: null, proUntil: null, cancelAtPeriodEnd: false },
+    };
+    return ok({ user: userObj, requiresVerification: true }, 201);
+  } catch (e: any) {
+    if (e?.message?.toLowerCase().includes("duplicate") || e?.message?.toLowerCase().includes("unique") || e?.code === "23505") {
+      return fail("An account with this email already exists. Try logging in instead.", 409);
+    }
     console.error("[auth] signup failed:", e);
     return fail("We couldn't create your account. Please try again.", 500);
   }

@@ -1,7 +1,9 @@
 import { getPayloadClient } from "@/lib/payload";
 import { csrf, fail, ok, readJson, rateLimited, clientIp } from "@/lib/app/http";
-import { publicUser, setSession } from "@/lib/app/session";
+import { setSession } from "@/lib/app/session";
+import { userWithPlan } from "@/lib/app/accountInfo";
 import { rateLimit } from "@/lib/app/rate-limit";
+import type { User } from "@/payload-types";
 
 export async function POST(req: Request) {
   const bad = csrf(req); if (bad) return bad;
@@ -17,7 +19,8 @@ export async function POST(req: Request) {
     const { token, exp, user } = await payload.login({ collection: "users", data: { email, password } });
     if (!token) return fail("Incorrect email or password.", 401);
     await setSession(token, exp);
-    return ok({ user: user ? publicUser(user) : null });
+    const accountUser = user ? await userWithPlan(user as unknown as User) : null;
+    return ok({ user: accountUser });
   } catch (e) {
     const locked = e instanceof Error && /locked/i.test(e.message);
     return fail(locked ? "Too many attempts. Try again in a few minutes." : "Incorrect email or password.", locked ? 429 : 401);

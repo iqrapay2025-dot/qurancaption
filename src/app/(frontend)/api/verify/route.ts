@@ -1,6 +1,8 @@
 import crypto from "node:crypto";
 import { getPayloadClient } from "@/lib/payload";
-import { siteUrl } from "@/lib/app/billing";
+import { siteUrl } from "@/lib/site";
+import { currentUser } from "@/lib/app/session";
+import { isEmailVerified } from "@/lib/app/accountInfo";
 
 // Email verification link: GET /api/verify?token=...
 export async function GET(req: Request) {
@@ -20,11 +22,7 @@ export async function GET(req: Request) {
     const found = await payload.find({
       collection: "users",
       where: {
-        and: [
-          { emailToken: { equals: hash } },
-          { emailTokenExpires: { greater_than: new Date().toISOString() } },
-          { emailVerified: { equals: false } },
-        ],
+        emailToken: { equals: hash },
       },
       limit: 1,
       depth: 0,
@@ -33,6 +31,15 @@ export async function GET(req: Request) {
 
     const user = found.docs[0];
     if (!user) {
+      const u = await currentUser().catch(() => null);
+      if (u && isEmailVerified(u)) {
+        return Response.redirect(new URL("/?verified=1", siteUrl()), 302);
+      }
+      return Response.redirect(new URL("/?verify=invalid", siteUrl()), 302);
+    }
+
+    // Check expiration
+    if (user.emailTokenExpires && new Date(user.emailTokenExpires).getTime() < Date.now()) {
       return Response.redirect(new URL("/?verify=invalid", siteUrl()), 302);
     }
 
@@ -51,7 +58,7 @@ export async function GET(req: Request) {
       depth: 0,
     });
 
-    // The user logs in normally afterwards. Send them back to the app.
+    // Send them back to the app with verified notice.
     return Response.redirect(new URL("/?verified=1", siteUrl()), 302);
   } catch (e) {
     console.error("[verify] error:", e);
