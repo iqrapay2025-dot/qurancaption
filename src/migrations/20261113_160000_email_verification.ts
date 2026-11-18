@@ -5,6 +5,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
     ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "email_verified" boolean DEFAULT false;
     ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "email_verified_at" timestamp(3) with time zone;
     ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "email_verification_source" varchar;
+    ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "email_token_expires" timestamp(3) with time zone;
 
     -- Everyone who exists right now is grandfathered as verified (Option A).
     -- New signups after this migration start as false via the column default.
