@@ -120,7 +120,8 @@ export async function POST(req: Request) {
     const l = f.layers, tr1 = key(l.tr1), tr2 = key(l.tr2);
     if (tr1 === undefined || tr2 === undefined || typeof l.arabic !== "boolean" || typeof l.translit !== "boolean" || typeof l.verseKey !== "boolean") return bad();
     if (tr1) wanted.add(tr1);
-    if (tr2) wanted.add("transliteration");
+    if (tr2) wanted.add(tr2);
+    if (l.translit) wanted.add("transliteration");
     files.push({ name: f.name, layers: { arabic: l.arabic, tr1, tr2, translit: l.translit, verseKey: l.verseKey }, ranges: f.ranges as number[] });
   }
 

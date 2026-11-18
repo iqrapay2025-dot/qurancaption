@@ -22,6 +22,7 @@ export async function POST(req: Request) {
   const bad = csrf(req); if (bad) return bad;
   const user = await currentUser().catch(() => null);
   if (!user) return fail("Sign in to save projects.", 401);
+  if (!user.emailVerified) return fail("Please verify your email address before saving projects.", 403);
   const parsed = parseProject(await readJson(req));
   if (!parsed.ok) return fail(parsed.error);
   const payload = await getPayloadClient();

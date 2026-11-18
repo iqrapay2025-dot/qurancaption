@@ -22,7 +22,16 @@ export async function POST(req: Request) {
     const accountUser = user ? await userWithPlan(user as unknown as User) : null;
     return ok({ user: accountUser });
   } catch (e) {
-    const locked = e instanceof Error && /locked/i.test(e.message);
-    return fail(locked ? "Too many attempts. Try again in a few minutes." : "Incorrect email or password.", locked ? 429 : 401);
+    const msg = e instanceof Error ? e.message : "";
+    const status = typeof (e as { status?: unknown })?.status === "number" ? (e as { status: number }).status : 0;
+    const locked = status === 423 || /locked/i.test(msg);
+    if (locked) return fail("Too many attempts. Try again in a few minutes.", 429);
+    const isAuthError =
+      status === 401 ||
+      (e instanceof Error && e.name === "AuthenticationError") ||
+      /email or password|invalid.*credentials|incorrect/i.test(msg);
+    if (isAuthError) return fail("Incorrect email or password.", 401);
+    console.error("[auth] login failed:", e);
+    return fail("We couldn't sign you in right now. Please try again.", 500);
   }
 }

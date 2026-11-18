@@ -43,9 +43,16 @@ vi.mock("@/lib/app/session", () => ({
 
 vi.mock("@/lib/quran/server", () => ({
   getVerses: vi.fn(async (surah: number, from: number, to: number, keys: string[]) => {
+    const allTr: Record<string, string> = {
+      sahih_international: "In the name of Allah",
+      french: "Au nom d'Allah",
+      transliteration: "Bismi Allahi",
+    };
     const verses = [];
     for (let n = from; n <= to; n++) {
-      verses.push({ n, key: `${surah}:${n}`, arabic: "بِسْمِ", translations: {}, start: 0, end: 1 });
+      const translations: Record<string, string> = {};
+      for (const k of keys) if (allTr[k]) translations[k] = allTr[k];
+      verses.push({ n, key: `${surah}:${n}`, arabic: "بِسْمِ", translations, start: 0, end: 1 });
     }
     return { verses };
   }),
@@ -233,5 +240,28 @@ describe("export route - monthly verse limits (free users)", () => {
     const bodyText = await res.text();
     // Free user's export should always contain the credit
     expect(bodyText).toContain("Made with QuranCaption");
+  });
+
+  it("includes tr1, tr2, and translit when requested in layers", async () => {
+    proAccount();
+    const res = await exportRoute(new Request("http://localhost/api/app/export", {
+      method: "POST",
+      body: JSON.stringify({
+        ranges: [range(1, 1, 1)],
+        offset: 0,
+        format: "vtt",
+        split: { enabled: false, maxAr: 60, maxTr: 90 },
+        credit: false,
+        files: [{ name: "test.vtt", layers: { arabic: true, tr1: "sahih_international", tr2: "french", translit: true, verseKey: false }, ranges: [0] }],
+      }),
+      headers: { ...JSON_HEADERS, "x-user-id": "1" },
+    }));
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    const vtt = json.files[0].body as string;
+    expect(vtt).toContain("بِسْمِ");
+    expect(vtt).toContain("In the name of Allah");
+    expect(vtt).toContain("Au nom d'Allah");
+    expect(vtt).toContain("Bismi Allahi");
   });
 });

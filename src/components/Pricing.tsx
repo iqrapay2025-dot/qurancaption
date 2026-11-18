@@ -46,7 +46,9 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
   const checkout = async () => {
     setError(null);
     setBusy(true);
-    const r = await appFetch<{ url: string }>(`/api/app/billing/checkout`, { body: { provider, mode } });
+    const r = await appFetch<{ url: string }>(`/api/app/billing/checkout`, {
+      body: { provider, mode: provider === "flutterwave" ? "auto" : mode },
+    });
     if (r.ok) { window.location.href = r.data.url; return; }
     setBusy(false);
     setError(r.error);

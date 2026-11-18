@@ -70,6 +70,7 @@ function signIn(plan: "free" | "pro" = "free") {
     id: "1",
     email: "test@example.com",
     name: "Test User",
+    emailVerified: true,
     plan,
   } as any);
   vi.mocked(getAccount).mockResolvedValue({

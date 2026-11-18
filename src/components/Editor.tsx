@@ -1189,7 +1189,7 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
                   {ready && i === idx && <span aria-hidden className="absolute bottom-0 left-0 z-10 h-0.5 bg-accent" style={{ width: `${Math.min(100, ((time + t0 - v.start) / (v.end - v.start)) * 100)}%` }} />}
                   <button onClick={() => jump(i)} aria-current={i === idx} className={`grid w-full grid-cols-[3.5rem_1fr_auto] items-center gap-3 border-t border-border px-5 py-3 text-left hover:bg-muted ${i === idx ? "bg-secondary" : ""}`}>
                     <span className={`font-mono text-xs ${i === idx ? "font-bold text-gold" : "text-gold"}`}>{v.key}</span>
-                    <span translate="no" lang="ar" dir="rtl" className="truncate font-quran text-lg">{v.arabic}</span>
+                    <span translate="no" lang="ar" dir="rtl" className="font-quran text-lg leading-relaxed break-words">{v.arabic}</span>
                     <span className={`font-mono text-xs text-muted-foreground ${manualKeys.has(v.key) ? "mr-20" : ""}`}>{ready ? `${fmt(v.start - t0, true)} → ${fmt(v.end - t0, true)}` : "–"}</span>
                   </button>
                   {manualKeys.has(v.key) && (

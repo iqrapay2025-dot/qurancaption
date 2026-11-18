@@ -13,18 +13,27 @@ export type Verse = {
 export const toArabicDigits = (n: number) => String(n).replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[+d]);
 
 export function fmt(sec: number, ms = false) {
-  const m = Math.floor(sec / 60);
-  const s = Math.floor(sec % 60);
-  const base = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-  return ms ? `${base}.${String(Math.round((sec % 1) * 1000)).padStart(3, "0")}` : base;
+  const safe = Math.max(0, sec);
+  if (!ms) {
+    const m = Math.floor(safe / 60);
+    const s = Math.floor(safe % 60);
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+  const totalMs = Math.round(safe * 1000);
+  const milli = totalMs % 1000;
+  const totalSec = Math.floor(totalMs / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(milli).padStart(3, "0")}`;
 }
 
 function stamp(sec: number, sep: "," | ".") {
-  const s = Math.max(0, sec);
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const x = Math.floor(s % 60);
-  const ms = Math.round((s % 1) * 1000);
+  const totalMs = Math.max(0, Math.round(sec * 1000));
+  const ms = totalMs % 1000;
+  const totalSec = Math.floor(totalMs / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const x = totalSec % 60;
   const p = (n: number, l = 2) => String(n).padStart(l, "0");
   return `${p(h)}:${p(m)}:${p(x)}${sep}${p(ms, 3)}`;
 }

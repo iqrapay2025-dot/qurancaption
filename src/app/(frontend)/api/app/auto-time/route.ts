@@ -35,6 +35,7 @@ export async function POST(req: Request) {
 
   const user = await currentUser().catch(() => null);
   if (!user) return fail("Sign in to use auto-timing.", 401);
+  if (!user.emailVerified) return fail("Please verify your email address before using auto-timing.", 403);
 
   // Rate limit per user (shared helper).
   const rl = await rateLimit(`auto-time:${String(user.id)}`, 30, 60 * 1000);

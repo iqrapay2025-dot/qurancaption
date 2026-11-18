@@ -66,7 +66,7 @@ vi.mock("@/lib/app/session", () => ({
 }));
 
 function freeAccount() {
-  vi.mocked(currentUser).mockResolvedValue({ id: 1, email: "test@example.com", name: "Test User" } as any);
+  vi.mocked(currentUser).mockResolvedValue({ id: 1, email: "test@example.com", name: "Test User", emailVerified: true } as any);
   vi.mocked(getAccount).mockResolvedValue({
     plan: "free",
     billing: { provider: null, status: "none", proUntil: null, cancelAtPeriodEnd: false, subscriptionRef: null },
@@ -75,7 +75,7 @@ function freeAccount() {
 }
 
 function proAccount() {
-  vi.mocked(currentUser).mockResolvedValue({ id: 1, email: "test@example.com", name: "Test User" } as any);
+  vi.mocked(currentUser).mockResolvedValue({ id: 1, email: "test@example.com", name: "Test User", emailVerified: true } as any);
   vi.mocked(getAccount).mockResolvedValue({
     plan: "pro",
     billing: { provider: null, status: "active", proUntil: "2030-01-01", cancelAtPeriodEnd: false, subscriptionRef: null },
@@ -103,7 +103,7 @@ function projectBody(overrides: any = {}) {
 beforeEach(() => {
   usageDocs.length = 0;
   projectDocCount = 0;
-  vi.mocked(currentUser).mockResolvedValue({ id: 1, email: "test@example.com", name: "Test User" } as any);
+  vi.mocked(currentUser).mockResolvedValue({ id: 1, email: "test@example.com", name: "Test User", emailVerified: true } as any);
   vi.mocked(getAccount).mockResolvedValue({
     plan: "free",
     billing: { provider: null, status: "none", proUntil: null, cancelAtPeriodEnd: false, subscriptionRef: null },
@@ -176,5 +176,15 @@ describe("projects route - monthly creation limits (free users)", () => {
     }
     expect(usageDocs.length).toBe(1);
     expect(usageDocs[0].count).toBe(5);
+  });
+
+  it("blocks unverified users from saving projects with 403", async () => {
+    vi.mocked(currentUser).mockResolvedValue({ id: 1, email: "test@example.com", name: "Test User", emailVerified: false } as any);
+    const r = await projectsPost(new Request("http://localhost/api/app/projects", {
+      method: "POST",
+      body: JSON.stringify(projectBody()),
+      headers: { ...JSON_HEADERS, "x-user-id": "1" },
+    }));
+    expect(r.status).toBe(403);
   });
 });

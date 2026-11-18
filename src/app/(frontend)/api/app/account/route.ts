@@ -41,7 +41,7 @@ export async function DELETE(req: Request) {
   }
 
   try {
-    for (const collection of ["projects", "usage-projects", "usage-verses"] as const) {
+    for (const collection of ["projects", "usage-projects", "usage-verses", "usage-auto-time"] as const) {
       await payload.delete({ collection, where: { [collection === "projects" ? "owner" : "user"]: { equals: uid } }, overrideAccess: true });
     }
     await payload.delete({ collection: "users", id: uid, overrideAccess: true });

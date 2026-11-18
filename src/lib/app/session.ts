@@ -25,5 +25,11 @@ export async function currentUser(): Promise<User | null> {
 }
 
 export function publicUser(u: User) {
-  return { id: u.id, email: u.email, name: u.name ?? null };
+  const raw = u as unknown as { emailVerified?: boolean | null; emailVerifiedAt?: string | null };
+  return {
+    id: u.id,
+    email: u.email,
+    name: u.name ?? null,
+    emailVerified: raw.emailVerified ?? !!raw.emailVerifiedAt,
+  };
 }

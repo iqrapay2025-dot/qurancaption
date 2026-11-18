@@ -100,6 +100,9 @@ export default function App() {
   const requestUpgrade = useCallback((u: Upgrade) => setUpgrade(u), []);
   const requestAuth = useCallback((r: AuthRequest) => setAuth(r), []);
   const signOut = useCallback(async () => {
+    setResend("idle");
+    setResendError(null);
+    setBannerDismissed(false);
     await session.signOut();
     if (route.view === "projects" || route.view === "settings") go("#/");
   }, [session, route.view, go]);
@@ -149,11 +152,11 @@ export default function App() {
       {notice && (
         <div
           role="status"
-          className="fixed top-4 left-1/2 -translate-x-1/2 bg-amber-100 border-l-4 border-amber-500 text-amber-800 px-6 py-3 rounded-md shadow-lg max-w-md w-full z-50"
+          className="border-b border-amber-300 bg-amber-100 text-amber-900 px-4 py-2.5"
         >
-          <div className="flex items-start justify-between gap-3">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
             <p className="text-sm">{noticeText}</p>
-            <button onClick={() => setNotice(null)} aria-label="Close message" className="text-sm leading-none">
+            <button onClick={() => setNotice(null)} aria-label="Close message" className="text-sm leading-none p-1 hover:bg-amber-200 rounded-sm">
               ✕
             </button>
           </div>
@@ -161,32 +164,32 @@ export default function App() {
       )}
 
       {unverified && !bannerDismissed && (
-        <div
-          className={`fixed left-1/2 -translate-x-1/2 bg-amber-100 border-l-4 border-amber-500 text-amber-800 px-6 py-3 rounded-md shadow-lg max-w-md w-full z-50 ${
-            notice ? "top-28" : "top-4"
-          }`}
-        >
-          <p className="font-medium">Confirm your email address</p>
-          <p className="text-sm text-amber-700">
-            We sent a verification link to your email. Click it to unlock exports, saving and upgrades.
-          </p>
-          <div className="flex items-center gap-2 mt-2">
-            <button
-              onClick={resendVerification}
-              disabled={resend === "sending" || resend === "sent"}
-              className="rounded-md bg-amber-200 text-amber-800 px-4 py-1.5 text-sm font-medium hover:bg-amber-300 disabled:opacity-60"
-            >
-              {resend === "sending" ? "Sending..." : resend === "sent" ? "Email sent" : "Resend verification email"}
-            </button>
-            <button
-              onClick={() => setBannerDismissed(true)}
-              className="rounded-md bg-amber-200 text-amber-800 px-3 py-1.5 text-sm hover:bg-amber-300"
-              aria-label="Close verification banner"
-            >
-              ✕
-            </button>
+        <div className="border-b border-amber-300 bg-amber-100 text-amber-900 px-4 py-2.5">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <span className="font-medium text-sm">Confirm your email address.</span>{" "}
+              <span className="text-sm text-amber-800">
+                We sent a verification link to your email. Click it to unlock exports, saving and upgrades.
+              </span>
+              {resend === "error" && resendError && <p className="mt-1 text-xs text-red-700">{resendError}</p>}
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={resendVerification}
+                disabled={resend === "sending" || resend === "sent"}
+                className="rounded-md bg-amber-200 text-amber-900 px-3 py-1 text-xs font-medium hover:bg-amber-300 disabled:opacity-60"
+              >
+                {resend === "sending" ? "Sending..." : resend === "sent" ? "Email sent" : "Resend verification email"}
+              </button>
+              <button
+                onClick={() => setBannerDismissed(true)}
+                className="rounded-md bg-amber-200 text-amber-900 px-2 py-1 text-xs hover:bg-amber-300"
+                aria-label="Close verification banner"
+              >
+                ✕
+              </button>
+            </div>
           </div>
-          {resend === "error" && resendError && <p className="mt-1 text-sm text-red-700">{resendError}</p>}
         </div>
       )}
 
