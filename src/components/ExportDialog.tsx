@@ -291,6 +291,18 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
     if (!audioAvailable || !reciter) throw new Error(audioUnavailableMessage ?? "Recitation audio is unavailable.");
     if (audioMode === "chapter" && !chapterAudioUrl) throw new Error("The chapter audio has not loaded.");
 
+    const isFullChapter = activeRange.from === 1 && activeRange.to === chapter.versesCount;
+    if (audioMode === "chapter" && (isFullChapter || selectedAudioDuration > 600) && offset === 0) {
+      setAudioProgress("Downloading recitation MP3…");
+      const res = await fetch(chapterAudioUrl!);
+      if (!res.ok) throw new Error(`The recitation host returned HTTP ${res.status}.`);
+      const audioBlob = await res.blob();
+      return {
+        name: buildAudioFilename(chapter.nameSimple, activeRange.from, activeRange.to, reciter.name).replace(/\.wav$/, ".mp3"),
+        blob: audioBlob,
+      };
+    }
+
     const context = new AudioContext();
     try {
       let output: AudioSamples | null = null;
@@ -344,8 +356,8 @@ export default function ExportDialog({ ranges, activeIndex, chapters, verses, la
   };
 
   const download = async () => {
-    const includesCaptions = kind === "captions" || zipped;
-    const includesAudio = kind === "audio" || zipped;
+    const includesCaptions = kind === "captions" || (kind === "audio" && zipped);
+    const includesAudio = kind === "audio";
     if (busy || (includesCaptions && (loading || loadErr))) return;
     if (kind === "audio" && !audioAvailable) return setError(audioUnavailableMessage);
     if (includesCaptions && !isPro && totalVerses > FREE_LIMITS.verses) { onClose(); return requestUpgrade({ code: "verse_limit" }); }
