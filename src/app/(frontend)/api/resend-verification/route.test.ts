@@ -2,7 +2,10 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { POST } from "./route";
 
 vi.mock("@/lib/payload", () => ({ getPayloadClient: vi.fn() }));
-vi.mock("@/lib/app/verification", () => ({ issueVerificationEmail: vi.fn() }));
+vi.mock("@/lib/app/verification", () => ({
+  issueVerificationEmail: vi.fn(),
+  isEmailVerified: vi.fn((u: any) => Boolean(u?.emailVerified ?? u?.emailVerifiedAt)),
+}));
 vi.mock("@/lib/app/rate-limit", () => ({ rateLimit: vi.fn().mockResolvedValue({ ok: true, retryAfter: 0 }) }));
 
 import { getPayloadClient } from "@/lib/payload";

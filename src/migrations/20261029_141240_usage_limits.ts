@@ -1,6 +1,12 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+  const existing = await db.execute(sql`
+    SELECT 1 FROM information_schema.tables WHERE table_name = 'usage_verses' LIMIT 1;
+  `);
+  if (existing?.rows?.length) {
+    return;
+  }
   await db.execute(sql`
    CREATE TABLE "usage_verses" (
   	"id" serial PRIMARY KEY NOT NULL,

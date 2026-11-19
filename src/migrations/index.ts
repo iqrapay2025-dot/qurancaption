@@ -7,6 +7,7 @@ import * as migration_20261031_133629_flutterwave_provider from './20261031_1336
 import * as migration_20261113_102434_remove_stripe_provider from './20261113_102434_remove_stripe_provider';
 import * as migration_20261113_113000_auto_time_usage from './20261113_113000_auto_time_usage';
 import * as migration_20261113_160000_email_verification from './20261113_160000_email_verification';
+import * as migration_20261119_090000_ensure_user_auth_columns from './20261119_090000_ensure_user_auth_columns';
 import * as migration_20261118_153500_add_email_token_expires from './20261118_153500_add_email_token_expires';
 
 export const migrations = [
@@ -59,5 +60,10 @@ export const migrations = [
     up: migration_20261118_153500_add_email_token_expires.up,
     down: migration_20261118_153500_add_email_token_expires.down,
     name: '20261118_153500_add_email_token_expires',
+  },
+  {
+    up: migration_20261119_090000_ensure_user_auth_columns.up,
+    down: migration_20261119_090000_ensure_user_auth_columns.down,
+    name: '20261119_090000_ensure_user_auth_columns',
   },
 ];

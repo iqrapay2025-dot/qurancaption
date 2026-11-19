@@ -1,8 +1,7 @@
 import { getPayloadClient } from "@/lib/payload";
 import { csrf, fail, ok, readJson, rateLimited, clientIp } from "@/lib/app/http";
 import { rateLimit } from "@/lib/app/rate-limit";
-import { issueVerificationEmail } from "@/lib/app/verification";
-import { isEmailVerified } from "@/lib/app/accountInfo";
+import { issueVerificationEmail, isEmailVerified } from "@/lib/app/verification";
 import { validEmail } from "@/lib/app/validate";
 import type { User } from "@/payload-types";
 

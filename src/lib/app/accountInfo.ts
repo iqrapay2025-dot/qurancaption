@@ -3,6 +3,9 @@ import { getAccount } from "./billing";
 import { publicUser } from "./session";
 import type { User } from "@/payload-types";
 
+import { isEmailVerified } from "./verification";
+export { isEmailVerified };
+
 export async function userWithPlan(u: User) {
   const a = await getAccount(String(u.id));
 
@@ -11,9 +14,4 @@ export async function userWithPlan(u: User) {
   const emailVerified = raw.emailVerified ?? !!raw.emailVerifiedAt;
 
   return { ...publicUser(u), plan: a.plan, billing: a.billing, emailVerified };
-}
-
-export function isEmailVerified(user: User): boolean {
-  const raw = user as unknown as { emailVerified?: boolean | null; emailVerifiedAt?: string | null };
-  return raw.emailVerified ?? !!raw.emailVerifiedAt;
 }

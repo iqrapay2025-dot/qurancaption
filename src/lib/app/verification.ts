@@ -6,6 +6,10 @@ import { siteUrl } from "@/lib/site";
 
 export const VERIFICATION_EXPIRY_HOURS = 24;
 
+export function isEmailVerified(user: { emailVerified?: boolean | null; emailVerifiedAt?: string | null }): boolean {
+  return user.emailVerified ?? !!user.emailVerifiedAt;
+}
+
 // Stores a hashed one-time token on the user and emails the raw token as a link.
 // Returns true if the email was sent.
 export async function issueVerificationEmail(userId: string, email: string): Promise<boolean> {

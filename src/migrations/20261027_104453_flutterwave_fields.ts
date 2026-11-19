@@ -2,9 +2,9 @@ import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
-   ALTER TABLE "billing_events" ADD COLUMN "reference" varchar;
-  ALTER TABLE "billing_events" ADD COLUMN "user" varchar;
-  ALTER TABLE "billing_events" ADD COLUMN "outcome" varchar;`)
+   ALTER TABLE "billing_events" ADD COLUMN IF NOT EXISTS "reference" varchar;
+  ALTER TABLE "billing_events" ADD COLUMN IF NOT EXISTS "user" varchar;
+  ALTER TABLE "billing_events" ADD COLUMN IF NOT EXISTS "outcome" varchar;`)
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {

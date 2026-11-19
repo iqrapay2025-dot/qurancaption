@@ -1,6 +1,12 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+  const existing = await db.execute(sql`
+    SELECT 1 FROM pg_type WHERE typname = '_locales' LIMIT 1;
+  `);
+  if (existing?.rows?.length) {
+    return;
+  }
   await db.execute(sql`
    CREATE TYPE "public"."_locales" AS ENUM('en');
   CREATE TYPE "public"."enum_users_provider" AS ENUM('paystack', 'stripe');
