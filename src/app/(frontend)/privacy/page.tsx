@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { LegalPage } from "@/components/LegalPage"
 import { SITE } from "@/lib/site"
 
-export const metadata: Metadata = { title: "Privacy policy", description: "How Quran Caption Studio handles your data.", alternates: { canonical: "/privacy" } }
+export const metadata: Metadata = { title: "Privacy policy", description: "How Ayah Studio handles your data.", alternates: { canonical: "/privacy" } }
 
 export default function Privacy() {
   return (

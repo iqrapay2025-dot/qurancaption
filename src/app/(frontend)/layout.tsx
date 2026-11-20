@@ -9,14 +9,15 @@ import {
   sanitizeHtmlAttribute,
 } from "@/lib/make-site-settings"
 import { SITE } from "@/lib/site"
+import { BRAND_NAME, BRAND_DESCRIPTION, SEO_TITLE } from "@/lib/brand"
 import "./styles.css"
 import CookieConsent from "@/components/CookieConsent"
 import CookieSettingsBar from "@/components/CookieSettingsBar"
 import SplashLoader from "@/components/SplashLoader"
 import BackToTop from "@/components/BackToTop"
 
-const title = makeSiteSettings.title ?? `${SITE.name} | ${SITE.tagline}`
-const description = makeSiteSettings.description ?? SITE.description
+const title = SEO_TITLE
+const description = BRAND_DESCRIPTION
 const socialImage = makeSiteSettings.openGraph?.image
 const googleAnalyticsId = sanitizeHtmlAttribute(
   makeSiteSettings.analytics?.googleAnalyticsId,
@@ -30,9 +31,9 @@ export const metadata: Metadata = {
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3001",
   ),
-  title: { default: title, template: `%s | ${SITE.name}` },
+  title: { default: title, template: `%s | ${BRAND_NAME}` },
   description,
-  applicationName: SITE.name,
+  applicationName: BRAND_NAME,
   keywords: [
     "Quran captions",
     "Quran subtitles",
@@ -51,13 +52,22 @@ export const metadata: Metadata = {
       : { index: false, follow: false },
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", type: "image/x-icon" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon.ico" },
     ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: BRAND_NAME,
   },
   openGraph: {
     type: "website",
-    siteName: SITE.name,
+    siteName: BRAND_NAME,
     title,
     description,
     images: socialImage ? [socialImage] : undefined,
@@ -82,13 +92,26 @@ export default function RootLayout({
   return (
     <html lang={language} suppressHydrationWarning>
       <head>
-  <script
-    dangerouslySetInnerHTML={{
-      __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem("qcs-theme");if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)d.classList.add("dark");if(sessionStorage.getItem("qcs-splash"))d.dataset.splash="seen"}catch(e){}})()`,
-    }}
-  />
-  {renderHeadCustomCode(customScripts?.headStart, "head-start")}
-  {renderHeadCustomCode(customScripts?.headEnd, "head-end")}<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" /><link rel="manifest" href="/site.webmanifest" /></head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem("qcs-theme");if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)d.classList.add("dark");if(sessionStorage.getItem("qcs-splash"))d.dataset.splash="seen"}catch(e){}})()`,
+          }}
+        />
+        {renderHeadCustomCode(customScripts?.headStart, "head-start")}
+        {renderHeadCustomCode(customScripts?.headEnd, "head-end")}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Ayah Studio" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0c1329" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if(typeof window!=="undefined"&&"serviceWorker" in navigator&&location.hostname!=="localhost"&&location.hostname!=="127.0.0.1"&&!location.port){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){})})}`,
+          }}
+        />
+      </head>
       <body className="min-h-screen antialiased">
         <SplashLoader />
         <BodyCustomCode html={customScripts?.bodyStart} />

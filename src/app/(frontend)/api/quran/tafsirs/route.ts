@@ -1,0 +1,24 @@
+import { getTafsirs, respond, errorResponse } from "@/lib/quran/server";
+import { rateLimit } from "@/lib/app/rate-limit";
+import { clientIp } from "@/lib/app/http";
+
+export const GET = async (req: Request) => {
+  // Rate limiting per IP: 60 requests per minute
+  const ip = clientIp(req);
+  const rlResult = await rateLimit(`quran:tafsirs:${ip}`, 60, 60 * 1000, { failClosed: false });
+  if (!rlResult.ok) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Please try again later.", retryAfter: rlResult.retryAfter }),
+      {
+        status: 429,
+        headers: { "Content-Type": "application/json", "Retry-After": String(rlResult.retryAfter) },
+      }
+    );
+  }
+
+  try {
+    return await respond(getTafsirs, true);
+  } catch (e: unknown) {
+    return errorResponse(e);
+  }
+};

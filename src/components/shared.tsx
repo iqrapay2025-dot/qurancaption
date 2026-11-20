@@ -6,16 +6,24 @@ import { useEffect, useState } from "react";
 export function Logo({ onClick, compact }: { onClick?: () => void; compact?: boolean }) {
   return (
     <Wrapper onClick={onClick}>
-      <svg className="shrink-0" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
-        <rect width="32" height="32" rx="7" className="fill-accent" />
-        <g fill="none" stroke="#fff" strokeWidth="1.6">
-          <rect x="9" y="9" width="14" height="14" />
-          <rect x="9" y="9" width="14" height="14" transform="rotate(45 16 16)" />
-        </g>
-        <circle cx="16" cy="16" r="2" fill="#fff" />
-      </svg>
+      <div className="relative shrink-0 flex items-center justify-center size-8 sm:size-9">
+        <img
+          src="/brand/ayah-badge-light.png"
+          alt="Ayah Studio"
+          width={36}
+          height={36}
+          className="dark:hidden w-full h-full object-contain"
+        />
+        <img
+          src="/brand/ayah-badge-dark.png"
+          alt="Ayah Studio"
+          width={36}
+          height={36}
+          className="hidden dark:block w-full h-full object-contain"
+        />
+      </div>
       <span className={`font-display text-lg font-bold tracking-tight whitespace-nowrap ${compact ? "hidden md:inline" : ""}`}>
-        <span className="text-gold">Quran</span> Caption Studio
+        <span className="text-gold">Ayah</span> Studio
       </span>
     </Wrapper>
   );
@@ -24,7 +32,7 @@ export function Logo({ onClick, compact }: { onClick?: () => void; compact?: boo
 function Wrapper({ onClick, children }: { onClick?: () => void; children: React.ReactNode }) {
   const cls = "flex items-center gap-2.5 rounded-sm";
   return onClick ? (
-    <button onClick={onClick} className={cls} aria-label="Quran Caption Studio home">{children}</button>
+    <button onClick={onClick} className={cls} aria-label="Ayah Studio home">{children}</button>
   ) : (
     <span className={cls}>{children}</span>
   );

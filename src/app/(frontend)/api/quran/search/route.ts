@@ -1,5 +1,5 @@
 import { respond, searchQuran, errorResponse } from "@/lib/quran/server";
-import { validateSearchQuery, validatePositiveInt } from "@/lib/quran/validate";
+import { validateSearchQuery, validateTranslationKey } from "@/lib/quran/validate";
 import { rateLimit } from "@/lib/app/rate-limit";
 import { clientIp } from "@/lib/app/http";
 
@@ -28,7 +28,7 @@ export const GET = async (req: Request) => {
 
     const t = q.get("translation");
     if (t !== null && t !== undefined && t !== "") {
-      validatePositiveInt(Number(t));
+      validateTranslationKey(t);
       translation = t; // pass string to searchQuran
     }
 

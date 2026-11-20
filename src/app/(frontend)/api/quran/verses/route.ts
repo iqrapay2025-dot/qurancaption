@@ -2,6 +2,8 @@ import { getVerses, respond, errorResponse } from "@/lib/quran/server";
 import { validateSurah, validateAyah } from "@/lib/quran/validate";
 import { rateLimit } from "@/lib/app/rate-limit";
 import { clientIp } from "@/lib/app/http";
+import { SURAH_VERSE_COUNTS } from "@/lib/editor-link";
+import { DEFAULT_TR1 } from "@/lib/quran/types";
 
 export const GET = async (req: Request) => {
   // Rate limiting per IP
@@ -28,13 +30,16 @@ export const GET = async (req: Request) => {
     surah = Number(q.get("surah"));
     validateSurah(surah);
 
-    from = Number(q.get("from"));
+    const rawFrom = q.get("from");
+    from = rawFrom !== null && rawFrom !== "" ? Number(rawFrom) : 1;
     validateAyah(from);
 
-    to = Number(q.get("to"));
+    const rawTo = q.get("to");
+    const maxVerses = SURAH_VERSE_COUNTS[surah - 1] || 286;
+    to = rawTo !== null && rawTo !== "" ? Number(rawTo) : maxVerses;
     validateAyah(to);
 
-    if (from !== undefined && to !== undefined && from > to) {
+    if (from > to) {
       throw new Error("Invalid ayah range: 'from' must be less than or equal to 'to'.");
     }
 
@@ -52,13 +57,15 @@ export const GET = async (req: Request) => {
 
   // Parse translations keys (comma-separated, validate each)
   const keys: string[] = [];
-  if (translationsStr) {
+  if (translationsStr !== null && translationsStr !== undefined) {
     const rawKeys = translationsStr.split(",").filter((k) => k.trim());
     for (const k of rawKeys) {
       if (/^[a-z_]{2,40}$/.test(k.trim())) {
         keys.push(k.trim());
       }
     }
+  } else {
+    keys.push(DEFAULT_TR1);
   }
 
   try {

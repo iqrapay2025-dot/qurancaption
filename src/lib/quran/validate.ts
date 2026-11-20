@@ -1,4 +1,5 @@
 import { RateLimitResult } from "@/lib/app/rate-limit";
+import { VALID_TRANSLATION_KEYS } from "./types";
 
 /**
  * Validates surah number: must be an integer 1 to 114.
@@ -52,6 +53,20 @@ export function validateTranslationId(translationId: unknown): translationId is 
   }
   if (translationId < 1) {
     throw new Error("Invalid translation ID. Must be a positive integer.");
+  }
+  return true;
+}
+
+/**
+ * Validates translation text key (e.g. 'sahih_international').
+ * Must match one of the supported translation keys.
+ */
+export function validateTranslationKey(key: unknown): key is string {
+  if (typeof key !== "string" || !key) {
+    throw new Error("Invalid translation key. Must be a non-empty string.");
+  }
+  if (!VALID_TRANSLATION_KEYS.includes(key as any)) {
+    throw new Error(`Invalid translation key: "${key}".`);
   }
   return true;
 }

@@ -13,11 +13,13 @@ import { SITE } from "../lib/site";
 import { useApi } from "../lib/quran/useApi";
 import { AttributionBar, sourcesFor } from "./Attribution";
 import ExportDialog, { type Layers, type RangeSnap } from "./ExportDialog";
+import { parseEditorHash, getSurahVerseCount } from "@/lib/editor-link";
 import { appFetch, type AppUser, type Preset, type Upgrade } from "../lib/app/client";
 import type { AuthRequest } from "./App";
 import AccountMenu from "./AccountMenu";
 import { FREE_LIMITS } from "../lib/app/plans";
 import { Logo, ThemeToggle } from "./shared";
+import BadgeLoader from "./BadgeLoader";
 import { GuideContent } from "./GuideContent";
 import { GUIDE_HINT_DISMISSED_KEY, shouldShowGuideHint } from "../lib/guideHint";
 
@@ -191,9 +193,16 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
     }
   };
 
-  const [surahId, setSurahId] = useState(1);
-  const [from, setFrom] = useState(1);
-  const [to, setTo] = useState(7);
+  const initialParams = useMemo(() => {
+    if (typeof window === "undefined" || projectId) return null;
+    const p = parseEditorHash(window.location.hash);
+    return p.valid ? p : null;
+  }, [projectId]);
+
+  const [surahId, setSurahId] = useState(() => initialParams?.surah ?? 1);
+  const [from, setFrom] = useState(() => initialParams?.from ?? 1);
+  const [to, setTo] = useState(() => initialParams?.to ?? (initialParams?.surah ? Math.min(getSurahVerseCount(initialParams.surah), 7) : 7));
+
   const [layers, setLayers] = useState<Layers>({ arabic: true, tr1: DEFAULT_TR1, tr2: null, translit: false, verseKey: true });
   const [audioMode, setAudioMode] = useState<"chapter" | "ayah">("chapter");
   const [reciterId, setReciterId] = useState<number | null>(null);
@@ -414,6 +423,25 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [tick, setTick] = useState(0);
   const [load, setLoad] = useState<"ready" | "loading" | "missing" | "login">(projectId ? "loading" : "ready");
+
+  // Listen for hash changes with new surah/ayah range while editor is mounted
+  useEffect(() => {
+    const handleHash = () => {
+      if (typeof window === "undefined") return;
+      const p = parseEditorHash(window.location.hash);
+      if (p.valid && p.surah) {
+        if (idRef.current || (status !== "idle" && status !== "saved" && status !== "guest")) {
+          const proceed = window.confirm("Start a new caption project? Your current project is kept in Projects.");
+          if (!proceed) return;
+        }
+        setSurahId(p.surah);
+        setFrom(p.from ?? 1);
+        setTo(p.to ?? Math.min(getSurahVerseCount(p.surah), 7));
+      }
+    };
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, [status]);
 
   useEffect(() => {
     if (!projectId || !sessionReady) return;
@@ -745,7 +773,7 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
       {load !== "ready" && (
         <div className="fixed inset-0 z-40 grid place-items-center bg-background/95 p-6 text-center">
           {load === "loading" ? (
-            <p className="flex items-center gap-2 text-muted-foreground" role="status"><Loader2 className="animate-spin" size={18} /> Opening project…</p>
+            <BadgeLoader size="page" label="Opening project…" />
           ) : (
             <div className="max-w-sm">
               <h2 className="font-display text-xl font-bold">{load === "login" ? "Log in to open this project" : "Project not found"}</h2>

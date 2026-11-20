@@ -28,8 +28,11 @@ function read(): Route {
     const q = new URLSearchParams(h.split("?")[1] ?? "");
     return { view: "settings", provider: q.get("provider") ?? "", ref: q.get("ref") ?? "" };
   }
-  const m = h.match(/^#\/editor(?:\/([\w-]+))?$/);
-  if (m) return { view: "editor", id: m[1] ?? null };
+  if (h === "#/editor" || h.startsWith("#/editor?") || h.startsWith("#/editor/")) {
+    const raw = h.slice("#/editor".length);
+    const id = raw.startsWith("/") ? raw.slice(1).split("?")[0] : null;
+    return { view: "editor", id: id || null };
+  }
   return { view: "landing" };
 }
 

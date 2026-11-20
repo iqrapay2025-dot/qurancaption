@@ -105,10 +105,165 @@ export async function cached<T>(key: string, ttlMs: number, load: () => Promise<
 export const DAY = 24 * 3600_000;
 export const HOUR = 3600_000;
 
+import type { TafsirInfo, TafsirEntry } from "./types";
+export type { TafsirInfo, TafsirEntry };
+
 export type Chapter = { id: number; nameArabic: string; nameSimple: string; meaning: string; versesCount: number; available: boolean };
 export type TranslationRes = { id: string; name: string; author: string; language: string };
 export type Reciter = { id: number; name: string; nameArabic: string | null; style: string | null };
 export type ApiVerse = { key: string; n: number; arabic: string; translations: Record<string, string>; tajweed?: [string, string?][] };
+
+export function parseParagraphs(raw: string): string[] {
+  if (!raw || typeof raw !== "string") return [];
+  let s = raw
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|h[1-6]|li|tr|blockquote)>/gi, "\n\n")
+    .replace(/<[^>]+>/g, "");
+
+  s = s
+    .replace(/&quot;/gi, '"')
+    .replace(/&(apos|#39|#x27);/gi, "'")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&hellip;/gi, "…")
+    .replace(/&ndash;/gi, "–")
+    .replace(/&mdash;/gi, "—")
+    .replace(/&#(\d+);/g, (_, code) => {
+      try {
+        return String.fromCodePoint(Number(code));
+      } catch {
+        return "";
+      }
+    })
+    .replace(/&#x([0-9a-fA-F]+);/gi, (_, hex) => {
+      try {
+        return String.fromCodePoint(parseInt(hex, 16));
+      } catch {
+        return "";
+      }
+    })
+    .replace(/&amp;/gi, "&");
+
+  return s
+    .split(/\r?\n+/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
+}
+
+export const ALLOWED_TAFSIR_IDS = ["ibn_kathir", "maarif", "muyassar"] as const;
+
+export async function getTafsirs() {
+  return cached("tafsirs", DAY, async () => {
+    const d = await ummah<{ tafasir: any[] }>("/tafsir");
+    need(Array.isArray(d.tafasir) && d.tafasir.length > 0, 0);
+    const allowed = new Set<string>(ALLOWED_TAFSIR_IDS);
+    const tafsirs: TafsirInfo[] = d.tafasir
+      .filter((t) => typeof t.key === "string" && allowed.has(t.key))
+      .map((t) => {
+        need(typeof t.name === "string" && typeof t.language === "string", 0);
+        return {
+          id: t.key,
+          name: t.name,
+          language: t.language,
+          ...(typeof t.author === "string" && t.author.trim() ? { author: t.author.trim() } : {}),
+        };
+      });
+    need(tafsirs.length > 0, 0);
+    return { tafsirs };
+  });
+}
+
+export const SURAH_VERSE_COUNTS = [
+  7, 286, 200, 176, 120, 165, 206, 75, 129, 109,
+  123, 111, 43, 52, 99, 128, 111, 110, 98, 135,
+  112, 78, 118, 64, 77, 227, 93, 88, 69, 60,
+  34, 30, 73, 54, 45, 83, 182, 88, 75, 85,
+  54, 53, 89, 59, 37, 35, 38, 29, 18, 45,
+  60, 49, 62, 55, 78, 96, 29, 22, 24, 13,
+  14, 11, 11, 18, 12, 12, 30, 52, 52, 44,
+  28, 28, 20, 56, 40, 31, 50, 40, 46, 42,
+  29, 19, 36, 25, 22, 17, 19, 26, 30, 20,
+  15, 21, 11, 8, 8, 19, 5, 8, 8, 11,
+  11, 8, 3, 9, 5, 4, 7, 3, 6, 3,
+  5, 4, 5, 6,
+];
+
+export async function getTafsir(tafsirId: string, surah: number, ayah: number): Promise<TafsirEntry> {
+  if (!ALLOWED_TAFSIR_IDS.includes(tafsirId as any)) {
+    throw new ApiError("bad_request", `Invalid tafsir '${tafsirId}'. Available: ${ALLOWED_TAFSIR_IDS.join(", ")}`, 400);
+  }
+  assertSurah(surah);
+  const verseCount = SURAH_VERSE_COUNTS[surah - 1];
+  if (!Number.isInteger(ayah) || ayah < 1 || ayah > verseCount) {
+    throw new ApiError("bad_request", `Ayah ${ayah} out of range for surah ${surah} (total verses: ${verseCount}).`, 400);
+  }
+
+  const SIX_HOURS = 6 * HOUR;
+  let surahData: {
+    language: string;
+    verses: { verse_key?: string; ayah: number; text: string }[];
+  };
+
+  try {
+    surahData = await cached(
+      `tafsir:${tafsirId}:${surah}`,
+      SIX_HOURS,
+      async () => {
+        const d = await ummah<{
+          surah: number;
+          tafsir: { key: string; name: string; language: string; author?: string };
+          total_verses?: number;
+          verses: any[];
+        }>(`/tafsir/${tafsirId}/surah/${surah}`);
+
+        need(
+          isObj(d.tafsir) &&
+          typeof d.tafsir.language === "string" &&
+          Array.isArray(d.verses) &&
+          d.verses.length > 0,
+          0
+        );
+
+        for (const v of d.verses) {
+          need(isObj(v) && Number.isInteger(v.ayah) && typeof v.text === "string", 0);
+        }
+
+        return {
+          language: d.tafsir.language,
+          verses: d.verses.map((v) => ({ verse_key: v.verse_key, ayah: v.ayah, text: v.text })),
+        };
+      },
+      12
+    );
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 404) {
+      throw new ApiError("bad_request", e.message, 400);
+    }
+    throw e;
+  }
+
+  let matched = surahData.verses.find((v) => v.ayah === ayah);
+  if (!matched) {
+    for (const v of surahData.verses) {
+      if (v.ayah <= ayah) {
+        if (!matched || v.ayah > matched.ayah) {
+          matched = v;
+        }
+      }
+    }
+  }
+
+  const paragraphs = matched ? parseParagraphs(matched.text) : [];
+
+  return {
+    tafsir: tafsirId,
+    surah,
+    ayah,
+    language: surahData.language,
+    paragraphs,
+  };
+}
 
 const need = <T,>(ok: unknown, v: T): T => {
   if (!ok) throw new ApiError("malformed", "UmmahAPI returned an unexpected response shape.", 502);
@@ -249,9 +404,26 @@ export async function getAudio(surah: number, reciter: number) {
 
 export async function searchQuran(q: string, translation: string | undefined, limit: number) {
   if (!q.trim() || q.length > 200) throw new ApiError("bad_request", "Enter a search term (up to 200 characters).", 400);
-  const d = await ummah<{ results: any[]; results_count: number }>("/quran/search", { q, translation, limit: Math.min(Math.max(limit || 25, 1), 50) });
+  const d = await ummah<{ results: any[]; results_count: number }>("/quran/search", { q, translation, limit: Math.min(Math.max(limit || 20, 1), 100) });
   need(Array.isArray(d.results), 0);
-  return { results: d.results.map((r) => ({ key: r.verse_key, surah: r.surah_number, surahName: r.surah_name, n: r.ayah, arabic: r.arabic })), count: d.results_count };
+  return {
+    results: d.results.map((r) => ({
+      key: r.verse_key,
+      surah: r.surah_number,
+      surahName: r.surah_name,
+      n: r.ayah,
+      arabic: r.arabic,
+      translation:
+        typeof r.translation === "string"
+          ? r.translation
+          : typeof r.text === "string"
+          ? r.text
+          : r.translations && typeof r.translations === "object"
+          ? (Object.values(r.translations)[0] as string) ?? ""
+          : "",
+    })),
+    count: d.results_count,
+  };
 }
 
 export function errorResponse(e: unknown) {

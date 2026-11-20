@@ -1,0 +1,83 @@
+[
+  {
+    "reciterId": 1,
+    "complete": true,
+    "missingSurahs": []
+  },
+  {
+    "reciterId": 2,
+    "complete": true,
+    "missingSurahs": []
+  },
+  {
+    "reciterId": 3,
+    "complete": true,
+    "missingSurahs": []
+  },
+  {
+    "reciterId": 4,
+    "complete": true,
+    "missingSurahs": []
+  },
+  {
+    "reciterId": 5,
+    "complete": true,
+    "missingSurahs": []
+  },
+  {
+    "reciterId": 6,
+    "complete": true,
+    "missingSurahs": []
+  },
+  {
+    "reciterId": 7,
+    "complete": true,
+    "missingSurahs": []
+  },
+  {
+    "reciterId": 8,
+    "complete": true,
+    "missingSurahs": []
+  },
+  {
+    "reciterId": 9,
+    "complete": true,
+    "missingSurahs": []
+  },
+  {
+    "reciterId": 10,
+    "complete": true,
+    "missingSurahs": []
+  },
+  {
+    "reciterId": 11,
+    "complete": true,
+    "missingSurahs": []
+  },
+  {
+    "reciterId": 12,
+    "complete": false,
+    "missingSurahs": [
+      1,
+      2,
+      18,
+      36,
+      55,
+      67,
+      114
+    ]
+  },
+  {
+    "reciterId": 13,
+    "complete": false,
+    "missingSurahs": [
+      1,
+      2,
+      18,
+      36,
+      55,
+      67,
+      114
+    ]
+  }
+]

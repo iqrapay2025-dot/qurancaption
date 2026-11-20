@@ -63,7 +63,7 @@ describe("POST /api/app/auth/forgot", () => {
     });
     expect(sendMail).toHaveBeenCalledWith(
       "test@example.com",
-      expect.stringContaining("Reset your Quran Caption Studio password"),
+      expect.stringContaining("Reset your Ayah Studio password"),
       expect.stringContaining("reset?token=reset_token_xyz")
     );
   });

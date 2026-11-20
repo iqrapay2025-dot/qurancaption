@@ -2,9 +2,12 @@
 
 import { ArrowUp } from "lucide-react";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function BackToTop() {
   const [visible, setVisible] = useState(false);
+  const pathname = usePathname();
+  const isListen = pathname === "/listen";
 
   useEffect(() => {
     const updateVisibility = () => setVisible(window.scrollY > 320);
@@ -25,7 +28,9 @@ export default function BackToTop() {
           : "smooth";
         window.scrollTo({ top: 0, behavior });
       }}
-      className="fixed right-4 bottom-20 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-lg transition hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none md:bottom-6"
+      className={`fixed right-4 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-lg transition hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none ${
+        isListen ? "bottom-[168px] sm:bottom-24" : "bottom-20 md:bottom-6"
+      }`}
     >
       <ArrowUp size={17} aria-hidden="true" />
       Go back up

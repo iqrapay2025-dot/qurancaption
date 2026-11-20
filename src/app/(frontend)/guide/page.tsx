@@ -1,44 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Logo } from "@/components/shared";
+import { SiteHeader } from "@/components/SiteHeader";
 import { GuideContent } from "@/components/GuideContent";
 import { GUIDE_FAQ } from "@/lib/guide";
 
 export const metadata: Metadata = {
   title: "User guide",
   description:
-    "Learn how to choose Quran verses, preview recitation, style captions and export files in Quran Caption Studio.",
+    "Learn how to choose Quran verses, preview recitation, style captions and export files in Ayah Studio.",
   alternates: { canonical: "/guide" },
 };
 
 export default function GuidePage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-4">
-          <Logo compact />
-          <div className="flex flex-wrap justify-end gap-2">
-            <a
-              href="/"
-              className="rounded-sm border border-border px-3 py-2 text-sm font-semibold hover:bg-muted"
-            >
-              Go back to home
-            </a>
-            <Link
-              href="/#/editor"
-              className="rounded-sm bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-            >
-              Start creating
-            </Link>
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto max-w-3xl px-5 py-10 sm:py-14">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <SiteHeader />
+      <main className="mx-auto max-w-3xl flex-1 px-5 py-10 sm:py-14 w-full">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Quran Caption Studio guide
+          Ayah Studio guide
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-          Follow these steps to make captions, match them to a recitation and
+          Follow these steps to read the Quran, make captions, match them to a recitation and
           bring them into your video editor.
         </p>
         <div className="mt-8">
@@ -70,21 +52,38 @@ export default function GuidePage() {
         </Link>
       </main>
       <footer className="border-t border-border px-5 py-6 text-center text-sm text-muted-foreground">
-        <Link className="underline" href="/guide">
-          Guide
-        </Link>{" "}
-        ·{" "}
-        <Link className="underline" href="/editors">
-          Editors
-        </Link>{" "}
-        ·{" "}
-        <Link className="underline" href="/terms">
-          Terms of use
-        </Link>{" "}
-        ·{" "}
-        <Link className="underline" href="/privacy">
-          Privacy policy
-        </Link>
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <img
+            src="/brand/ayah-badge-dark.png"
+            alt="Ayah Studio"
+            width={24}
+            height={24}
+            className="size-6 object-contain"
+          />
+          <span className="font-semibold text-foreground">Ayah Studio</span>
+        </div>
+        <div>
+          <Link className="underline hover:text-foreground" href="/guide">
+            Guide
+          </Link>{" "}
+          ·{" "}
+          <Link className="underline hover:text-foreground" href="/quran">
+            Quran
+          </Link>{" "}
+          ·{" "}
+          <Link className="underline hover:text-foreground" href="/editors">
+            Editors
+          </Link>{" "}
+          ·{" "}
+          <Link className="underline hover:text-foreground" href="/terms">
+            Terms of use
+          </Link>{" "}
+          ·{" "}
+          <Link className="underline hover:text-foreground" href="/privacy">
+            Privacy policy
+          </Link>
+        </div>
+        <p className="mt-3 text-xs">© Ayah Studio</p>
       </footer>
     </div>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { LegalPage } from "@/components/LegalPage"
 import { SITE } from "@/lib/site"
 
-export const metadata: Metadata = { title: "Terms of use", description: "Terms of use for Quran Caption Studio.", alternates: { canonical: "/terms" } }
+export const metadata: Metadata = { title: "Terms of use", description: "Terms of use for Ayah Studio.", alternates: { canonical: "/terms" } }
 
 export default function Terms() {
   return (

@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { LegalPage } from "@/components/LegalPage"
 import { SITE } from "@/lib/site"
 
-export const metadata: Metadata = { title: "Refund policy", description: "Refunds and cancellations for Quran Caption Studio Pro.", alternates: { canonical: "/refunds" } }
+export const metadata: Metadata = { title: "Refund policy", description: "Refunds and cancellations for Ayah Studio Pro.", alternates: { canonical: "/refunds" } }
 
 // TODO(owner): confirm the refund window below before publishing.
 const REFUND_WINDOW_DAYS = 7

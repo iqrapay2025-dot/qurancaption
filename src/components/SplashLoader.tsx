@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Logo } from "./shared";
+import BadgeLoader from "./BadgeLoader";
 
 const KEY = "qcs-splash";
 
@@ -21,7 +21,7 @@ export default function SplashLoader() {
     <div
       className="ql-loader"
       role="status"
-      aria-label="Loading Quran Caption Studio"
+      aria-label="Loading Ayah Studio"
       onAnimationEnd={(e) => {
         if (e.animationName === "ql-exit") setShow(false);
       }}
@@ -31,7 +31,7 @@ export default function SplashLoader() {
       </div>
       <div className="ql-brand" aria-hidden="true">
         <div className="ql-write">
-          <Logo />
+          <BadgeLoader size="page" />
         </div>
       </div>
     </div>
