@@ -131,6 +131,8 @@ export function ListenPlayer() {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const isInitializedRef = useRef(false);
   const pendingSeekTimeRef = useRef<number | null>(null);
+  const isPlayingRef = useRef(false);
+  isPlayingRef.current = isPlaying;
 
   // 3. Audio query for selected surah and reciter
   const audioQueryUrl = useMemo(() => {
@@ -287,21 +289,23 @@ export function ListenPlayer() {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (audioQ.data?.audioUrl) {
-      if (audio.src !== audioQ.data.audioUrl) {
-        audio.src = audioQ.data.audioUrl;
-        audio.setAttribute("src", audioQ.data.audioUrl);
-        audio.playbackRate = speed;
-        audio.volume = isMuted ? 0 : volume;
-        if (hasEverPlayed && isPlaying) {
-          audio.play().catch((err) => {
-            console.warn("Playback interrupted or error:", err);
-            setAudioError("This recitation could not be loaded");
-          });
-        }
+    const url = audioQ.data?.audioUrl;
+    if (!url) return;
+    if (audio.getAttribute("src") !== url) {
+      audio.setAttribute("src", url);
+      audio.load();
+      audio.playbackRate = speed;
+      audio.volume = isMuted ? 0 : volume;
+      if (isPlayingRef.current) {
+        audio.play().catch((err) => {
+          console.warn("Playback interrupted or error:", err);
+          setAudioError("This recitation could not be loaded");
+          setIsPlaying(false);
+        });
       }
     }
-  }, [audioQ.data?.audioUrl, speed, volume, isMuted, hasEverPlayed, isPlaying]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audioQ.data?.audioUrl]);
 
   // 10. Update playbackRate & volume whenever state changes
   useEffect(() => {
@@ -322,27 +326,25 @@ export function ListenPlayer() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    if (!hasEverPlayed) {
-      setHasEverPlayed(true);
-      setIsPlaying(true);
-      if (audioQ.data?.audioUrl) {
-        audio.src = audioQ.data.audioUrl;
-        audio.play().catch(() => {
-          setAudioError("This recitation could not be loaded");
-        });
-      }
-      return;
-    }
+    setHasEverPlayed(true);
+    setAudioError(null);
 
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);
     } else {
-      audio.play().then(() => setIsPlaying(true)).catch(() => {
+      if (audioQ.data?.audioUrl && audio.getAttribute("src") !== audioQ.data.audioUrl) {
+        audio.setAttribute("src", audioQ.data.audioUrl);
+        audio.load();
+      }
+      setIsPlaying(true);
+      audio.play().catch((err) => {
+        console.warn("Playback error:", err);
         setAudioError("This recitation could not be loaded");
+        setIsPlaying(false);
       });
     }
-  }, [hasEverPlayed, isPlaying, audioQ.data?.audioUrl]);
+  }, [isPlaying, audioQ.data?.audioUrl]);
 
   const playSurah = useCallback((surahId: number) => {
     setHasEverPlayed(true);
@@ -457,6 +459,8 @@ export function ListenPlayer() {
   };
 
   const handleAudioError = () => {
+    // Ignore the error browsers fire for an <audio> with no source yet.
+    if (!audioRef.current?.getAttribute("src")) return;
     setAudioError("This recitation could not be loaded");
     setIsPlaying(false);
   };
@@ -623,7 +627,6 @@ export function ListenPlayer() {
       {/* Hidden single <audio> element with explicit DOM attributes */}
       <audio
         ref={audioRef}
-        src={audioQ.data?.audioUrl || undefined}
         data-duration={duration}
         data-current-time={currentTime}
         data-paused={!isPlaying}

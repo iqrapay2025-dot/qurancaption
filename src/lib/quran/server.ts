@@ -386,19 +386,56 @@ export async function getVerses(surah: number, from: number, to: number, keys: s
   return { verses };
 }
 
+const RECITER_CDN_PATHS: Record<number, { path: string; everyAyah: string }> = {
+  1: { path: "mishaari_raashid_al_3afaasee", everyAyah: "Alafasy_128kbps" },
+  2: { path: "abdurrahmaan_as-sudays", everyAyah: "Abdurrahmaan_As-Sudais_192kbps" },
+  3: { path: "abdulbaset_mujawwad", everyAyah: "Abdul_Basit_Murattal_192kbps" },
+  4: { path: "abdul_baasit_mujawwad", everyAyah: "Abdul_Basit_Mujawwad_128kbps" },
+  5: { path: "maher_almu3aiqly/year1440", everyAyah: "Maher_AlMuaiqly_64kbps" },
+  6: { path: "sa3d_al-ghaamidi/complete", everyAyah: "Ghamadi_40kbps" },
+  7: { path: "haani_ar-rifa3ee", everyAyah: "Hani_Rifai_192kbps" },
+  8: { path: "abu_bakr_ash-shatri", everyAyah: "Abu_Bakr_Ash-Shaatree_128kbps" },
+  9: { path: "yasser_ad-dussary", everyAyah: "Yasser_Ad-Dussary_128kbps" },
+  10: { path: "sa3ood_al-shuraym", everyAyah: "Saood_ash-Shuraym_128kbps" },
+  11: { path: "abdullah_al-juhanee", everyAyah: "Abdullah_Juhany_128kbps" },
+};
+
 export async function getAudio(surah: number, reciter: number) {
   assertSurah(surah);
   if (!Number.isInteger(reciter) || reciter < 1) throw new ApiError("bad_request", "Invalid reciter.", 400);
   return cached(`audio:${surah}:${reciter}`, DAY, async () => {
-    const d = await ummah<any>(`/quran/audio/${surah}`, { reciter });
-    const url = (u: unknown) => (typeof u === "string" && /^https:\/\//i.test(u) ? u : null);
-    const surahUrl = url(d.full_surah_audio);
-    need(surahUrl && Array.isArray(d.ayah_by_ayah) && d.reciter?.id === reciter, 0);
-    const files = (d.ayah_by_ayah as any[]).flatMap((a) => {
-      const u = url(a?.audio_url);
-      return u && typeof a.verse_key === "string" && a.verse_key.startsWith(`${surah}:`) ? [{ verseKey: a.verse_key as string, audioUrl: u }] : [];
-    });
-    return { reciterId: reciter, surah, audioUrl: surahUrl!, files };
+    try {
+      const d = await ummah<any>(`/quran/audio/${surah}`, { reciter });
+      const url = (u: unknown) => (typeof u === "string" && /^https:\/\//i.test(u) ? u : null);
+      const surahUrl = url(d.full_surah_audio);
+      if (surahUrl && Array.isArray(d.ayah_by_ayah) && d.reciter?.id === reciter) {
+        const files = (d.ayah_by_ayah as any[]).flatMap((a) => {
+          const u = url(a?.audio_url);
+          return u && typeof a.verse_key === "string" && a.verse_key.startsWith(`${surah}:`) ? [{ verseKey: a.verse_key as string, audioUrl: u }] : [];
+        });
+        return { reciterId: reciter, surah, audioUrl: surahUrl, files };
+      }
+    } catch (e) {
+      console.warn(`[quran-audio] UmmahAPI fetch failed for surah ${surah}, reciter ${reciter}, using verified CDN fallback:`, e instanceof Error ? e.message : e);
+    }
+
+    const cdn = RECITER_CDN_PATHS[reciter];
+    if (cdn) {
+      const pad3 = String(surah).padStart(3, "0");
+      const surahUrl = `https://download.quranicaudio.com/quran/${cdn.path}/${pad3}.mp3`;
+      const verseCount = SURAH_VERSE_COUNTS[surah - 1] || 7;
+      const files = Array.from({ length: verseCount }, (_, i) => {
+        const v = i + 1;
+        const padV = String(v).padStart(3, "0");
+        return {
+          verseKey: `${surah}:${v}`,
+          audioUrl: `https://everyayah.com/data/${cdn.everyAyah}/${pad3}${padV}.mp3`,
+        };
+      });
+      return { reciterId: reciter, surah, audioUrl: surahUrl, files };
+    }
+
+    throw new ApiError("upstream", "Recitation audio could not be loaded.", 502);
   });
 }
 
