@@ -69,7 +69,7 @@ export const GET = async (req: Request) => {
   }
 
   try {
-    return respond(() => getVerses(surah!, from!, to!, keys, tajweed));
+    return respond(() => getVerses(surah!, from!, to!, keys, tajweed), true);
   } catch (e: unknown) {
     return errorResponse(e);
   }

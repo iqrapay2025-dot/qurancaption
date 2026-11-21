@@ -11,13 +11,18 @@ export function QuranShell({ children }: { children: React.ReactNode }) {
       <footer className="border-t border-border bg-card px-5 py-8 text-center text-sm text-muted-foreground">
         <div className="mx-auto max-w-6xl flex flex-col items-center gap-4">
           <div className="flex items-center gap-2">
-            <img
-              src="/brand/ayah-badge-dark.png"
-              alt="Ayah Studio"
-              width={28}
-              height={28}
-              className="size-7 object-contain"
-            />
+            <picture className="size-7 block shrink-0">
+              <source srcSet="/brand/ayah-badge-dark-48.webp" type="image/webp" />
+              <img
+                src="/brand/ayah-badge-dark-48.png"
+                alt="Ayah Studio"
+                width={28}
+                height={28}
+                loading="lazy"
+                decoding="async"
+                className="size-7 object-contain"
+              />
+            </picture>
             <span className="font-semibold text-foreground">Ayah Studio</span>
           </div>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">

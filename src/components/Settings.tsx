@@ -1,11 +1,16 @@
 "use client";
 
-import { Camera, CreditCard, Download, Loader2, Trash2, User } from "lucide-react";
+import { Camera, CreditCard, Download, Loader2, Trash2, User, Zap } from "lucide-react";
 import { useEffect, useRef, useState, ChangeEvent } from "react";
 import { appFetch, type AppUser } from "../lib/app/client";
 import { FREE_LIMITS, FREE_MONTHLY_VERSES, MONTHLY_PERIOD_DAYS, PRO_PRICE_NGN } from "../lib/app/plans";
 import AccountMenu from "./AccountMenu";
 import { Logo, ThemeToggle } from "./shared";
+import {
+  getLiteModePreference,
+  setLiteModePreference,
+  type LiteModePreference,
+} from "../lib/performance/lite-mode";
 
 const fmtDate = (iso?: string | null) => (iso ? new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" }) : "");
 
@@ -72,7 +77,17 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
   const [nameBusy, setNameBusy] = useState(false);
   const [avatarBusy, setAvatarBusy] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [liteMode, setLiteMode] = useState<LiteModePreference>("auto");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setLiteMode(getLiteModePreference());
+  }, []);
+
+  const handleLiteModeChange = (mode: LiteModePreference) => {
+    setLiteMode(mode);
+    setLiteModePreference(mode);
+  };
 
   useEffect(() => {
     if (user?.name) setNameInput(user.name);
@@ -427,6 +442,42 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
             </div>
           </section>
         )}
+        {/* Appearance & Performance Section */}
+        <section aria-labelledby="perf-h" className="mt-6 rounded-md border border-border bg-card p-6">
+          <h2 id="perf-h" className="flex items-center gap-2 font-display text-xl font-bold">
+            <Zap size={18} className="text-primary" /> Appearance & Performance
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Tune visuals and animations for smoother performance and battery savings on low-end phones.
+          </p>
+
+          <div className="mt-5 space-y-4">
+            <div>
+              <span className="text-sm font-semibold text-foreground block">
+                Lite Mode (Smooth Mobile Optimization)
+              </span>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Reduces blur filters, shadows, and heavy animations for maximum frame rate on mobile.
+              </p>
+              <div className="mt-2.5 grid grid-cols-3 gap-2">
+                {(["auto", "on", "off"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => handleLiteModeChange(mode)}
+                    className={`rounded-md border px-3 py-2 text-xs font-semibold capitalize transition-colors ${
+                      liteMode === mode
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border hover:bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {mode === "auto" ? "Auto" : mode === "on" ? "Always On" : "Off"}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );

@@ -11,8 +11,10 @@ import WordHighlight from "./WordHighlight";
 import { TAJWEED_GROUPS, tajweedGroup } from "../lib/quran/tajweed";
 import { SITE } from "../lib/site";
 import { useApi } from "../lib/quran/useApi";
+import dynamic from "next/dynamic";
 import { AttributionBar, sourcesFor } from "./Attribution";
-import ExportDialog, { type Layers, type RangeSnap } from "./ExportDialog";
+import type { Layers, RangeSnap } from "./ExportDialog";
+const ExportDialog = dynamic(() => import("./ExportDialog"), { ssr: false });
 import { parseEditorHash, getSurahVerseCount } from "@/lib/editor-link";
 import { appFetch, type AppUser, type Preset, type Upgrade } from "../lib/app/client";
 import type { AuthRequest } from "./App";
@@ -600,6 +602,7 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
   useEffect(() => {
     if (!playing) return;
     let raf = 0;
+    let lastRenderTime = 0;
     const tick = () => {
       const a = audioRef.current;
       if (a) {
@@ -610,7 +613,12 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
           setPlaying(false);
           return;
         }
-        setTime(Math.min(total, Math.max(0, now - t0)));
+        const clock = performance.now();
+        // Throttle Editor re-renders during playback to ~15 fps (every 66ms) instead of 60-120 fps
+        if (clock - lastRenderTime >= 66) {
+          lastRenderTime = clock;
+          setTime(Math.min(total, Math.max(0, now - t0)));
+        }
       }
       raf = requestAnimationFrame(tick);
     };

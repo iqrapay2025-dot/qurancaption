@@ -348,13 +348,18 @@ export default function Landing({
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 md:grid-cols-3 md:px-8">
           <div className="text-white">
             <div className="flex items-center gap-2 mb-3">
-              <img
-                src="/brand/ayah-badge-dark.png"
-                alt="Ayah Studio"
-                width={36}
-                height={36}
-                className="size-9 object-contain"
-              />
+              <picture className="size-9 block shrink-0">
+                <source srcSet="/brand/ayah-badge-dark-48.webp" type="image/webp" />
+                <img
+                  src="/brand/ayah-badge-dark-48.png"
+                  alt="Ayah Studio"
+                  width={36}
+                  height={36}
+                  loading="lazy"
+                  decoding="async"
+                  className="size-9 object-contain"
+                />
+              </picture>
               <span className="font-display text-lg font-bold tracking-tight">
                 <span className="text-gold">Ayah</span> Studio
               </span>

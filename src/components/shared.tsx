@@ -7,20 +7,30 @@ export function Logo({ onClick, compact }: { onClick?: () => void; compact?: boo
   return (
     <Wrapper onClick={onClick}>
       <div className="relative shrink-0 flex items-center justify-center size-8 sm:size-9">
-        <img
-          src="/brand/ayah-badge-light.png"
-          alt="Ayah Studio"
-          width={36}
-          height={36}
-          className="dark:hidden w-full h-full object-contain"
-        />
-        <img
-          src="/brand/ayah-badge-dark.png"
-          alt="Ayah Studio"
-          width={36}
-          height={36}
-          className="hidden dark:block w-full h-full object-contain"
-        />
+        <picture className="dark:hidden w-full h-full flex items-center justify-center">
+          <source srcSet="/brand/ayah-badge-light-48.webp 1x, /brand/ayah-badge-light-96.webp 2x" type="image/webp" />
+          <img
+            src="/brand/ayah-badge-light-48.png"
+            alt="Ayah Studio"
+            width={36}
+            height={36}
+            fetchPriority="high"
+            decoding="async"
+            className="w-full h-full object-contain"
+          />
+        </picture>
+        <picture className="hidden dark:flex w-full h-full items-center justify-center">
+          <source srcSet="/brand/ayah-badge-dark-48.webp 1x, /brand/ayah-badge-dark-96.webp 2x" type="image/webp" />
+          <img
+            src="/brand/ayah-badge-dark-48.png"
+            alt="Ayah Studio"
+            width={36}
+            height={36}
+            fetchPriority="high"
+            decoding="async"
+            className="w-full h-full object-contain"
+          />
+        </picture>
       </div>
       <span className={`font-display text-lg font-bold tracking-tight whitespace-nowrap ${compact ? "hidden md:inline" : ""}`}>
         <span className="text-gold">Ayah</span> Studio

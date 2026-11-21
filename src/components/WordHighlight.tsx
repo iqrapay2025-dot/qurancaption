@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 
 export type Piece = [text: string, color?: string];
 
@@ -32,7 +32,7 @@ export function splitWords(pieces: Piece[]) {
 }
 
 // Estimated: each word's share of the verse is proportional to its letter count; the real recitation timing per word is not available.
-export default function WordHighlight({ pieces, progress, color, tinted }: { pieces: Piece[]; progress: number; color: string; tinted: boolean }) {
+const WordHighlight = React.memo(function WordHighlight({ pieces, progress, color, tinted }: { pieces: Piece[]; progress: number; color: string; tinted: boolean }) {
   const { nodes, weights } = useMemo(() => splitWords(pieces), [pieces]);
   const total = weights.reduce((a, b) => a + b, 0);
   let active = -1, frac = 0;
@@ -66,4 +66,6 @@ export default function WordHighlight({ pieces, progress, color, tinted }: { pie
       })}
     </>
   );
-}
+});
+
+export default WordHighlight;

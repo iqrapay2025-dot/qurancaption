@@ -229,13 +229,18 @@ export default async function AyahSharePage({ params }: PageProps) {
       {/* Footer */}
       <footer className="border-t border-border px-5 py-6 text-center text-sm text-muted-foreground mt-auto">
         <div className="flex items-center justify-center gap-2 mb-3">
-          <img
-            src="/brand/ayah-badge-dark.png"
-            alt="Ayah Studio"
-            width={24}
-            height={24}
-            className="size-6 object-contain"
-          />
+          <picture className="size-6 block shrink-0">
+            <source srcSet="/brand/ayah-badge-dark-48.webp" type="image/webp" />
+            <img
+              src="/brand/ayah-badge-dark-48.png"
+              alt="Ayah Studio"
+              width={24}
+              height={24}
+              loading="lazy"
+              decoding="async"
+              className="size-6 object-contain"
+            />
+          </picture>
           <span className="font-semibold text-foreground">Ayah Studio</span>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs sm:text-sm">

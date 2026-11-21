@@ -120,6 +120,8 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
   const [repeatMode, setRepeatModeState] = useState<RepeatMode>("off");
   const [sleepTimerMinutes, setSleepTimerMinutes] = useState<number | null>(null);
 
+  const currentTimeRef = useRef<number>(0);
+  const lastTimeUpdateRef = useRef<number>(0);
   const shouldAutoPlayRef = useRef<boolean>(false);
   const sleepTimerIdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -287,6 +289,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
     const audio = audioRef.current;
     if (audio && Number.isFinite(seconds)) {
       audio.currentTime = seconds;
+      currentTimeRef.current = seconds;
       setCurrentTime(seconds);
     }
   }, []);
@@ -352,6 +355,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
     const next = getNextSurah(surah, repeatMode);
     shouldAutoPlayRef.current = isPlaying;
     setSurah(next);
+    currentTimeRef.current = 0;
     setCurrentTime(0);
     try {
       localStorage.setItem(LEGACY_STORAGE_KEYS.surah, String(next));
@@ -362,6 +366,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
     const prev = getPrevSurah(surah, repeatMode);
     shouldAutoPlayRef.current = isPlaying;
     setSurah(prev);
+    currentTimeRef.current = 0;
     setCurrentTime(0);
     try {
       localStorage.setItem(LEGACY_STORAGE_KEYS.surah, String(prev));
@@ -381,6 +386,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
           localStorage.setItem(LEGACY_STORAGE_KEYS.reciter, String(newReciterId));
         } catch {}
       }
+      currentTimeRef.current = 0;
       setCurrentTime(0);
       try {
         localStorage.setItem(LEGACY_STORAGE_KEYS.surah, String(surahNum));
@@ -401,6 +407,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
   const stop = useCallback(() => {
     pause();
     setHasEverPlayed(false);
+    currentTimeRef.current = 0;
     setCurrentTime(0);
   }, [pause]);
 
@@ -451,7 +458,14 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
   // Audio Event Handlers
   const handleTimeUpdate = () => {
     if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
+      const nowTime = audioRef.current.currentTime;
+      currentTimeRef.current = nowTime;
+      const now = performance.now();
+      // Throttle React state update to at most once per 250ms (4 fps) to prevent mobile re-render storms
+      if (now - lastTimeUpdateRef.current >= 250) {
+        lastTimeUpdateRef.current = now;
+        setCurrentTime(nowTime);
+      }
     }
   };
 
@@ -467,6 +481,8 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
     if (repeatMode === "surah") {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
+        currentTimeRef.current = 0;
+        setCurrentTime(0);
         play();
       }
     } else {
@@ -476,14 +492,15 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
 
   // Throttled position saving to localStorage (every 5 seconds)
   useEffect(() => {
-    if (!hasEverPlayed && currentTime === 0) return;
+    if (!hasEverPlayed) return;
 
     const interval = setInterval(() => {
       try {
+        const timeToSave = currentTimeRef.current;
         const json = serializeAudioState({
           surah,
           reciterId,
-          currentTime,
+          currentTime: timeToSave,
           speed,
           repeatMode,
           volume,
@@ -496,13 +513,13 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
           surah,
           surahName: chap?.nameSimple || `Surah ${surah}`,
           reciterId,
-          time: currentTime,
+          time: timeToSave,
         });
       } catch {}
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [surah, reciterId, currentTime, duration, speed, repeatMode, volume, hasEverPlayed, chapters, availableReciters]);
+  }, [surah, reciterId, speed, repeatMode, volume, hasEverPlayed, chapters]);
 
   // Save on pagehide / beforeunload
   useEffect(() => {
@@ -511,7 +528,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
         const json = serializeAudioState({
           surah,
           reciterId,
-          currentTime,
+          currentTime: currentTimeRef.current,
           speed,
           repeatMode,
           volume,
@@ -526,7 +543,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
       window.removeEventListener("pagehide", handleBeforeUnload);
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [surah, reciterId, currentTime, speed, repeatMode, volume]);
+  }, [surah, reciterId, speed, repeatMode, volume]);
 
   // Media Session API Integration
   useEffect(() => {

@@ -1,11 +1,14 @@
 // public/sw.js
 importScripts("/sw-rules.js");
 
-const CACHE_NAME = "ayah-studio-v3";
+const CACHE_NAME = "ayah-studio-v4";
 const PRECACHE_ASSETS = [
   "/offline",
+  "/brand/ayah-badge-dark-48.webp",
+  "/brand/ayah-badge-dark-96.webp",
+  "/brand/ayah-badge-light-48.webp",
+  "/brand/ayah-badge-light-96.webp",
   "/brand/ayah-badge-dark.png",
-  "/brand/ayah-badge-light.png",
   "/icon-192.png",
   "/icon-512.png",
   "/icon-512-maskable.png",

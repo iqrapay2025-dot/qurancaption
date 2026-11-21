@@ -13,7 +13,7 @@ export default function OfflinePage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center text-foreground">
       <div className="mx-auto flex flex-col items-center max-w-sm rounded-2xl border border-border bg-card p-8 sm:p-10 shadow-lg">
         <Image
-          src="/brand/ayah-badge-dark.png"
+          src="/brand/ayah-badge-dark-96.webp"
           alt="Ayah Studio"
           width={80}
           height={80}

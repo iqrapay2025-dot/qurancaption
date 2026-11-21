@@ -98,7 +98,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem("qcs-theme");if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)d.classList.add("dark");if(sessionStorage.getItem("qcs-splash"))d.dataset.splash="seen"}catch(e){}})()`,
+            __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem("qcs-theme");if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)d.classList.add("dark");if(sessionStorage.getItem("qcs-splash"))d.dataset.splash="seen";var lm=localStorage.getItem("qcs-lite-mode");var conn=navigator.connection;var mem=navigator.deviceMemory;if(lm==="on"||(lm!=="off"&&((conn&&(conn.saveData||conn.effectiveType==="2g"||conn.effectiveType==="slow-2g"))||(typeof mem==="number"&&mem<=2))))d.classList.add("lite-mode")}catch(e){}})()`,
           }}
         />
         {renderHeadCustomCode(customScripts?.headStart, "head-start")}
@@ -157,9 +157,9 @@ export default function RootLayout({
           <>
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
-              strategy="afterInteractive"
+              strategy="lazyOnload"
             />
-            <Script id="figma-google-analytics" strategy="afterInteractive">
+            <Script id="figma-google-analytics" strategy="lazyOnload">
               {`
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}

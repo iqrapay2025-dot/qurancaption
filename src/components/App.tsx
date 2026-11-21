@@ -1,15 +1,35 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { appFetch, useSession, type Upgrade } from "../lib/app/client";
-import AuthDialog, { type AuthMode } from "./AuthDialog";
-import Editor from "./Editor";
+import type { AuthMode } from "./AuthDialog";
 import Landing from "./Landing";
-import Pricing from "./Pricing";
-import Projects from "./Projects";
-import Settings from "./Settings";
-import UpgradeDialog from "./UpgradeDialog";
 import { useTheme } from "./shared";
+import BadgeLoader from "./BadgeLoader";
+
+const Editor = dynamic(() => import("./Editor"), {
+  loading: () => <BadgeLoader size="page" fullScreen />,
+  ssr: false,
+});
+const Projects = dynamic(() => import("./Projects"), {
+  loading: () => <BadgeLoader size="page" fullScreen />,
+  ssr: false,
+});
+const Pricing = dynamic(() => import("./Pricing"), {
+  loading: () => <BadgeLoader size="page" fullScreen />,
+  ssr: false,
+});
+const Settings = dynamic(() => import("./Settings"), {
+  loading: () => <BadgeLoader size="page" fullScreen />,
+  ssr: false,
+});
+const UpgradeDialog = dynamic(() => import("./UpgradeDialog"), {
+  ssr: false,
+});
+const AuthDialog = dynamic(() => import("./AuthDialog"), {
+  ssr: false,
+});
 
 type Route = { view: "landing" } | { view: "editor"; id: string | null } | { view: "projects" } | { view: "pricing" } | { view: "settings"; provider: string; ref: string } | { view: "reset"; token: string };
 
