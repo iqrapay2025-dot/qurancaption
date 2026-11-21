@@ -334,7 +334,7 @@ export default function Landing({
               </ul>
               <button
                 onClick={p.pro ? onPricing : onStart}
-                className={`${p.pro ? btnGreen : btnOutline} mt-6 sm:mt-8 w-full min-h-[44px]`}
+                className={`${p.pro ? btnGreen : btnOutline} mt-6 sm:mt-8 w-full min-h-11`}
               >
                 {p.pro ? "Go Pro" : "Start free"}
               </button>
@@ -418,6 +418,18 @@ export default function Landing({
               <a className="hover:text-[#6fe3a0]" href="/privacy">
                 Privacy policy
               </a>
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    localStorage.removeItem("cookie_consent_choice");
+                  } catch {}
+                  window.dispatchEvent(new CustomEvent("cookie-consent:reset"));
+                }}
+                className="hover:text-[#6fe3a0] text-left cursor-pointer"
+              >
+                Cookie settings
+              </button>
               <a className="hover:text-[#6fe3a0]" href="/refunds">
                 Refunds
               </a>
@@ -429,7 +441,9 @@ export default function Landing({
                   Donate
                 </a>
               )}
-              <InstallAppButton />
+              <span data-tour="install-app-footer" className="inline-flex items-center">
+                <InstallAppButton />
+              </span>
             </div>
           </div>
         </div>

@@ -1,13 +1,54 @@
 "use client";
 
-import { CreditCard, Download, Loader2, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Camera, CreditCard, Download, Loader2, Trash2, User } from "lucide-react";
+import { useEffect, useRef, useState, ChangeEvent } from "react";
 import { appFetch, type AppUser } from "../lib/app/client";
 import { FREE_LIMITS, FREE_MONTHLY_VERSES, MONTHLY_PERIOD_DAYS, PRO_PRICE_NGN } from "../lib/app/plans";
 import AccountMenu from "./AccountMenu";
 import { Logo, ThemeToggle } from "./shared";
 
 const fmtDate = (iso?: string | null) => (iso ? new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" }) : "");
+
+function processAvatarFile(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith("image/")) {
+      return reject(new Error("Please select an image file (PNG, JPG, WebP)."));
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      return reject(new Error("Image is too large. Please select a photo under 10MB."));
+    }
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Could not read image file."));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("Could not load image."));
+      img.onload = () => {
+        const size = 256;
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("Canvas unavailable."));
+
+        // Center crop to a perfect square
+        const minDim = Math.min(img.width, img.height);
+        const sx = (img.width - minDim) / 2;
+        const sy = (img.height - minDim) / 2;
+        ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+
+        try {
+          const dataUrl = canvas.toDataURL("image/webp", 0.85);
+          resolve(dataUrl);
+        } catch {
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          resolve(dataUrl);
+        }
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function Settings({ user, ready, dark, toggleTheme, checkout, refresh, onHome, onPricing, onProjects, onLogin, onSignOut }: {
   user: AppUser | null; ready: boolean; dark: boolean; toggleTheme: () => void;
@@ -26,6 +67,79 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const [nameInput, setNameInput] = useState(user?.name || "");
+  const [nameBusy, setNameBusy] = useState(false);
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const [profileMsg, setProfileMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user?.name) setNameInput(user.name);
+  }, [user?.name]);
+
+  const handleAvatarUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarBusy(true);
+    setProfileMsg(null);
+    try {
+      const dataUrl = await processAvatarFile(file);
+      const res = await appFetch<{ user: AppUser }>("/api/app/account", {
+        method: "PATCH",
+        body: { avatarUrl: dataUrl },
+      });
+      if (!res.ok) {
+        setProfileMsg({ type: "error", text: res.error });
+      } else {
+        await refresh();
+        setProfileMsg({ type: "success", text: "Profile photo updated successfully." });
+      }
+    } catch (err: any) {
+      setProfileMsg({ type: "error", text: err.message || "Failed to process image." });
+    } finally {
+      setAvatarBusy(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    setAvatarBusy(true);
+    setProfileMsg(null);
+    try {
+      const res = await appFetch<{ user: AppUser }>("/api/app/account", {
+        method: "PATCH",
+        body: { avatarUrl: null },
+      });
+      if (!res.ok) {
+        setProfileMsg({ type: "error", text: res.error });
+      } else {
+        await refresh();
+        setProfileMsg({ type: "success", text: "Profile photo removed." });
+      }
+    } catch {
+      setProfileMsg({ type: "error", text: "Could not remove photo. Please try again." });
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
+
+  const handleSaveName = async () => {
+    if (!nameInput.trim()) return;
+    setNameBusy(true);
+    setProfileMsg(null);
+    const res = await appFetch<{ user: AppUser }>("/api/app/account", {
+      method: "PATCH",
+      body: { name: nameInput.trim() },
+    });
+    setNameBusy(false);
+    if (!res.ok) {
+      setProfileMsg({ type: "error", text: res.error });
+    } else {
+      await refresh();
+      setProfileMsg({ type: "success", text: "Display name saved successfully." });
+    }
+  };
 
   useEffect(() => {
     if (!checkout || !user || ran.current) return;
@@ -127,7 +241,109 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
             <button onClick={onLogin} className="mt-5 rounded-sm bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">Log in or sign up</button>
           </div>
         ) : (
-          <section aria-labelledby="billing-h" className="mt-8 rounded-md border border-border bg-card p-6">
+          <>
+            {/* Profile Section */}
+            <section aria-labelledby="profile-h" className="mt-8 rounded-md border border-border bg-card p-6">
+              <h2 id="profile-h" className="flex items-center gap-2 font-display text-xl font-bold"><User size={18} /> Profile</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Manage your avatar and personal display details.</p>
+
+              {profileMsg && (
+                <p
+                  role={profileMsg.type === "error" ? "alert" : "status"}
+                  className={`mt-4 rounded-sm border p-3 text-sm ${
+                    profileMsg.type === "error"
+                      ? "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300"
+                      : "border-primary/40 bg-primary/10 text-primary"
+                  }`}
+                >
+                  {profileMsg.text}
+                </p>
+              )}
+
+              <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+                <div className="relative group">
+                  <div className="grid size-20 place-items-center rounded-full overflow-hidden border-2 border-border bg-primary text-2xl font-bold text-primary-foreground shadow-sm">
+                    {user.avatarUrl ? (
+                      <img src={user.avatarUrl} alt={user.name || user.email} className="size-full object-cover" />
+                    ) : (
+                      <span>{(user.name || user.email).trim().charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
+                  {avatarBusy && (
+                    <div className="absolute inset-0 grid place-items-center rounded-full bg-black/50 text-white">
+                      <Loader2 size={20} className="animate-spin" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleAvatarUpload}
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    className="hidden"
+                  />
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <button
+                      type="button"
+                      disabled={avatarBusy}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center gap-1.5 rounded-sm bg-primary px-3.5 py-2 text-xs sm:text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
+                    >
+                      <Camera size={15} /> Change photo
+                    </button>
+                    {user.avatarUrl && (
+                      <button
+                        type="button"
+                        disabled={avatarBusy}
+                        onClick={handleRemoveAvatar}
+                        className="rounded-sm border border-border px-3 py-2 text-xs sm:text-sm font-medium hover:bg-secondary text-muted-foreground hover:text-foreground disabled:opacity-60"
+                      >
+                        Remove photo
+                      </button>
+                    )}
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">Recommended: square JPG, PNG, or WebP. Max 10MB.</span>
+                </div>
+              </div>
+
+              <div className="mt-6 border-t border-border pt-5 space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                    Email address
+                  </label>
+                  <div className="text-sm font-medium text-foreground">{user.email}</div>
+                </div>
+
+                <div>
+                  <label htmlFor="settings-name-input" className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Display name
+                  </label>
+                  <div className="flex flex-col sm:flex-row gap-2 max-w-md">
+                    <input
+                      id="settings-name-input"
+                      type="text"
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      placeholder="e.g. Abdullah"
+                      maxLength={80}
+                      className="flex-1 rounded-sm border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                    <button
+                      type="button"
+                      disabled={nameBusy || nameInput.trim() === (user.name || "")}
+                      onClick={handleSaveName}
+                      className="rounded-sm border border-border bg-secondary px-4 py-2 text-xs sm:text-sm font-semibold hover:bg-muted text-foreground disabled:opacity-50"
+                    >
+                      {nameBusy ? "Saving…" : "Save name"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section aria-labelledby="billing-h" className="mt-6 rounded-md border border-border bg-card p-6">
             <h2 id="billing-h" className="flex items-center gap-2 font-display text-xl font-bold"><CreditCard size={18} /> Billing</h2>
 
             {confirmState === "working" && <p role="status" className="mt-4 flex items-center gap-2 rounded-sm bg-muted p-3 text-sm"><Loader2 size={15} className="animate-spin" /> Confirming your payment…</p>}
@@ -180,9 +396,11 @@ export default function Settings({ user, ready, dark, toggleTheme, checkout, ref
               )}
             </div>
           </section>
-        )}
-              {user && (
-          <section aria-labelledby="data-h" className="mt-6 rounded-md border border-border bg-card p-6">
+        </>
+      )}
+
+      {user && (
+        <section aria-labelledby="data-h" className="mt-6 rounded-md border border-border bg-card p-6">
             <h2 id="data-h" className="flex items-center gap-2 font-display text-xl font-bold"><Download size={18} /> Your data</h2>
             <p className="mt-3 text-sm text-muted-foreground">Download a copy of your account details, projects and style presets as a JSON file.</p>
             <a href="/api/app/account/export" download className="mt-4 inline-block rounded-sm border border-border px-4 py-2.5 text-sm font-medium hover:bg-secondary">Download my data</a>

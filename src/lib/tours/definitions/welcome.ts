@@ -44,17 +44,20 @@ export const welcomeTour: TourDefinition = {
       align: "center",
     },
     {
-      id: "welcome-install",
-      title: "Install as a Mobile or Desktop App",
-      body: "Ayah Studio works offline as an installable app (PWA)! Install it on your phone or computer for instant home screen access. On iPhone tap Share > Add to Home Screen; on Android or Chrome click Install.",
-    },
-    {
       id: "welcome-account",
       target: '[data-tour="header-auth"]',
       title: "Account & Saved Work",
       body: "Create a free account to save caption drafts and sync your reading history. Transparent plans and donation options are also available.",
       side: "bottom",
       align: "end",
+    },
+    {
+      id: "welcome-install",
+      target: '[data-tour="install-app-footer"]',
+      title: "Install as a Mobile or Desktop App",
+      body: "Ayah Studio works offline! Click 'Install app' right here in the footer to install on your phone or computer. On iPhone Safari tap Share > Add to Home Screen; on Android or Chrome click Install.",
+      side: "top",
+      align: "center",
     },
   ],
 };

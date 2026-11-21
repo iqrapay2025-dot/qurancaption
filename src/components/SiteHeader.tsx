@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, BookOpen, Headphones, Compass, Bookmark, HelpCircle, FolderOpen, Settings, LogOut } from "lucide-react";
+import { Menu, X, ChevronDown, BookOpen, Headphones, Compass, Bookmark, HelpCircle, UserRound } from "lucide-react";
 import { Logo, ThemeToggle, useTheme } from "./shared";
 import AccountMenu from "./AccountMenu";
 import type { AppUser } from "@/lib/app/client";
@@ -158,6 +158,21 @@ export function SiteHeader({
   const handleSignup = () => {
     if (onSignup) onSignup();
     else window.location.href = "/#/editor";
+  };
+
+  const handleProjects = () => {
+    if (onProjects) onProjects();
+    else window.location.href = "/#/editor";
+  };
+
+  const handleSettings = () => {
+    if (onSettings) onSettings();
+    else window.location.href = "/#/editor";
+  };
+
+  const handleSignOut = () => {
+    if (onSignOut) onSignOut();
+    else window.location.href = "/";
   };
 
   return (
@@ -359,34 +374,55 @@ export function SiteHeader({
             <ThemeToggle dark={dark} toggle={toggleTheme} />
           </div>
 
-          {/* Auth buttons / Account menu (Desktop) */}
-          <div data-tour="header-auth" className="hidden sm:flex items-center gap-1.5 sm:gap-2">
-            {!user && (
-              <button
-                type="button"
-                onClick={handleLogin}
-                className="whitespace-nowrap shrink-0 text-xs lg:text-sm font-semibold hover:text-gold focus-visible:outline-2 focus-visible:outline-ring rounded-sm px-1.5 lg:px-2 py-1"
-              >
-                Log in
-              </button>
-            )}
+          {/* Auth buttons / Account menu (Visible on all screens) */}
+          <div data-tour="header-auth" className="flex items-center gap-1.5 sm:gap-2">
+            {!user ? (
+              <>
+                {/* Mobile User Icon Button */}
+                <button
+                  type="button"
+                  onClick={handleLogin}
+                  aria-label="Account"
+                  className="grid size-9 place-items-center rounded-full border border-border hover:bg-muted text-foreground sm:hidden focus-visible:outline-2 focus-visible:outline-ring"
+                >
+                  <UserRound size={17} aria-hidden="true" />
+                </button>
 
-            <button
-              type="button"
-              onClick={user ? handleStart : handleSignup}
-              className="whitespace-nowrap shrink-0 rounded-sm border border-foreground/80 px-2.5 lg:px-3.5 py-1 lg:py-1.5 text-xs lg:text-sm font-semibold hover:bg-foreground hover:text-background inline-flex focus-visible:outline-2 focus-visible:outline-ring"
-            >
-              {user ? "Open editor" : "Sign up"}
-            </button>
+                {/* Desktop Log in / Sign up */}
+                <button
+                  type="button"
+                  onClick={handleLogin}
+                  className="hidden whitespace-nowrap shrink-0 text-xs lg:text-sm font-semibold hover:text-gold sm:block focus-visible:outline-2 focus-visible:outline-ring rounded-sm px-1.5 lg:px-2 py-1"
+                >
+                  Log in
+                </button>
 
-            {user && onProjects && onSettings && onSignOut && (
-              <AccountMenu
-                user={user}
-                onLogin={handleLogin}
-                onProjects={onProjects}
-                onSettings={onSettings}
-                onSignOut={onSignOut}
-              />
+                <button
+                  type="button"
+                  onClick={handleSignup}
+                  className="hidden whitespace-nowrap shrink-0 rounded-sm border border-foreground/80 px-2.5 lg:px-3.5 py-1 lg:py-1.5 text-xs lg:text-sm font-semibold hover:bg-foreground hover:text-background sm:inline-flex focus-visible:outline-2 focus-visible:outline-ring"
+                >
+                  Sign up
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={handleStart}
+                  className="hidden whitespace-nowrap shrink-0 rounded-sm border border-foreground/80 px-2.5 lg:px-3.5 py-1 lg:py-1.5 text-xs lg:text-sm font-semibold hover:bg-foreground hover:text-background sm:inline-flex focus-visible:outline-2 focus-visible:outline-ring"
+                >
+                  Open editor
+                </button>
+
+                <AccountMenu
+                  user={user}
+                  onLogin={handleLogin}
+                  onProjects={handleProjects}
+                  onSettings={handleSettings}
+                  onSignOut={handleSignOut}
+                />
+              </>
             )}
           </div>
 
@@ -558,91 +594,19 @@ export function SiteHeader({
               <InstallAppButton variant="menu-item" />
             </div>
 
-            {/* Auth Buttons in Mobile Menu */}
-            {!user ? (
-              <div className="mt-2 grid grid-cols-2 gap-2 border-t border-border pt-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    closeMobileMenu();
-                    handleLogin();
-                  }}
-                  className="rounded-sm border border-border px-3 py-2.5 text-sm font-semibold hover:bg-muted text-center"
-                >
-                  Log in
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    closeMobileMenu();
-                    handleSignup();
-                  }}
-                  className="rounded-sm bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 text-center"
-                >
-                  Sign up
-                </button>
-              </div>
-            ) : (
-              <div className="mt-2 flex flex-col gap-2 border-t border-border pt-3">
-                <div className="flex items-center gap-2.5 px-1 py-1">
-                  <div className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-                    {(user.name || user.email).trim().charAt(0).toUpperCase()}
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-semibold truncate text-xs text-foreground">{user.name || user.email}</span>
-                    {user.plan === "pro" && (
-                      <span className="text-[10px] text-primary font-bold uppercase">Pro account</span>
-                    )}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    closeMobileMenu();
-                    handleStart();
-                  }}
-                  className="rounded-sm bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 text-center"
-                >
-                  Open editor
-                </button>
-                {onProjects && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      closeMobileMenu();
-                      onProjects();
-                    }}
-                    className="flex items-center gap-2 rounded-sm border border-border px-3 py-2 text-xs font-medium hover:bg-muted text-foreground"
-                  >
-                    <FolderOpen size={14} className="text-muted-foreground" /> My projects
-                  </button>
-                )}
-                {onSettings && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      closeMobileMenu();
-                      onSettings();
-                    }}
-                    className="flex items-center gap-2 rounded-sm border border-border px-3 py-2 text-xs font-medium hover:bg-muted text-foreground"
-                  >
-                    <Settings size={14} className="text-muted-foreground" /> Settings and billing
-                  </button>
-                )}
-                {onSignOut && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      closeMobileMenu();
-                      onSignOut();
-                    }}
-                    className="flex items-center gap-2 rounded-sm border border-border px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/10"
-                  >
-                    <LogOut size={14} /> Sign out
-                  </button>
-                )}
-              </div>
-            )}
+            {/* Mobile Drawer Action */}
+            <div className="mt-2 border-t border-border pt-3">
+              <button
+                type="button"
+                onClick={() => {
+                  closeMobileMenu();
+                  handleStart();
+                }}
+                className="w-full rounded-sm bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 text-center"
+              >
+                Open editor
+              </button>
+            </div>
           </div>
         </nav>
       )}

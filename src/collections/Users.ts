@@ -21,6 +21,7 @@ export const Users: CollectionConfig = {
   },
   fields: [
     { name: 'name', type: 'text', maxLength: 80 },
+    { name: 'avatarUrl', type: 'text' },
     {
       name: 'googleId',
       type: 'text',

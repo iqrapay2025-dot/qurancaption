@@ -3,6 +3,55 @@ import { csrf, fail, ok, readJson, rateLimited } from "@/lib/app/http";
 import { clearSession, currentUser } from "@/lib/app/session";
 import { rateLimit } from "@/lib/app/rate-limit";
 import { getAccount, paystackCancel, paystackDisable } from "@/lib/app/billing";
+import { userWithPlan } from "@/lib/app/accountInfo";
+
+// Updates user profile (name and/or avatarUrl)
+export async function PATCH(req: Request) {
+  const bad = csrf(req); if (bad) return bad;
+  const user = await currentUser().catch(() => null);
+  if (!user) return fail("Log in first.", 401);
+  const uid = String(user.id);
+
+  const rl = await rateLimit(`app:update-profile:${uid}`, 30, 60 * 1000);
+  if (!rl.ok) return rateLimited(rl.retryAfter);
+
+  const b = (await readJson(req)) as Record<string, unknown> | null;
+  const payload = await getPayloadClient();
+
+  const data: { name?: string; avatarUrl?: string | null } = {};
+  if (typeof b?.name === "string") {
+    data.name = b.name.trim().slice(0, 80);
+  }
+  if (b?.avatarUrl === null) {
+    data.avatarUrl = null;
+  } else if (typeof b?.avatarUrl === "string") {
+    const av = b.avatarUrl.trim();
+    if (av) {
+      if (!av.startsWith("data:image/") && !av.startsWith("http://") && !av.startsWith("https://")) {
+        return fail("Avatar must be a valid image or image data URL.");
+      }
+      if (av.length > 500_000) {
+        return fail("Avatar image is too large. Please select a smaller photo (under 500KB).");
+      }
+      data.avatarUrl = av;
+    } else {
+      data.avatarUrl = null;
+    }
+  }
+
+  try {
+    const updated = await payload.update({
+      collection: "users",
+      id: uid,
+      data,
+      overrideAccess: true,
+    });
+    return ok({ user: await userWithPlan(updated as any) });
+  } catch (e) {
+    console.error("[account] profile update failed:", e instanceof Error ? e.message : e);
+    return fail("We couldn't update your profile. Please try again.", 500);
+  }
+}
 
 // Permanently deletes the signed-in user's account and everything tied to it.
 export async function DELETE(req: Request) {

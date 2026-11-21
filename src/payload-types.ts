@@ -221,6 +221,7 @@ export interface Admin {
 export interface User {
   id: number;
   name?: string | null;
+  avatarUrl?: string | null;
   googleId?: string | null;
   provider?: ('paystack' | 'flutterwave') | null;
   customerRef?: string | null;
@@ -829,6 +830,7 @@ export interface TagsSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  avatarUrl?: T;
   googleId?: T;
   provider?: T;
   customerRef?: T;

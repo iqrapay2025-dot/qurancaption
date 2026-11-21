@@ -1,6 +1,15 @@
 "use client";
 
+import { useCookieConsent } from "./CookieConsent";
+
 export default function CookieSettingsBar() {
+  const { hasChoice } = useCookieConsent();
+
+  // Once the user has accepted or declined cookies, remove this bar completely!
+  if (hasChoice) {
+    return null;
+  }
+
   return (
     <footer className="border-t border-border bg-card">
       <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-4 sm:flex-row sm:justify-between sm:px-8">

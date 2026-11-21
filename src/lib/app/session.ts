@@ -25,11 +25,12 @@ export async function currentUser(): Promise<User | null> {
 }
 
 export function publicUser(u: User) {
-  const raw = u as unknown as { emailVerified?: boolean | null; emailVerifiedAt?: string | null };
+  const raw = u as unknown as { emailVerified?: boolean | null; emailVerifiedAt?: string | null; avatarUrl?: string | null };
   return {
     id: u.id,
     email: u.email,
     name: u.name ?? null,
+    avatarUrl: raw.avatarUrl ?? (u as any).avatarUrl ?? null,
     emailVerified: raw.emailVerified ?? !!raw.emailVerifiedAt,
   };
 }

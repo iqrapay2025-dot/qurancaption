@@ -28,17 +28,45 @@ export default function AccountMenu({ user, onLogin, onProjects, onSettings, onS
   const initial = (user.name || user.email).trim().charAt(0).toUpperCase();
   return (
     <div ref={ref} className="relative">
-      <button onClick={() => setOpen((o) => !o)} aria-label="Account menu" aria-expanded={open} className="grid size-9 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">{initial}</button>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-label="Account menu"
+        aria-expanded={open}
+        className="grid size-9 place-items-center rounded-full overflow-hidden border border-border/70 bg-primary text-sm font-semibold text-primary-foreground focus-visible:outline-2 focus-visible:outline-ring"
+      >
+        {user.avatarUrl ? (
+          <img
+            src={user.avatarUrl}
+            alt={user.name || user.email}
+            className="size-full object-cover"
+          />
+        ) : (
+          <span>{initial}</span>
+        )}
+      </button>
       {open && (
-        <div role="menu" className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-md border border-border bg-card shadow-xl">
-          <div className="border-b border-border px-4 py-3 text-sm">
-            {user.name && <div className="truncate font-semibold">{user.name}</div>}
-            {user.plan === "pro" && <span className="mb-1 inline-block rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold tracking-wide text-primary-foreground uppercase">Pro</span>}
-            <div className="truncate text-muted-foreground">{user.email}</div>
+        <div role="menu" className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-md border border-border bg-card shadow-xl">
+          <div className="border-b border-border px-4 py-3 text-sm flex items-center gap-3">
+            <div className="grid size-10 shrink-0 place-items-center rounded-full overflow-hidden border border-border/60 bg-primary text-sm font-semibold text-primary-foreground">
+              {user.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user.name || user.email}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <span>{initial}</span>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              {user.name && <div className="truncate font-semibold text-foreground">{user.name}</div>}
+              {user.plan === "pro" && <span className="mb-0.5 inline-block rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold tracking-wide text-primary-foreground uppercase">Pro</span>}
+              <div className="truncate text-xs text-muted-foreground">{user.email}</div>
+            </div>
           </div>
           <button role="menuitem" onClick={() => { setOpen(false); onProjects(); }} className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-secondary"><FolderOpen size={15} /> My projects</button>
           <button role="menuitem" onClick={() => { setOpen(false); onSettings(); }} className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-secondary"><Settings size={15} /> Settings and billing</button>
-          <button role="menuitem" onClick={() => { setOpen(false); onSignOut(); }} className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-secondary"><LogOut size={15} /> Sign out</button>
+          <button role="menuitem" onClick={() => { setOpen(false); onSignOut(); }} className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-secondary text-destructive hover:bg-destructive/10"><LogOut size={15} /> Sign out</button>
         </div>
       )}
     </div>

@@ -6,10 +6,11 @@
 @font-face {
   font-family: 'Amiri Quran';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 100 900;
   font-display: swap;
   src: local('Amiri Quran'),
        url('/fonts/AmiriQuran-Regular.woff2') format('woff2'),
+       url('/fonts/Amiri-Regular.woff2') format('woff2'),
        url('/fonts/Amiri-Regular.ttf') format('truetype');
 }
 
@@ -20,6 +21,17 @@
   font-display: swap;
   src: local('Amiri'),
        local('Amiri-Regular'),
+       url('/fonts/Amiri-Regular.woff2') format('woff2'),
+       url('/fonts/Amiri-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Amiri Bold'),
+       url('/fonts/Amiri-Bold.woff2') format('woff2'),
        url('/fonts/Amiri-Regular.ttf') format('truetype');
 }
 

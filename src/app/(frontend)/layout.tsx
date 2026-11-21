@@ -111,6 +111,24 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preload"
+          href="/fonts/AmiriQuran-Regular.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/Amiri-Regular.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Amiri+Quran&family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        />
         <link rel="manifest" href="/site.webmanifest" />
         <script
           dangerouslySetInnerHTML={{
