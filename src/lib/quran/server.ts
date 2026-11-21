@@ -113,11 +113,106 @@ export type TranslationRes = { id: string; name: string; author: string; languag
 export type Reciter = { id: number; name: string; nameArabic: string | null; style: string | null };
 export type ApiVerse = { key: string; n: number; arabic: string; translations: Record<string, string>; tajweed?: [string, string?][] };
 
+function splitTafsirSentences(text: string): string[] {
+  const sentences: string[] = [];
+  let current = "";
+  let inParen = 0;
+  let inBracket = 0;
+  let inDoubleQuote = false;
+  let inGuillemet = false;
+
+  const len = text.length;
+  for (let i = 0; i < len; i++) {
+    const ch = text[i];
+    const prev = i > 0 ? text[i - 1] : "";
+    const next = i + 1 < len ? text[i + 1] : "";
+
+    if (ch === "(") inParen++;
+    else if (ch === ")" && inParen > 0) inParen--;
+    else if (ch === "[") inBracket++;
+    else if (ch === "]" && inBracket > 0) inBracket--;
+    else if (ch === '"' || ch === "“" || ch === "”") inDoubleQuote = !inDoubleQuote;
+    else if (ch === "«") inGuillemet = true;
+    else if (ch === "»") inGuillemet = false;
+
+    current += ch;
+
+    const isEnder =
+      ch === "." || ch === "?" || ch === "!" || ch === "؟" || ch === "۔" || ch === "।";
+
+    if (isEnder && inParen === 0 && inBracket === 0 && !inDoubleQuote && !inGuillemet) {
+      const isAbbr = /\b(e\.g|i\.e|etc|vs|vol|no|dr|mr|mrs|prof)\.$/i.test(current.trim());
+      const isDecimal = /\d$/.test(prev) && /^\d/.test(next);
+
+      if (!isAbbr && !isDecimal) {
+        if (
+          next === " " ||
+          next === "\n" ||
+          next === "\t" ||
+          next === '"' ||
+          next === "'" ||
+          next === "”" ||
+          next === "»" ||
+          next === ")" ||
+          i === len - 1
+        ) {
+          if (next === '"' || next === "'" || next === "”" || next === "»" || next === ")") {
+            current += next;
+            i++;
+          }
+          if (current.trim().length > 0) {
+            sentences.push(current.trim());
+            current = "";
+          }
+        }
+      }
+    }
+  }
+
+  if (current.trim().length > 0) {
+    sentences.push(current.trim());
+  }
+
+  return sentences;
+}
+
+function groupTafsirSentences(sentences: string[], targetLength = 400): string[] {
+  if (sentences.length <= 1) return sentences;
+  const paras: string[] = [];
+  let cur = "";
+  let sentenceCount = 0;
+
+  for (const s of sentences) {
+    const isDistinct = /^([«"“]|###|[A-Z][\w\s]{3,60}:)/.test(s);
+    if (isDistinct && cur) {
+      paras.push(cur.trim());
+      cur = s;
+      sentenceCount = 1;
+      continue;
+    }
+
+    if (!cur) {
+      cur = s;
+      sentenceCount = 1;
+    } else if (sentenceCount >= 4 || cur.length + s.length + 1 > targetLength) {
+      paras.push(cur.trim());
+      cur = s;
+      sentenceCount = 1;
+    } else {
+      cur += " " + s;
+      sentenceCount++;
+    }
+  }
+  if (cur.trim()) paras.push(cur.trim());
+  return paras;
+}
+
 export function parseParagraphs(raw: string): string[] {
   if (!raw || typeof raw !== "string") return [];
   let s = raw
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/(p|div|h[1-6]|li|tr|blockquote)>/gi, "\n\n")
+    .replace(/<(p|div|h[1-6]|li|tr|blockquote)[^>]*>/gi, "\n\n")
     .replace(/<[^>]+>/g, "");
 
   s = s
@@ -145,10 +240,32 @@ export function parseParagraphs(raw: string): string[] {
     })
     .replace(/&amp;/gi, "&");
 
-  return s
-    .split(/\r?\n+/)
-    .map((p) => p.trim())
-    .filter((p) => p.length > 0);
+  // Separate jammed headings or sentences like "Introduction to FatihahWhich was revealed"
+  s = s.replace(/([a-z\)])([A-Z][a-z]{2,})/g, "$1\n\n$2");
+
+  // Ensure lines ending in colons, ending in sentence punctuation, or starting/ending with quotes break into paragraphs
+  s = s.replace(/:\s*\n+/g, ":\n\n");
+  s = s.replace(/([.:!?؟۔।])\s*\n+/g, "$1\n\n");
+  s = s.replace(/\n+([«"“])/g, "\n\n$1");
+  s = s.replace(/([»"”])\s*\n+/g, "$1\n\n");
+
+  const rawBlocks = s
+    .split(/\r?\n{2,}/)
+    .map((b) => b.trim())
+    .filter((b) => b.length > 0);
+
+  const finalParas: string[] = [];
+  for (const block of rawBlocks) {
+    const sentences = splitTafsirSentences(block);
+    if (sentences.length <= 3 && block.length <= 350) {
+      finalParas.push(block);
+    } else {
+      const grouped = groupTafsirSentences(sentences, 400);
+      finalParas.push(...grouped);
+    }
+  }
+
+  return finalParas.map((p) => p.trim()).filter((p) => p.length > 0);
 }
 
 export const ALLOWED_TAFSIR_IDS = ["ibn_kathir", "maarif", "muyassar"] as const;
@@ -207,7 +324,7 @@ export async function getTafsir(tafsirId: string, surah: number, ayah: number): 
 
   try {
     surahData = await cached(
-      `tafsir:${tafsirId}:${surah}`,
+      `tafsir:v2:${tafsirId}:${surah}`,
       SIX_HOURS,
       async () => {
         const d = await ummah<{

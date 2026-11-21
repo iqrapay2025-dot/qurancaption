@@ -27,5 +27,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticEntries, ...surahEntries];
+  const curatedAyahs = [
+    "/ayah/1/1",
+    "/ayah/2/255",
+    "/ayah/36/1",
+    "/ayah/55/1",
+    "/ayah/67/1",
+    "/ayah/112/1",
+  ];
+
+  const ayahEntries: MetadataRoute.Sitemap = curatedAyahs.map((path) => ({
+    url: `${SITE.url}${path}`,
+    changeFrequency: "monthly",
+    priority: 0.5,
+  }));
+
+  return [...staticEntries, ...surahEntries, ...ayahEntries];
 }

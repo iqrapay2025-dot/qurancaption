@@ -224,27 +224,27 @@ export function Reader({ chapter, initialVerses }: Props) {
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12 pb-28 sm:pb-36">
       {/* Top Navigation & Surah Header */}
       <div className="mb-10 text-center">
-        <div className="flex items-center justify-between gap-2 mb-6 text-sm font-medium text-muted-foreground">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-6 text-xs sm:text-sm font-medium text-muted-foreground">
           {prev ? (
             <Link
               href={`/quran/${prev.id}`}
-              className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-1 hover:text-foreground transition-colors truncate max-w-[120px] sm:max-w-none"
             >
-              <ChevronLeft size={16} /> {prev.nameSimple}
+              <ChevronLeft size={16} className="shrink-0" /> <span className="truncate">{prev.nameSimple}</span>
             </Link>
           ) : (
             <span />
           )}
 
-          <div className="flex items-center gap-3 sm:gap-4">
-            <Link href="/quran" className="hover:text-foreground transition-colors">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link href="/quran" className="hover:text-foreground transition-colors whitespace-nowrap">
               Surah Index
             </Link>
             <button
               type="button"
               onClick={() => setSettingsOpen(true)}
               aria-label="Display settings"
-              className="inline-flex items-center gap-1.5 rounded-sm border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-sm border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors whitespace-nowrap"
             >
               <Settings size={14} />
               <span>Settings</span>
@@ -254,9 +254,9 @@ export function Reader({ chapter, initialVerses }: Props) {
           {next ? (
             <Link
               href={`/quran/${next.id}`}
-              className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-1 hover:text-foreground transition-colors truncate max-w-[120px] sm:max-w-none"
             >
-              {next.nameSimple} <ChevronRight size={16} />
+              <span className="truncate">{next.nameSimple}</span> <ChevronRight size={16} className="shrink-0" />
             </Link>
           ) : (
             <span />
@@ -333,15 +333,15 @@ export function Reader({ chapter, initialVerses }: Props) {
               id={`ayah-${v.n}`}
               data-ayah-num={v.n}
               style={{ contentVisibility: "auto" }}
-              className={`group rounded-xl border p-5 sm:p-6 transition-all duration-500 ${
+              className={`group rounded-2xl border p-4 sm:p-6 transition-all duration-500 ${
                 isHighlighted
                   ? "border-gold bg-gold/10 ring-2 ring-gold/40 shadow-md"
                   : "border-border bg-card hover:border-border/80"
               }`}
             >
               {/* Row header: Ayah badge & Action buttons */}
-              <div className="flex items-center justify-between border-b border-border/50 pb-3 mb-4">
-                <div className="flex items-center gap-2.5">
+              <div className="flex items-center justify-between gap-2 border-b border-border/50 pb-2.5 mb-4">
+                <div className="flex items-center gap-2">
                   {selectMode && (
                     <input
                       type="checkbox"
@@ -355,34 +355,39 @@ export function Reader({ chapter, initialVerses }: Props) {
                       className="size-4.5 rounded border-border text-primary focus:ring-primary cursor-pointer"
                     />
                   )}
-                  <span className="flex size-8 items-center justify-center rounded-sm bg-muted text-xs font-semibold text-foreground">
-                    {chapter.id}:{v.n}
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/70 px-2.5 py-1 text-xs font-semibold text-foreground/90 font-mono tracking-tight shadow-2xs"
+                    title={`Surah ${chapter.id}, Ayah ${v.n}`}
+                  >
+                    <span className="text-muted-foreground font-normal">{chapter.id}:</span>{v.n}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5 sm:gap-2">
+                <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
                   <button
                     type="button"
                     onClick={() => {
                       setPracticeAyah(v.n);
                       setPracticeOpen(true);
                     }}
-                    aria-label="Practice this ayah"
+                    aria-label={`Practice ayah ${v.n}`}
                     title="Practice (Memorize) this ayah"
-                    className="inline-flex items-center gap-1 rounded-sm border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 sm:px-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring"
                   >
-                    <Repeat size={13} />
-                    <span>Practice</span>
+                    <Repeat size={13} className="text-muted-foreground" />
+                    <span className="hidden sm:inline">Practice</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => playerRef.current?.playFromAyah(v.n)}
-                    aria-label={`Play from here on ayah ${v.n}`}
-                    className="inline-flex items-center gap-1 rounded-sm border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                    aria-label={`Play from ayah ${v.n}`}
+                    title={`Play from ayah ${v.n}`}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 sm:px-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring"
                   >
-                    <Play size={13} />
-                    <span>Play from here</span>
+                    <Play size={13} className="text-muted-foreground" />
+                    <span className="hidden sm:inline">Play from here</span>
+                    <span className="sm:hidden text-[11px]">Play</span>
                   </button>
 
                   <button
@@ -393,10 +398,11 @@ export function Reader({ chapter, initialVerses }: Props) {
                     type="button"
                     onClick={() => handleOpenTafsir(v.n)}
                     aria-label={`Open tafsir for ayah ${v.n}`}
-                    className="inline-flex items-center gap-1 rounded-sm border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                    title={`Open tafsir for ayah ${v.n}`}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 sm:px-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring"
                   >
-                    <BookOpen size={13} />
-                    <span>Tafsir</span>
+                    <BookOpen size={13} className="text-muted-foreground" />
+                    <span className="hidden sm:inline">Tafsir</span>
                   </button>
 
                   <button
@@ -404,17 +410,17 @@ export function Reader({ chapter, initialVerses }: Props) {
                     onClick={() => handleCopyLink(v.n)}
                     aria-label={`Copy link to ayah ${v.n}`}
                     title="Copy link to this ayah"
-                    className="inline-flex items-center gap-1 rounded-sm border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 sm:px-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring"
                   >
                     {copiedAyah === v.n ? (
                       <>
                         <Check size={13} className="text-primary" />
-                        <span className="text-primary">Copied</span>
+                        <span className="hidden sm:inline text-primary">Copied</span>
                       </>
                     ) : (
                       <>
-                        <Link2 size={13} />
-                        <span>Copy link</span>
+                        <Link2 size={13} className="text-muted-foreground" />
+                        <span className="hidden sm:inline">Copy link</span>
                       </>
                     )}
                   </button>

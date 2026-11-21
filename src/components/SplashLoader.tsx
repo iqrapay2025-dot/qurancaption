@@ -26,13 +26,8 @@ export default function SplashLoader() {
         if (e.animationName === "ql-exit") setShow(false);
       }}
     >
-      <div className="ql-swipe">
-        <div className="ql-spinner" />
-      </div>
-      <div className="ql-brand" aria-hidden="true">
-        <div className="ql-write">
-          <BadgeLoader size="page" />
-        </div>
+      <div className="flex items-center justify-center p-4">
+        <BadgeLoader size="page" label="Loading Ayah Studio" />
       </div>
     </div>
   );

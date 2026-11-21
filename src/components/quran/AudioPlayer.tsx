@@ -5,6 +5,12 @@ import { Play, Pause, SkipBack, SkipForward, AlertCircle, Loader2 } from "lucide
 import type { Chapter } from "@/lib/quran/server";
 import { DEFAULT_RECITER, type AyahFile, type SurahAudio, type Reciter } from "@/lib/quran/types";
 import { findStartIndex, nextFile, prevFile } from "@/lib/quran/player";
+import audioCoverage from "@/lib/quran/audio-coverage.json";
+import { registerAudioPlayback, notifyAudioPlaybackStarted } from "@/lib/audio/single-audio";
+
+const COMPLETE_RECITER_IDS = new Set(
+  audioCoverage.filter((entry) => entry.complete).map((entry) => entry.reciterId)
+);
 
 export type AudioPlayerHandle = {
   playFromAyah: (ayah: number) => void;
@@ -30,7 +36,9 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
       const saved = localStorage.getItem("qcs-quran-reciter");
       if (saved) {
         const parsed = Number(saved);
-        if (Number.isInteger(parsed) && parsed > 0) return parsed;
+        if (Number.isInteger(parsed) && parsed > 0 && COMPLETE_RECITER_IDS.has(parsed)) {
+          return parsed;
+        }
       }
     } catch {}
     return DEFAULT_RECITER;
@@ -84,7 +92,8 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
       .then((res) => res.json())
       .then((data) => {
         if (active && Array.isArray(data?.reciters)) {
-          setReciters(data.reciters);
+          const available = data.reciters.filter((r: Reciter) => COMPLETE_RECITER_IDS.has(r.id));
+          setReciters(available);
         }
       })
       .catch(() => {});
@@ -104,6 +113,22 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
       onActiveAyahChange(null);
     };
   }, [onActiveAyahChange]);
+
+  // Single-audio coordination
+  useEffect(() => {
+    const unregister = registerAudioPlayback("reader", () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+        onActiveAyahChange(null);
+      }
+    });
+    return unregister;
+  }, [onActiveAyahChange]);
+
+  const handlePlayEvent = useCallback(() => {
+    notifyAudioPlaybackStarted("reader");
+  }, []);
 
   // Fetch audio for given surah and reciter
   const fetchAudioData = useCallback(async (surah: number, reciter: number): Promise<SurahAudio | null> => {
@@ -345,6 +370,7 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
         ref={audioRef}
         id="quran-audio-player"
         preload="auto"
+        onPlay={handlePlayEvent}
         onEnded={handleEnded}
         onError={handleError}
         className="hidden"

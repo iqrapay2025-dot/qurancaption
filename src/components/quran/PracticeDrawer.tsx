@@ -26,6 +26,7 @@ import {
   nextStep,
   calculatePauseMs,
 } from "@/lib/practice/engine";
+import { registerAudioPlayback, notifyAudioPlaybackStarted } from "@/lib/audio/single-audio";
 
 const STORAGE_KEYS = {
   repeatEach: "ayah-practice-repeat-each",
@@ -201,6 +202,14 @@ export function PracticeDrawer({
     };
   }, [stopPractice]);
 
+  // Single-audio coordination
+  useEffect(() => {
+    const unregister = registerAudioPlayback("practice", () => {
+      stopPractice();
+    });
+    return unregister;
+  }, [stopPractice]);
+
   // Play a step
   const playStep = useCallback(
     async (state: PracticeState, currentConfig: PracticeConfig) => {
@@ -365,6 +374,7 @@ export function PracticeDrawer({
       <audio
         ref={audioRef}
         preload="none"
+        onPlay={() => notifyAudioPlaybackStarted("practice")}
         onEnded={handleAudioEnded}
         onLoadedMetadata={handleLoadedMetadata}
         onError={handleAudioError}

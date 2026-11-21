@@ -12,6 +12,8 @@ describe("sitemap", () => {
     expect(urls).toContain(`${SITE.url}/sources`);
     expect(urls).toContain(`${SITE.url}/donate`);
     expect(urls).not.toContain(`${SITE.url}/donate/thank-you`);
+    expect(urls).toContain(`${SITE.url}/ayah/2/255`);
+    expect(urls).toContain(`${SITE.url}/ayah/1/1`);
 
     for (let i = 1; i <= 114; i++) {
       const surahUrl = `${SITE.url}/quran/${i}`;

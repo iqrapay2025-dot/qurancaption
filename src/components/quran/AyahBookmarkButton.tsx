@@ -89,14 +89,14 @@ export function AyahBookmarkButton({ surah, ayah }: Props) {
       <button
         type="button"
         onClick={handleToggle}
-        className={`p-1.5 rounded-sm transition-colors hover:bg-muted ${
-          bookmarked ? "text-primary" : "text-muted-foreground hover:text-foreground"
+        className={`inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/70 bg-card transition-colors hover:bg-muted touch-manipulation focus-visible:outline-2 focus-visible:outline-ring ${
+          bookmarked ? "text-primary border-primary/50 bg-primary/10" : "text-muted-foreground hover:text-foreground"
         }`}
         title={bookmarked ? "Edit bookmark note or remove" : "Bookmark this ayah"}
         aria-label={bookmarked ? `Bookmarked ayah ${ayah}` : `Bookmark ayah ${ayah}`}
       >
         <Bookmark
-          size={16}
+          size={14}
           className={bookmarked ? "fill-primary text-primary" : "text-muted-foreground"}
         />
       </button>

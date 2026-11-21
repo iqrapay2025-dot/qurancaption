@@ -34,8 +34,8 @@ export default function Image() {
             <img
               src={badgeDataUrl}
               alt={BRAND_NAME}
-              width="100"
-              height="100"
+              width={100}
+              height={100}
               style={{ objectFit: "contain" }}
             />
           ) : (

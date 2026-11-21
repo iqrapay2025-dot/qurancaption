@@ -80,6 +80,9 @@ export const metadata: Metadata = {
   },
 }
 
+import { GlobalAudioProvider } from "@/components/audio/GlobalAudioProvider";
+import { MiniPlayer } from "@/components/audio/MiniPlayer";
+
 export default function RootLayout({
   children,
 }: {
@@ -120,9 +123,12 @@ export default function RootLayout({
             Skip to content
           </a>
         )}
-        <div id="root" tabIndex={-1}>
-          {children}
-        </div>
+        <GlobalAudioProvider>
+          <div id="root" tabIndex={-1}>
+            {children}
+          </div>
+          <MiniPlayer />
+        </GlobalAudioProvider>
         <BackToTop />
         {googleAnalyticsId && (
           <>
