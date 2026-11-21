@@ -19,18 +19,40 @@ export async function POST(req: Request) {
     const { token, exp, user } = await payload.login({ collection: "users", data: { email, password } });
     if (!token) return fail("Incorrect email or password.", 401);
     await setSession(token, exp);
-    const accountUser = user ? await userWithPlan(user as unknown as User) : null;
+    let accountUser = null;
+    try {
+      accountUser = user ? await userWithPlan(user as unknown as User) : null;
+    } catch (planErr) {
+      console.error("[auth] userWithPlan fallback:", planErr);
+      accountUser = user
+        ? {
+            id: String(user.id),
+            email: user.email,
+            name: user.name ?? null,
+            avatarUrl: (user as any).avatarUrl ?? null,
+            plan: "free" as const,
+            billing: { status: "none" as const, provider: null, proUntil: null, cancelAtPeriodEnd: false },
+            emailVerified: true,
+          }
+        : null;
+    }
     return ok({ user: accountUser });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "";
-    const status = typeof (e as { status?: unknown })?.status === "number" ? (e as { status: number }).status : 0;
-    const locked = status === 423 || /locked/i.test(msg);
+  } catch (e: any) {
+    const msg = typeof e?.message === "string" ? e.message : String(e ?? "");
+    const name = typeof e?.name === "string" ? e.name : "";
+    const status = typeof e?.status === "number" ? e.status : typeof e?.statusCode === "number" ? e.statusCode : 0;
+
+    const locked = status === 423 || name === "LockedAuth" || /locked/i.test(msg);
     if (locked) return fail("Too many attempts. Try again in a few minutes.", 429);
+
     const isAuthError =
       status === 401 ||
-      (e instanceof Error && e.name === "AuthenticationError") ||
-      /email or password|invalid.*credentials|incorrect/i.test(msg);
+      status === 400 ||
+      name === "AuthenticationError" ||
+      name === "ValidationError" ||
+      /email or password|invalid.*credentials|incorrect|unauthorized|failed to authenticate/i.test(msg);
     if (isAuthError) return fail("Incorrect email or password.", 401);
+
     console.error("[auth] login failed:", e);
     return fail("We couldn't sign you in right now. Please try again.", 500);
   }

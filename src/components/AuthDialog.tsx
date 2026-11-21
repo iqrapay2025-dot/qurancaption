@@ -90,7 +90,22 @@ const [sent, setSent] = useState(false);
               <button type="button" onClick={() => switchTo("forgot")} className="text-sm font-medium text-primary hover:underline">Forgot password?</button>
             )}
 
-            {error && <p role="alert" className="rounded-sm border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">{error}</p>}
+            {error && (
+              <div className="space-y-1.5">
+                <p role="alert" className="rounded-sm border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">
+                  {error}
+                </p>
+                {mode === "signup" && error.toLowerCase().includes("already exists") && (
+                  <button
+                    type="button"
+                    onClick={() => switchTo("login")}
+                    className="text-xs font-semibold text-primary hover:underline block"
+                  >
+                    Click here to switch to Log in →
+                  </button>
+                )}
+              </div>
+            )}
 
             <button type="submit" disabled={busy} className="w-full rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60">
               {busy ? "Please wait…" : { signup: "Create account", login: "Log in", forgot: "Send reset link", reset: "Save new password" }[mode]}
