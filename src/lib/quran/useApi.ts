@@ -22,6 +22,7 @@ export function useApi<T>(url: string | null) {
     if (lastUrl.current !== url) {
       autoRetries.current = 0;
       lastUrl.current = url;
+      setData(null);
     }
     const ctrl = new AbortController();
     let timer: ReturnType<typeof setInterval> | undefined;
