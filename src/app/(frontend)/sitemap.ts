@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/quran", priority: 0.8 },
     { path: "/listen", priority: 0.8 },
     { path: "/sources", priority: 0.5 },
+    { path: "/donate", priority: 0.5 },
     { path: "/guide", priority: 0.5 },
     { path: "/terms", priority: 0.3 },
     { path: "/privacy", priority: 0.3 },

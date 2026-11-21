@@ -20,6 +20,7 @@ import { ContinueCard } from "./quran/ContinueCard";
 import { DailyAyahCard } from "./DailyAyahCard";
 import { InstallAppButton } from "./InstallAppButton";
 import { buildMistakeReportMailto } from "../lib/mistake-report";
+import { getActiveDonateUrl } from "../lib/donate";
 
 type Props = {
   onStart: () => void;
@@ -107,6 +108,7 @@ export default function Landing({
   dark,
   toggleTheme,
 }: Props) {
+  const hasDonateUrl = Boolean(getActiveDonateUrl());
   const v = {
     arabic: "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
     text: "In the name of Allah, the Entirely Merciful, the Especially Merciful.",
@@ -387,7 +389,11 @@ export default function Landing({
               <a className="hover:text-[#6fe3a0]" href="/sources">
                 Sources
               </a>
-              <a className="hover:text-[#6fe3a0]" href={buildMistakeReportMailto()}>
+              <a
+                suppressHydrationWarning
+                className="hover:text-[#6fe3a0]"
+                href={buildMistakeReportMailto()}
+              >
                 Report a mistake
               </a>
               <a className="hover:text-[#6fe3a0]" href="/guide">
@@ -408,6 +414,11 @@ export default function Landing({
               <a className="hover:text-[#6fe3a0]" href="/contact">
                 Contact
               </a>
+              {hasDonateUrl && (
+                <a className="hover:text-[#6fe3a0]" href="/donate">
+                  Donate
+                </a>
+              )}
               <InstallAppButton />
             </div>
           </div>

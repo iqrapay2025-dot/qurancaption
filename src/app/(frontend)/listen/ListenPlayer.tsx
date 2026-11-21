@@ -120,6 +120,7 @@ export function ListenPlayer() {
   const [isMuted, setIsMuted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [audioError, setAudioError] = useState<string | null>(null);
+  const [shouldAutoPlay, setShouldAutoPlay] = useState(false);
 
   // Sleep timer state: null | 15 | 30 | 60 (in minutes)
   const [sleepTimerMinutes, setSleepTimerMinutes] = useState<number | null>(null);
@@ -131,8 +132,6 @@ export function ListenPlayer() {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const isInitializedRef = useRef(false);
   const pendingSeekTimeRef = useRef<number | null>(null);
-  const isPlayingRef = useRef(false);
-  isPlayingRef.current = isPlaying;
 
   // 3. Audio query for selected surah and reciter
   const audioQueryUrl = useMemo(() => {
@@ -141,6 +140,14 @@ export function ListenPlayer() {
   }, [selectedSurah, selectedReciterId]);
 
   const audioQ = useApi<SurahAudio>(audioQueryUrl);
+
+  const isAudioReady = Boolean(
+    audioQ.data &&
+    audioQ.data.surah === selectedSurah &&
+    audioQ.data.reciterId === selectedReciterId &&
+    audioQ.data.audioUrl
+  );
+  const currentAudioUrl = isAudioReady ? audioQ.data?.audioUrl : undefined;
 
   // Sync audio error with API error or network failure
   useEffect(() => {
@@ -285,27 +292,24 @@ export function ListenPlayer() {
     });
   }, [chapters, searchQuery]);
 
-  // 9. Sync audio src when audioQ loads
+  // 9. Auto-play when switching surahs once the audio URL is ready
   useEffect(() => {
+    if (!shouldAutoPlay || !isAudioReady || !currentAudioUrl) return;
     const audio = audioRef.current;
     if (!audio) return;
-    const url = audioQ.data?.audioUrl;
-    if (!url) return;
-    if (audio.getAttribute("src") !== url) {
-      audio.setAttribute("src", url);
-      audio.load();
-      audio.playbackRate = speed;
-      audio.volume = isMuted ? 0 : volume;
-      if (isPlayingRef.current) {
-        audio.play().catch((err) => {
-          console.warn("Playback interrupted or error:", err);
-          setAudioError("This recitation could not be loaded");
-          setIsPlaying(false);
-        });
+
+    audio.play().then(() => {
+      setIsPlaying(true);
+      setShouldAutoPlay(false);
+    }).catch((err) => {
+      if (err?.name !== "AbortError") {
+        console.warn("Auto-play error:", err);
+        setAudioError("This recitation could not be loaded");
+        setIsPlaying(false);
+        setShouldAutoPlay(false);
       }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [audioQ.data?.audioUrl]);
+    });
+  }, [shouldAutoPlay, isAudioReady, currentAudioUrl]);
 
   // 10. Update playbackRate & volume whenever state changes
   useEffect(() => {
@@ -332,19 +336,24 @@ export function ListenPlayer() {
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);
+      setShouldAutoPlay(false);
     } else {
-      if (audioQ.data?.audioUrl && audio.getAttribute("src") !== audioQ.data.audioUrl) {
-        audio.setAttribute("src", audioQ.data.audioUrl);
-        audio.load();
+      if (!isAudioReady || !currentAudioUrl) {
+        setShouldAutoPlay(true);
+        setIsPlaying(true);
+        return;
       }
-      setIsPlaying(true);
-      audio.play().catch((err) => {
-        console.warn("Playback error:", err);
-        setAudioError("This recitation could not be loaded");
+      audio.play().then(() => {
+        setIsPlaying(true);
+      }).catch((err) => {
+        if (err?.name !== "AbortError") {
+          console.warn("Playback error:", err);
+          setAudioError("This recitation could not be loaded");
+        }
         setIsPlaying(false);
       });
     }
-  }, [isPlaying, audioQ.data?.audioUrl]);
+  }, [isPlaying, isAudioReady, currentAudioUrl]);
 
   const playSurah = useCallback((surahId: number) => {
     setHasEverPlayed(true);
@@ -353,9 +362,10 @@ export function ListenPlayer() {
       togglePlay();
     } else {
       setSelectedSurah(surahId);
-      setIsPlaying(true);
       setCurrentTime(0);
       setDuration(0);
+      setShouldAutoPlay(true);
+      setIsPlaying(true);
     }
   }, [selectedSurah, togglePlay]);
 
@@ -363,22 +373,25 @@ export function ListenPlayer() {
     const next = nextSurah(selectedSurah, repeatMode);
     if (next === selectedSurah && repeatMode === "off" && selectedSurah === 114) {
       setIsPlaying(false);
+      setShouldAutoPlay(false);
       return;
     }
     setAudioError(null);
     setSelectedSurah(next);
-    setIsPlaying(true);
     setCurrentTime(0);
     setDuration(0);
+    setShouldAutoPlay(true);
+    setIsPlaying(true);
   }, [selectedSurah, repeatMode]);
 
   const handlePrev = useCallback(() => {
     const prev = prevSurah(selectedSurah, repeatMode);
     setAudioError(null);
     setSelectedSurah(prev);
-    setIsPlaying(true);
     setCurrentTime(0);
     setDuration(0);
+    setShouldAutoPlay(true);
+    setIsPlaying(true);
   }, [selectedSurah, repeatMode]);
 
   const handleSeek = (e: ChangeEvent<HTMLInputElement>) => {
@@ -415,20 +428,25 @@ export function ListenPlayer() {
       const dur = audioRef.current.duration;
       setDuration(dur);
       audioRef.current.setAttribute("data-duration", String(dur));
-      audioRef.current.setAttribute("src", audioRef.current.src);
       if (pendingSeekTimeRef.current !== null && pendingSeekTimeRef.current > 0) {
         audioRef.current.currentTime = pendingSeekTimeRef.current;
         setCurrentTime(pendingSeekTimeRef.current);
         pendingSeekTimeRef.current = null;
+      }
+      if (shouldAutoPlay) {
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+          setShouldAutoPlay(false);
+        }).catch(() => {});
       }
     }
   };
 
   // Save continue listening position every 5 seconds while playing
   useEffect(() => {
-    if (!isPlaying || currentTime <= 0) return;
+    if (!isPlaying) return;
     const interval = setInterval(() => {
-      if (audioRef.current && !audioRef.current.paused) {
+      if (audioRef.current && !audioRef.current.paused && audioRef.current.currentTime > 0) {
         saveContinueListening({
           surah: selectedSurah,
           reciterId: selectedReciterId,
@@ -438,7 +456,7 @@ export function ListenPlayer() {
       }
     }, 5000);
     return () => clearInterval(interval);
-  }, [isPlaying, currentTime, selectedSurah, selectedReciterId, currentChapter?.nameSimple]);
+  }, [isPlaying, selectedSurah, selectedReciterId, currentChapter?.nameSimple]);
 
   const handleEnded = () => {
     if (repeatMode === "surah") {
@@ -450,30 +468,27 @@ export function ListenPlayer() {
       handleNext();
     } else {
       if (selectedSurah < 114) {
-        setSelectedSurah((prev) => prev + 1);
-        setIsPlaying(true);
+        handleNext();
       } else {
         setIsPlaying(false);
+        setShouldAutoPlay(false);
       }
     }
   };
 
-  const handleAudioError = () => {
-    // Ignore the error browsers fire for an <audio> with no source yet.
-    if (!audioRef.current?.getAttribute("src")) return;
+  const handleAudioError = (e: React.SyntheticEvent<HTMLAudioElement>) => {
+    const audio = e.currentTarget;
+    if (!audio.src || !isAudioReady) return;
+    if (audio.error?.code === 1) return; // MEDIA_ERR_ABORTED
     setAudioError("This recitation could not be loaded");
     setIsPlaying(false);
+    setShouldAutoPlay(false);
   };
 
   const retryAudio = () => {
     setAudioError(null);
     audioQ.retry();
-    if (audioRef.current && audioQ.data?.audioUrl) {
-      audioRef.current.src = audioQ.data.audioUrl;
-      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {
-        setAudioError("This recitation could not be loaded");
-      });
-    }
+    setShouldAutoPlay(true);
   };
 
   const skipToNext = () => {
@@ -627,17 +642,22 @@ export function ListenPlayer() {
       {/* Hidden single <audio> element with explicit DOM attributes */}
       <audio
         ref={audioRef}
+        src={currentAudioUrl}
         data-duration={duration}
         data-current-time={currentTime}
         data-paused={!isPlaying}
         data-error={audioError || ""}
-        preload="none"
+        preload="metadata"
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleEnded}
         onError={handleAudioError}
         onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
+        onPause={() => {
+          if (!shouldAutoPlay) {
+            setIsPlaying(false);
+          }
+        }}
       />
 
       {/* Header controls: Reciter picker & Search box */}
@@ -654,6 +674,9 @@ export function ListenPlayer() {
               const newId = Number(e.target.value);
               setSelectedReciterId(newId);
               setAudioError(null);
+              if (isPlaying) {
+                setShouldAutoPlay(true);
+              }
             }}
             className="w-full rounded-sm border border-border bg-card px-3 py-2 text-xs sm:text-sm font-medium focus-visible:outline-2 focus-visible:outline-ring"
           >

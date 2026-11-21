@@ -8,6 +8,7 @@ import { Logo, ThemeToggle, useTheme } from "./shared";
 import AccountMenu from "./AccountMenu";
 import type { AppUser } from "@/lib/app/client";
 import { NAV_ITEMS, isActive } from "@/lib/nav";
+import { getActiveDonateUrl } from "@/lib/donate";
 
 type SiteHeaderProps = {
   onStart?: () => void;
@@ -59,6 +60,7 @@ export function SiteHeader({
 
   const pathname = usePathname();
   const themeHook = useTheme();
+  const hasDonateUrl = !!getActiveDonateUrl();
 
   const dark = propDark !== undefined ? propDark : themeHook.dark;
   const toggleTheme = propToggle !== undefined ? propToggle : themeHook.toggle;
@@ -303,6 +305,15 @@ export function SiteHeader({
             </button>
           )}
 
+          {hasDonateUrl && (
+            <Link
+              href="/donate"
+              className="inline-flex items-center justify-center whitespace-nowrap shrink-0 rounded-sm border border-border bg-card px-2.5 lg:px-3 py-1 lg:py-1.5 text-xs lg:text-sm font-medium text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring transition-colors"
+            >
+              Donate
+            </Link>
+          )}
+
           <div className="shrink-0">
             <ThemeToggle dark={dark} toggle={toggleTheme} />
           </div>
@@ -449,6 +460,16 @@ export function SiteHeader({
                 </Link>
               );
             })}
+
+            {hasDonateUrl && (
+              <Link
+                href="/donate"
+                onClick={closeMobileMenu}
+                className="rounded-sm px-3 py-3 text-sm font-medium hover:bg-muted text-foreground flex items-center justify-between"
+              >
+                <span>Donate</span>
+              </Link>
+            )}
 
             {/* Auth Buttons in Mobile Menu */}
             {!user ? (

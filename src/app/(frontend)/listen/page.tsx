@@ -5,6 +5,7 @@ import { ListenPlayer } from "./ListenPlayer";
 import { ContinueCard } from "@/components/quran/ContinueCard";
 import { buildMistakeReportMailto } from "@/lib/mistake-report";
 import { InstallAppButton } from "@/components/InstallAppButton";
+import { getActiveDonateUrl } from "@/lib/donate";
 
 export const metadata: Metadata = {
   title: "Listen to the Quran - Full Surah Recitations | Ayah Studio",
@@ -27,6 +28,7 @@ export const metadata: Metadata = {
 };
 
 export default function ListenPage() {
+  const hasDonateUrl = Boolean(getActiveDonateUrl());
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden w-full max-w-full">
       <SiteHeader />
@@ -93,7 +95,11 @@ export default function ListenPage() {
               Sources
             </Link>
             ·
-            <a className="underline hover:text-foreground" href={buildMistakeReportMailto()}>
+            <a
+              suppressHydrationWarning
+              className="underline hover:text-foreground"
+              href={buildMistakeReportMailto()}
+            >
               Report a mistake
             </a>
             ·
@@ -108,6 +114,14 @@ export default function ListenPage() {
             <Link className="underline hover:text-foreground" href="/privacy">
               Privacy policy
             </Link>
+            {hasDonateUrl && (
+              <>
+                ·
+                <Link className="underline hover:text-foreground" href="/donate">
+                  Donate
+                </Link>
+              </>
+            )}
             ·
             <InstallAppButton />
           </div>

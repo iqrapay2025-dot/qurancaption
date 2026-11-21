@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { GuideContent } from "@/components/GuideContent";
 import { GUIDE_FAQ } from "@/lib/guide";
+import { getActiveDonateUrl } from "@/lib/donate";
 
 export const metadata: Metadata = {
   title: "User guide",
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default function GuidePage() {
+  const hasDonateUrl = Boolean(getActiveDonateUrl());
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <SiteHeader />
@@ -82,6 +84,14 @@ export default function GuidePage() {
           <Link className="underline hover:text-foreground" href="/privacy">
             Privacy policy
           </Link>
+          {hasDonateUrl && (
+            <>
+              {" "}·{" "}
+              <Link className="underline hover:text-foreground" href="/donate">
+                Donate
+              </Link>
+            </>
+          )}
         </div>
         <p className="mt-3 text-xs">© Ayah Studio</p>
       </footer>
