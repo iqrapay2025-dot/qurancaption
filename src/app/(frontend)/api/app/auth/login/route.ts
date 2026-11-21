@@ -16,7 +16,11 @@ export async function POST(req: Request) {
   if (!email || !password) return fail("Enter your email and password.");
   const payload = await getPayloadClient();
   try {
-    const { token, exp, user } = await payload.login({ collection: "users", data: { email, password } });
+    const { token, exp, user } = await payload.login({
+      collection: "users",
+      data: { email, password },
+      overrideAccess: true,
+    });
     if (!token) return fail("Incorrect email or password.", 401);
     await setSession(token, exp);
     let accountUser = null;

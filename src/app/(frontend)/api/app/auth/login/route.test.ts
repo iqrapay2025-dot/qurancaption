@@ -95,6 +95,7 @@ describe("POST /api/app/auth/login", () => {
     expect(mockPayload.login).toHaveBeenCalledWith({
       collection: "users",
       data: { email: "test@example.com", password: "password123" },
+      overrideAccess: true,
     });
     expect(setSession).toHaveBeenCalledWith("jwt_token_456", 99999999);
     expect(userWithPlan).toHaveBeenCalledWith(userDoc);
