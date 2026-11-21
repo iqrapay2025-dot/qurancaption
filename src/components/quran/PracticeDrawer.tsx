@@ -27,6 +27,7 @@ import {
   calculatePauseMs,
 } from "@/lib/practice/engine";
 import { registerAudioPlayback, notifyAudioPlaybackStarted } from "@/lib/audio/single-audio";
+import { getOfflineSurahAudio } from "@/lib/offline/db";
 
 const STORAGE_KEYS = {
   repeatEach: "ayah-practice-repeat-each",
@@ -124,13 +125,27 @@ export function PracticeDrawer({
   const [isWaitingPause, setIsWaitingPause] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [customEach, setCustomEach] = useState("");
+  const [isOfflineReady, setIsOfflineReady] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const cachedFilesRef = useRef<AyahFile[]>([]);
   const pauseTimerRef = useRef<NodeJS.Timeout | null>(null);
   const audioDurationRef = useRef<number>(3); // fallback 3s
 
-  // Ensure files are available: reuse passed files or fetch once
+  // Check offline availability on open/change
+  useEffect(() => {
+    let active = true;
+    getOfflineSurahAudio(chapter.id, reciterId)
+      .then((off) => {
+        if (active) setIsOfflineReady(!!off && off.files.length > 0);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [chapter.id, reciterId]);
+
+  // Ensure files are available: reuse passed files, check offline DB, or fetch once
   const ensureFiles = useCallback(async (): Promise<AyahFile[]> => {
     if (cachedFilesRef.current.length > 0) return cachedFilesRef.current;
     const existing = getAudioFiles ? getAudioFiles() : [];
@@ -138,7 +153,18 @@ export function PracticeDrawer({
       cachedFilesRef.current = existing;
       return existing;
     }
-    // Fetch once
+
+    // 1. Check offline storage first
+    try {
+      const offline = await getOfflineSurahAudio(chapter.id, reciterId);
+      if (offline && offline.files.length > 0) {
+        cachedFilesRef.current = offline.files;
+        setIsOfflineReady(true);
+        return offline.files;
+      }
+    } catch {}
+
+    // 2. Fetch once online
     try {
       const res = await fetch(`/api/quran/audio?surah=${chapter.id}&reciter=${reciterId}`);
       if (!res.ok) throw new Error("Could not load audio");
@@ -148,7 +174,7 @@ export function PracticeDrawer({
         return data.files;
       }
     } catch (e: any) {
-      setErrorMsg("Failed to load recitation audio");
+      setErrorMsg("Failed to load recitation audio (offline?)");
     }
     return [];
   }, [chapter.id, reciterId, getAudioFiles]);
@@ -401,6 +427,11 @@ export function PracticeDrawer({
           <div className="flex items-center gap-2">
             <Repeat size={18} className="text-primary" />
             <h2 className="text-base font-bold text-foreground">Practice (Memorize)</h2>
+            {isOfflineReady && (
+              <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-full">
+                Offline ready
+              </span>
+            )}
           </div>
           <button
             type="button"

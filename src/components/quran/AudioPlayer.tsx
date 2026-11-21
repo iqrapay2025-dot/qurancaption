@@ -7,6 +7,7 @@ import { DEFAULT_RECITER, type AyahFile, type SurahAudio, type Reciter } from "@
 import { findStartIndex, nextFile, prevFile } from "@/lib/quran/player";
 import audioCoverage from "@/lib/quran/audio-coverage.json";
 import { registerAudioPlayback, notifyAudioPlaybackStarted } from "@/lib/audio/single-audio";
+import { getOfflineSurahAudio } from "@/lib/offline/db";
 
 const COMPLETE_RECITER_IDS = new Set(
   audioCoverage.filter((entry) => entry.complete).map((entry) => entry.reciterId)
@@ -135,6 +136,22 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
     setIsLoading(true);
     setErrorMsg(null);
     try {
+      // 1. Check offline storage first
+      try {
+        const offline = await getOfflineSurahAudio(surah, reciter);
+        if (offline && offline.files.length > 0) {
+          const offlineData: SurahAudio = {
+            surah,
+            reciterId: reciter,
+            audioUrl: offline.fullAudioUrl || "",
+            files: offline.files,
+          };
+          audioDataRef.current = offlineData;
+          return offlineData;
+        }
+      } catch {}
+
+      // 2. Fall back to online API
       const res = await fetch(`/api/quran/audio?surah=${surah}&reciter=${reciter}`);
       if (!res.ok) {
         throw new Error("Failed to load audio");

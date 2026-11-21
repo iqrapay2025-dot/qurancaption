@@ -52,11 +52,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: fullUrl,
       title,
       description,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `Surah ${valid.surahName} ${valid.surah}:${valid.ayah} — Ayah Studio`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: [ogImageUrl],
     },
   };
 }

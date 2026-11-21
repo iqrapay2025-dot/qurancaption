@@ -18,6 +18,8 @@ import { QuranSettingsDrawer } from "./QuranSettingsDrawer";
 import { AudioPlayer, type AudioPlayerHandle } from "./AudioPlayer";
 import { PracticeDrawer } from "./PracticeDrawer";
 import { AyahBookmarkButton } from "./AyahBookmarkButton";
+import { OfflineSurahButton } from "./OfflineSurahButton";
+import { getOfflineSurahContent } from "@/lib/offline/db";
 import { saveContinueReading } from "@/lib/library/storage";
 import { buildEditorLink } from "@/lib/editor-link";
 import { buildMistakeReportMailto } from "@/lib/mistake-report";
@@ -45,6 +47,17 @@ export function Reader({ chapter, initialVerses }: Props) {
   const [selectedRange, setSelectedRange] = useState<{ from: number; to: number } | null>(null);
   const tafsirButtonRefs = useRef<Map<number, HTMLButtonElement>>(new Map());
   const playerRef = useRef<AudioPlayerHandle>(null);
+
+  // Fallback to offline stored verses if initialVerses is empty (e.g. offline reload)
+  useEffect(() => {
+    if (verses.length === 0) {
+      getOfflineSurahContent(chapter.id).then((cached) => {
+        if (cached && cached.verses.length > 0) {
+          setVerses(cached.verses);
+        }
+      });
+    }
+  }, [chapter.id, verses.length]);
 
   const handleToggleAyahSelection = (n: number) => {
     if (!selectedRange) {
@@ -281,7 +294,7 @@ export function Reader({ chapter, initialVerses }: Props) {
             {chapter.meaning} · {chapter.versesCount} verses
           </p>
 
-          {/* Make Captions & Select Mode Controls */}
+          {/* Make Captions, Select Mode & Offline Download Controls */}
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5 pt-4 border-t border-border/60">
             <Link
               href={buildEditorLink({ surah: chapter.id })}
@@ -304,6 +317,14 @@ export function Reader({ chapter, initialVerses }: Props) {
               <CheckSquare size={14} />
               {selectMode ? "Exit select mode" : "Select ayahs"}
             </button>
+            <OfflineSurahButton
+              chapter={chapter}
+              reciterId={playerRef.current?.getReciterId?.() || 1}
+              reciterName={
+                playerRef.current?.getReciters?.().find((r) => r.id === (playerRef.current?.getReciterId?.() || 1))?.name ||
+                "Mishari Rashid al-`Afasy"
+              }
+            />
           </div>
         </div>
 

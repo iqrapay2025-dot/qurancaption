@@ -12,8 +12,10 @@ import {
   X,
   ArrowRight,
   BookOpen,
+  HardDrive,
 } from "lucide-react";
 import BadgeLoader from "@/components/BadgeLoader";
+import { OfflineDownloadsView } from "./OfflineDownloadsView";
 import {
   getLibrary,
   subscribeLibrary,
@@ -46,6 +48,7 @@ export function BookmarksView() {
   const [editNote, setEditNote] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState<"bookmarks" | "downloads">("bookmarks");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync bookmarks from storage
@@ -211,7 +214,37 @@ export function BookmarksView() {
         </div>
       </div>
 
-      {/* Feedback Alert */}
+      {/* Tabs Switcher */}
+      <div className="flex items-center gap-2 mb-6 border-b border-border pb-3">
+        <button
+          type="button"
+          onClick={() => setActiveTab("bookmarks")}
+          className={`inline-flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 text-xs sm:text-sm font-semibold transition-all ${
+            activeTab === "bookmarks"
+              ? "bg-primary text-primary-foreground shadow-xs"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          }`}
+        >
+          <Bookmark size={15} /> Bookmarks ({bookmarks.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("downloads")}
+          className={`inline-flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 text-xs sm:text-sm font-semibold transition-all ${
+            activeTab === "downloads"
+              ? "bg-primary text-primary-foreground shadow-xs"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          }`}
+        >
+          <HardDrive size={15} /> Offline Downloads
+        </button>
+      </div>
+
+      {activeTab === "downloads" ? (
+        <OfflineDownloadsView />
+      ) : (
+        <>
+          {/* Feedback Alert */}
       {feedback && (
         <div className="mb-6 rounded-md bg-primary/10 border border-primary/20 px-4 py-2.5 text-xs sm:text-sm text-primary flex items-center justify-between">
           <span>{feedback}</span>
@@ -377,6 +410,8 @@ export function BookmarksView() {
             );
           })}
         </div>
+      )}
+        </>
       )}
     </div>
   );

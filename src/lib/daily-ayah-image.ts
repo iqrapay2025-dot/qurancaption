@@ -342,9 +342,7 @@ export async function renderAyahImage({
   ctx.fillText(reference.trim(), IMAGE_WIDTH / 2, refY);
 
   // 9. Footer with site name / URL
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-    ? process.env.NEXT_PUBLIC_SITE_URL.replace(/^https?:\/\//, "").replace(/\/$/, "")
-    : "aayahstudio.vercel.app";
+  const siteUrl = "aayahstudio.vercel.app";
 
   const footerY = IMAGE_HEIGHT - (pad + innerInset + 36);
   ctx.font = '500 16px "Figtree", sans-serif';

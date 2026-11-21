@@ -39,16 +39,23 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
 
-  // 1. Page navigations: network first, fallback to precached /offline
+  // 1. Page navigations: network first, cache fallback, then /offline
   if (isPageNavigation(req)) {
     event.respondWith(
       fetch(req)
         .then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
+          }
           return response;
         })
         .catch(() => {
-          return caches.match("/offline").then((res) => {
-            return res || new Response("You are offline", { headers: { "Content-Type": "text/html" } });
+          return caches.match(req).then((cached) => {
+            if (cached) return cached;
+            return caches.match("/offline").then((res) => {
+              return res || new Response("You are offline", { headers: { "Content-Type": "text/html" } });
+            });
           });
         })
     );
