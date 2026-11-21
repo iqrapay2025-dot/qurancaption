@@ -24,6 +24,7 @@ import { saveContinueReading } from "@/lib/library/storage";
 import { buildEditorLink } from "@/lib/editor-link";
 import { buildMistakeReportMailto } from "@/lib/mistake-report";
 import Attribution from "@/components/Attribution";
+import { TourReplayButton } from "@/components/tour/TourReplayButton";
 
 type Props = {
   chapter: Chapter;
@@ -253,8 +254,10 @@ export function Reader({ chapter, initialVerses }: Props) {
             <Link href="/quran" className="hover:text-foreground transition-colors whitespace-nowrap">
               Surah Index
             </Link>
+            <TourReplayButton tourId="quran-reader" />
             <button
               type="button"
+              data-tour="reader-settings-btn"
               onClick={() => setSettingsOpen(true)}
               aria-label="Display settings"
               className="inline-flex items-center gap-1.5 rounded-sm border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors whitespace-nowrap"
@@ -276,7 +279,7 @@ export function Reader({ chapter, initialVerses }: Props) {
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-xs">
+        <div data-tour="surah-nav-header" className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-xs">
           <div
             dir="rtl"
             lang="ar"
@@ -384,16 +387,20 @@ export function Reader({ chapter, initialVerses }: Props) {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                <div
+                  data-tour={v.n === 1 ? "ayah-actions" : undefined}
+                  className="flex items-center gap-1 sm:gap-1.5 shrink-0"
+                >
                   <button
                     type="button"
+                    data-tour={v.n === 1 ? "ayah-practice" : undefined}
                     onClick={() => {
                       setPracticeAyah(v.n);
                       setPracticeOpen(true);
                     }}
                     aria-label={`Practice ayah ${v.n}`}
                     title="Practice (Memorize) this ayah"
-                    className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 sm:px-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring"
+                    className="inline-flex min-h-[36px] sm:min-h-[32px] h-8 items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 sm:px-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring"
                   >
                     <Repeat size={13} className="text-muted-foreground" />
                     <span className="hidden sm:inline">Practice</span>
@@ -401,10 +408,11 @@ export function Reader({ chapter, initialVerses }: Props) {
 
                   <button
                     type="button"
+                    data-tour={v.n === 1 ? "ayah-play" : undefined}
                     onClick={() => playerRef.current?.playFromAyah(v.n)}
                     aria-label={`Play from ayah ${v.n}`}
                     title={`Play from ayah ${v.n}`}
-                    className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 sm:px-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring"
+                    className="inline-flex min-h-[36px] sm:min-h-[32px] h-8 items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 sm:px-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring"
                   >
                     <Play size={13} className="text-muted-foreground" />
                     <span className="hidden sm:inline">Play from here</span>
@@ -417,10 +425,11 @@ export function Reader({ chapter, initialVerses }: Props) {
                       else tafsirButtonRefs.current.delete(v.n);
                     }}
                     type="button"
+                    data-tour={v.n === 1 ? "ayah-tafsir" : undefined}
                     onClick={() => handleOpenTafsir(v.n)}
                     aria-label={`Open tafsir for ayah ${v.n}`}
                     title={`Open tafsir for ayah ${v.n}`}
-                    className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 sm:px-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring"
+                    className="inline-flex min-h-[36px] sm:min-h-[32px] h-8 items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 sm:px-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring"
                   >
                     <BookOpen size={13} className="text-muted-foreground" />
                     <span className="hidden sm:inline">Tafsir</span>
@@ -431,7 +440,7 @@ export function Reader({ chapter, initialVerses }: Props) {
                     onClick={() => handleCopyLink(v.n)}
                     aria-label={`Copy link to ayah ${v.n}`}
                     title="Copy link to this ayah"
-                    className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 sm:px-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring"
+                    className="inline-flex min-h-[36px] sm:min-h-[32px] h-8 items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 sm:px-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring"
                   >
                     {copiedAyah === v.n ? (
                       <>
@@ -446,11 +455,13 @@ export function Reader({ chapter, initialVerses }: Props) {
                     )}
                   </button>
 
-                  <AyahBookmarkButton
-                    surah={chapter.id}
-                    ayah={v.n}
-                    surahName={chapter.nameSimple}
-                  />
+                  <div data-tour={v.n === 1 ? "ayah-bookmark" : undefined}>
+                    <AyahBookmarkButton
+                      surah={chapter.id}
+                      ayah={v.n}
+                      surahName={chapter.nameSimple}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -611,8 +622,9 @@ export function Reader({ chapter, initialVerses }: Props) {
         isOpen={practiceOpen}
         onClose={() => {
           setPracticeOpen(false);
-          setPracticeActiveAyah(null);
-          setHideText(false);
+        }}
+        onOpen={() => {
+          setPracticeOpen(true);
         }}
         chapter={chapter}
         selectedAyah={practiceAyah}
@@ -626,6 +638,8 @@ export function Reader({ chapter, initialVerses }: Props) {
         }
         reciterId={playerRef.current?.getReciterId()}
         onStopOtherAudio={() => playerRef.current?.stop()}
+        verses={verses}
+        onOpenTafsir={(ayah) => setActiveAyahTafsir(ayah)}
       />
 
       {/* Sticky Range Selection Bar */}

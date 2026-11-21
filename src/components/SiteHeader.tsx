@@ -3,12 +3,14 @@
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, BookOpen, Headphones, Compass, Bookmark, HelpCircle } from "lucide-react";
+import { Menu, X, ChevronDown, BookOpen, Headphones, Compass, Bookmark, HelpCircle, FolderOpen, Settings, LogOut } from "lucide-react";
 import { Logo, ThemeToggle, useTheme } from "./shared";
 import AccountMenu from "./AccountMenu";
 import type { AppUser } from "@/lib/app/client";
 import { NAV_ITEMS, isActive } from "@/lib/nav";
 import { getActiveDonateUrl } from "@/lib/donate";
+import { ToursMenu } from "./tour/ToursMenu";
+import { InstallAppButton } from "./InstallAppButton";
 
 type SiteHeaderProps = {
   onStart?: () => void;
@@ -193,6 +195,7 @@ export function SiteHeader({
                       triggerRefs.current[item.label] = el;
                     }}
                     type="button"
+                    data-tour={item.label === "Quran" ? "nav-quran" : item.label === "Learn" ? "nav-learn" : undefined}
                     aria-haspopup="menu"
                     aria-expanded={isOpen}
                     onClick={() =>
@@ -224,6 +227,7 @@ export function SiteHeader({
                         return (
                           <Link
                             key={child.href}
+                            data-tour={child.href === "/listen" ? "nav-listen" : child.href === "/quran/bookmarks" ? "nav-bookmarks" : undefined}
                             ref={(el) => {
                               if (!itemRefs.current[item.label]) {
                                 itemRefs.current[item.label] = [];
@@ -254,6 +258,48 @@ export function SiteHeader({
                           </Link>
                         );
                       })}
+                      {item.label === "Learn" && (
+                        <>
+                          <div className="border-t border-border/60 mt-1.5 pt-1.5 px-2 pb-1">
+                            <span className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider block mb-1">
+                              Guide Topics
+                            </span>
+                            <div className="grid grid-cols-2 gap-1 text-[11px]">
+                              <Link
+                                href="/guide#read"
+                                onClick={() => setOpenDropdown(null)}
+                                className="rounded px-1.5 py-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                              >
+                                Read Quran
+                              </Link>
+                              <Link
+                                href="/guide#listen"
+                                onClick={() => setOpenDropdown(null)}
+                                className="rounded px-1.5 py-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                              >
+                                Listen Guide
+                              </Link>
+                              <Link
+                                href="/guide#editor"
+                                onClick={() => setOpenDropdown(null)}
+                                className="rounded px-1.5 py-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                              >
+                                Caption Editor
+                              </Link>
+                              <Link
+                                href="/guide#troubleshooting"
+                                onClick={() => setOpenDropdown(null)}
+                                className="rounded px-1.5 py-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                              >
+                                Troubleshooting
+                              </Link>
+                            </div>
+                          </div>
+                          <div className="border-t border-border/60 mt-1 pt-1">
+                            <ToursMenu buttonVariant="nav" onSelectTour={() => setOpenDropdown(null)} />
+                          </div>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
@@ -294,58 +340,55 @@ export function SiteHeader({
 
         {/* Action Controls & Theme Toggle */}
         <div className="flex items-center justify-end gap-1.5 sm:gap-2 lg:gap-3 shrink-0">
-          {/* Create captions outline button (shown on /quran and /listen pages on desktop) */}
-          {isQuranOrListen && (
-            <button
-              type="button"
-              onClick={handleStart}
-              className="hidden md:inline-flex whitespace-nowrap shrink-0 rounded-sm border border-foreground/80 bg-card px-2.5 lg:px-3.5 py-1 lg:py-1.5 text-xs lg:text-sm font-semibold transition hover:bg-foreground hover:text-background focus-visible:outline-2 focus-visible:outline-ring"
-            >
-              Create captions
-            </button>
-          )}
-
           {hasDonateUrl && (
             <Link
               href="/donate"
-              className="inline-flex items-center justify-center whitespace-nowrap shrink-0 rounded-sm border border-border bg-card px-2.5 lg:px-3 py-1 lg:py-1.5 text-xs lg:text-sm font-medium text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring transition-colors"
+              className="hidden sm:inline-flex items-center justify-center whitespace-nowrap shrink-0 rounded-sm bg-primary text-primary-foreground px-2.5 lg:px-3 py-1 lg:py-1.5 text-xs lg:text-sm font-semibold shadow-xs hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring transition-opacity"
             >
               Donate
             </Link>
+          )}
+
+          {!isQuranOrListen && (
+            <div className="hidden md:block shrink-0">
+              <ToursMenu buttonVariant="icon" />
+            </div>
           )}
 
           <div className="shrink-0">
             <ThemeToggle dark={dark} toggle={toggleTheme} />
           </div>
 
-          {/* Auth buttons / Account menu */}
-          {!user && (
+          {/* Auth buttons / Account menu (Desktop) */}
+          <div data-tour="header-auth" className="hidden sm:flex items-center gap-1.5 sm:gap-2">
+            {!user && (
+              <button
+                type="button"
+                onClick={handleLogin}
+                className="whitespace-nowrap shrink-0 text-xs lg:text-sm font-semibold hover:text-gold focus-visible:outline-2 focus-visible:outline-ring rounded-sm px-1.5 lg:px-2 py-1"
+              >
+                Log in
+              </button>
+            )}
+
             <button
               type="button"
-              onClick={handleLogin}
-              className="hidden whitespace-nowrap shrink-0 text-xs lg:text-sm font-semibold hover:text-gold sm:block focus-visible:outline-2 focus-visible:outline-ring rounded-sm px-1.5 lg:px-2 py-1"
+              onClick={user ? handleStart : handleSignup}
+              className="whitespace-nowrap shrink-0 rounded-sm border border-foreground/80 px-2.5 lg:px-3.5 py-1 lg:py-1.5 text-xs lg:text-sm font-semibold hover:bg-foreground hover:text-background inline-flex focus-visible:outline-2 focus-visible:outline-ring"
             >
-              Log in
+              {user ? "Open editor" : "Sign up"}
             </button>
-          )}
 
-          <button
-            type="button"
-            onClick={user ? handleStart : handleSignup}
-            className="hidden whitespace-nowrap shrink-0 rounded-sm border border-foreground/80 px-2.5 lg:px-3.5 py-1 lg:py-1.5 text-xs lg:text-sm font-semibold hover:bg-foreground hover:text-background sm:inline-flex focus-visible:outline-2 focus-visible:outline-ring"
-          >
-            {user ? "Open editor" : "Sign up"}
-          </button>
-
-          {user && onProjects && onSettings && onSignOut && (
-            <AccountMenu
-              user={user}
-              onLogin={handleLogin}
-              onProjects={onProjects}
-              onSettings={onSettings}
-              onSignOut={onSignOut}
-            />
-          )}
+            {user && onProjects && onSettings && onSignOut && (
+              <AccountMenu
+                user={user}
+                onLogin={handleLogin}
+                onProjects={onProjects}
+                onSettings={onSettings}
+                onSignOut={onSignOut}
+              />
+            )}
+          </div>
 
           {/* Mobile Menu Button */}
           <button
@@ -421,6 +464,44 @@ export function SiteHeader({
                             </Link>
                           );
                         })}
+
+                        {item.label === "Learn" && (
+                          <div className="pt-2 mt-1 border-t border-border/60 px-3 pb-1">
+                            <span className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider block mb-1.5">
+                              Guide Topics
+                            </span>
+                            <div className="grid grid-cols-2 gap-1.5 text-xs">
+                              <Link
+                                href="/guide#read"
+                                onClick={closeMobileMenu}
+                                className="rounded px-2 py-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              >
+                                Read Quran
+                              </Link>
+                              <Link
+                                href="/guide#listen"
+                                onClick={closeMobileMenu}
+                                className="rounded px-2 py-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              >
+                                Listen Guide
+                              </Link>
+                              <Link
+                                href="/guide#editor"
+                                onClick={closeMobileMenu}
+                                className="rounded px-2 py-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              >
+                                Caption Editor
+                              </Link>
+                              <Link
+                                href="/guide#troubleshooting"
+                                onClick={closeMobileMenu}
+                                className="rounded px-2 py-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              >
+                                Troubleshooting
+                              </Link>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -465,11 +546,17 @@ export function SiteHeader({
               <Link
                 href="/donate"
                 onClick={closeMobileMenu}
-                className="rounded-sm px-3 py-3 text-sm font-medium hover:bg-muted text-foreground flex items-center justify-between"
+                className="my-1 rounded-sm bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 flex items-center justify-between"
               >
                 <span>Donate</span>
+                <span className="text-xs font-normal opacity-90">Support Ayah Studio →</span>
               </Link>
             )}
+
+            <div className="border-t border-border/50 py-2 space-y-1">
+              <ToursMenu buttonVariant="button" label="Interactive Tours" className="w-full" onSelectTour={closeMobileMenu} />
+              <InstallAppButton variant="menu-item" />
+            </div>
 
             {/* Auth Buttons in Mobile Menu */}
             {!user ? (
@@ -496,16 +583,65 @@ export function SiteHeader({
                 </button>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  closeMobileMenu();
-                  handleStart();
-                }}
-                className="mt-2 rounded-sm bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 text-center"
-              >
-                Open editor
-              </button>
+              <div className="mt-2 flex flex-col gap-2 border-t border-border pt-3">
+                <div className="flex items-center gap-2.5 px-1 py-1">
+                  <div className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                    {(user.name || user.email).trim().charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-semibold truncate text-xs text-foreground">{user.name || user.email}</span>
+                    {user.plan === "pro" && (
+                      <span className="text-[10px] text-primary font-bold uppercase">Pro account</span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeMobileMenu();
+                    handleStart();
+                  }}
+                  className="rounded-sm bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 text-center"
+                >
+                  Open editor
+                </button>
+                {onProjects && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMobileMenu();
+                      onProjects();
+                    }}
+                    className="flex items-center gap-2 rounded-sm border border-border px-3 py-2 text-xs font-medium hover:bg-muted text-foreground"
+                  >
+                    <FolderOpen size={14} className="text-muted-foreground" /> My projects
+                  </button>
+                )}
+                {onSettings && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMobileMenu();
+                      onSettings();
+                    }}
+                    className="flex items-center gap-2 rounded-sm border border-border px-3 py-2 text-xs font-medium hover:bg-muted text-foreground"
+                  >
+                    <Settings size={14} className="text-muted-foreground" /> Settings and billing
+                  </button>
+                )}
+                {onSignOut && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMobileMenu();
+                      onSignOut();
+                    }}
+                    className="flex items-center gap-2 rounded-sm border border-border px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/10"
+                  >
+                    <LogOut size={14} /> Sign out
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </nav>

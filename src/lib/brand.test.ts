@@ -18,17 +18,17 @@ describe("Brand constants", () => {
 
 describe("Old brand name scan in src/", () => {
   // Allow-list for internal / preserved items as specified in Step 3:
-  // - The contact email address: qurancaptionstudio@gmail.com
+  // - The contact email address: aayahstudiomail@gmail.com
   // - Internal User-Agent header: QuranCaptionStudio/1.0 in server.ts
   // - Test files that specifically test old string rejection
   const ALLOW_LIST: Record<string, string[]> = {
     // server.ts uses QuranCaptionStudio/1.0 as internal User-Agent header
     "server.ts": ["QuranCaptionStudio/1.0"],
-    // contact email address is preserved as qurancaptionstudio@gmail.com
-    "site.ts": ["qurancaptionstudio@gmail.com"],
-    "Landing.tsx": ["qurancaptionstudio@gmail.com"],
-    "LegalPage.tsx": ["qurancaptionstudio@gmail.com"],
-    "brand.test.ts": ["Quran Caption Studio", "QuranCaptionStudio", "qurancaptionstudio@gmail.com"],
+    // contact email address is preserved as aayahstudiomail@gmail.com
+    "site.ts": ["aayahstudiomail@gmail.com"],
+    "Landing.tsx": ["aayahstudiomail@gmail.com"],
+    "LegalPage.tsx": ["aayahstudiomail@gmail.com"],
+    "brand.test.ts": ["Quran Caption Studio", "QuranCaptionStudio", "aayahstudiomail@gmail.com"],
   };
 
   function scanFolder(dir: string, violations: { file: string; line: number; text: string }[]) {

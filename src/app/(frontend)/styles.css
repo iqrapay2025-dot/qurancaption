@@ -1,5 +1,45 @@
 @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Amiri+Quran&family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import 'driver.js/dist/driver.css';
 @import 'tailwindcss';
+
+/* Local Arabic Fonts for PWA and Offline Support */
+@font-face {
+  font-family: 'Amiri Quran';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Amiri Quran'),
+       url('/fonts/AmiriQuran-Regular.woff2') format('woff2'),
+       url('/fonts/Amiri-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Amiri'),
+       local('Amiri-Regular'),
+       url('/fonts/Amiri-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Scheherazade New'),
+       url('/fonts/ScheherazadeNew-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Scheherazade New SemiBold'),
+       url('/fonts/ScheherazadeNew-SemiBold.woff2') format('woff2');
+}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -183,5 +223,195 @@ html[data-splash="seen"] .ql-loader { display: none; }
     animation: none;
     transform: none;
     opacity: 1;
+  }
+}
+
+/* ── Interactive Guided Tour (Driver.js) Theme Styling ── */
+.driver-overlay {
+  z-index: 100000 !important;
+}
+
+.driver-popover.ayah-tour-popover,
+.driver-popover {
+  z-index: 100002 !important;
+  background-color: var(--card) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.625rem !important;
+  box-shadow: 0 16px 32px -4px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  padding: 1rem 1.125rem !important;
+  min-width: 270px !important;
+  max-width: 360px !important;
+  font-family: var(--font-sans) !important;
+}
+
+@media (max-width: 480px) {
+  .driver-popover.ayah-tour-popover,
+  .driver-popover {
+    max-width: calc(100vw - 32px) !important;
+    min-width: 260px !important;
+  }
+}
+
+/* Centered popover step (no arrow, centered on mobile) */
+.ayah-tour-popover-centered .driver-popover-arrow,
+.driver-popover.ayah-tour-popover-centered .driver-popover-arrow {
+  display: none !important;
+}
+
+@media (max-width: 640px) {
+  .driver-popover.ayah-tour-popover-centered {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 360px !important;
+  }
+}
+
+.driver-popover-title {
+  font-size: 0.9375rem !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  color: var(--foreground) !important;
+  padding-right: 1.5rem !important;
+}
+
+.driver-popover-description {
+  font-size: 0.8125rem !important;
+  line-height: 1.55 !important;
+  color: var(--muted-foreground) !important;
+  margin-top: 0.45rem !important;
+}
+
+.driver-popover-progress-text {
+  font-size: 0.6875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--gold-text) !important;
+}
+
+.driver-popover-close-btn {
+  color: var(--muted-foreground) !important;
+  top: 0.65rem !important;
+  right: 0.65rem !important;
+  width: 26px !important;
+  height: 26px !important;
+  font-size: 1.125rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 4px !important;
+}
+
+.driver-popover-close-btn:hover {
+  color: var(--foreground) !important;
+  background-color: var(--muted) !important;
+}
+
+.driver-popover-footer {
+  margin-top: 0.875rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.5rem !important;
+}
+
+.driver-popover-footer-btn {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  padding: 0.35rem 0.75rem !important;
+  border-radius: 0.25rem !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.driver-popover-next-btn {
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border: 1px solid transparent !important;
+}
+
+.driver-popover-next-btn:hover {
+  filter: brightness(0.94) !important;
+}
+
+.driver-popover-prev-btn {
+  background: transparent !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.driver-popover-prev-btn:hover {
+  background-color: var(--muted) !important;
+}
+
+.driver-popover-skip-btn {
+  background: transparent !important;
+  color: var(--muted-foreground) !important;
+  border: none !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
+  margin-right: auto !important;
+}
+
+.driver-popover-skip-btn:hover {
+  color: var(--foreground) !important;
+  background-color: var(--muted) !important;
+}
+
+.driver-popover-arrow-side-top {
+  border-bottom-color: var(--card) !important;
+}
+
+.driver-popover-arrow-side-bottom {
+  border-top-color: var(--card) !important;
+}
+
+.driver-popover-arrow-side-left {
+  border-right-color: var(--card) !important;
+}
+
+.driver-popover-arrow-side-right {
+  border-left-color: var(--card) !important;
+}
+
+.driver-pro-badge {
+  display: inline-block;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.1rem 0.35rem;
+  border-radius: 9999px;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+  margin-right: 0.35rem;
+}
+
+.driver-step-link-wrap {
+  margin-top: 0.5rem;
+}
+
+.driver-step-link {
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.driver-step-link:hover {
+  filter: brightness(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .driver-popover,
+  .driver-overlay,
+  .driver-stage {
+    transition: none !important;
+    animation: none !important;
   }
 }

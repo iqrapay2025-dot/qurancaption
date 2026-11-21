@@ -82,6 +82,7 @@ export const metadata: Metadata = {
 
 import { GlobalAudioProvider } from "@/components/audio/GlobalAudioProvider";
 import { MiniPlayer } from "@/components/audio/MiniPlayer";
+import { TourProvider } from "@/components/tour/TourProvider";
 
 export default function RootLayout({
   children,
@@ -108,6 +109,8 @@ export default function RootLayout({
         <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0c1329" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="manifest" href="/site.webmanifest" />
         <script
           dangerouslySetInnerHTML={{
@@ -124,10 +127,12 @@ export default function RootLayout({
           </a>
         )}
         <GlobalAudioProvider>
-          <div id="root" tabIndex={-1}>
-            {children}
-          </div>
-          <MiniPlayer />
+          <TourProvider>
+            <div id="root" tabIndex={-1}>
+              {children}
+            </div>
+            <MiniPlayer />
+          </TourProvider>
         </GlobalAudioProvider>
         <BackToTop />
         {googleAnalyticsId && (

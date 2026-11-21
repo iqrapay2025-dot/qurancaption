@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import {
   X,
   Play,
+  Pause,
   Square,
   Repeat,
   AlertCircle,
@@ -11,9 +12,13 @@ import {
   EyeOff,
   SkipForward,
   RotateCcw,
+  ChevronDown,
+  SlidersHorizontal,
+  BookOpen,
 } from "lucide-react";
-import type { Chapter } from "@/lib/quran/server";
+import type { Chapter, ApiVerse } from "@/lib/quran/server";
 import type { AyahFile, SurahAudio } from "@/lib/quran/types";
+import { DEFAULT_TR1 } from "@/lib/quran/types";
 import {
   type PracticeConfig,
   type PracticeState,
@@ -40,6 +45,7 @@ const STORAGE_KEYS = {
 type Props = {
   isOpen: boolean;
   onClose: () => void;
+  onOpen?: () => void;
   chapter: Chapter;
   selectedAyah: number;
   onActiveAyahChange: (ayah: number | null) => void;
@@ -48,11 +54,14 @@ type Props = {
   reciterName?: string;
   reciterId?: number;
   onStopOtherAudio?: () => void;
+  verses?: ApiVerse[];
+  onOpenTafsir?: (ayah: number) => void;
 };
 
 export function PracticeDrawer({
   isOpen,
   onClose,
+  onOpen,
   chapter,
   selectedAyah,
   onActiveAyahChange,
@@ -61,6 +70,8 @@ export function PracticeDrawer({
   reciterName = "Mishary Rashid Alafasy",
   reciterId = 1,
   onStopOtherAudio,
+  verses = [],
+  onOpenTafsir,
 }: Props) {
   // Load saved preferences
   const [config, setConfig] = useState<PracticeConfig>(() => {
@@ -286,14 +297,28 @@ export function PracticeDrawer({
       const audio = audioRef.current;
       if (!audio) return;
 
-      audio.src = file.audioUrl;
+      if (audio.src !== file.audioUrl) {
+        audio.src = file.audioUrl;
+      }
+      try {
+        audio.currentTime = 0;
+      } catch {}
       audio.playbackRate = currentConfig.speed;
 
       try {
+        notifyAudioPlaybackStarted("practice");
         await audio.play();
         setIsPaused(false);
-      } catch (err) {
-        setErrorMsg("Audio playback error");
+      } catch (err: any) {
+        if (err?.name === "AbortError") return;
+        // Immediate buffer recovery retry on rapid repeat
+        try {
+          audio.currentTime = 0;
+          await audio.play();
+          setIsPaused(false);
+        } catch {
+          setErrorMsg("Audio playback error");
+        }
       }
     },
     [chapter.id, chapter.nameSimple, reciterName, ensureFiles, onActiveAyahChange, scrollToAyah, preloadAyah, stopPractice]
@@ -327,7 +352,10 @@ export function PracticeDrawer({
         advance();
       }, pauseMs);
     } else {
-      advance();
+      // 50ms buffer to allow HTML5 audio element to exit ended state cleanly
+      setTimeout(() => {
+        advance();
+      }, 50);
     }
   }, [practiceState, isRunning, config, playStep, stopPractice]);
 
@@ -388,7 +416,124 @@ export function PracticeDrawer({
     }
   };
 
-  if (!isOpen) return null;
+  const togglePause = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (isPaused) {
+      notifyAudioPlaybackStarted("practice");
+      audio.play().then(() => setIsPaused(false)).catch(() => {});
+    } else {
+      audio.pause();
+      setIsPaused(true);
+    }
+  };
+
+  const currentVerse = verses.find((v) => v.n === practiceState?.currentAyah);
+  const currentTranslation =
+    currentVerse?.translations[DEFAULT_TR1] ||
+    (currentVerse?.translations ? Object.values(currentVerse.translations)[0] : "");
+
+  if (!isOpen && !isRunning) return null;
+
+  // Minimized Mode: Render the Floating Memorize Bar docked at the bottom so user can read Quran & Tafsir
+  if (!isOpen && isRunning && practiceState) {
+    return (
+      <>
+        {/* Hidden single audio element keeps playing in background */}
+        <audio
+          ref={audioRef}
+          preload="none"
+          onPlay={() => notifyAudioPlaybackStarted("practice")}
+          onEnded={handleAudioEnded}
+          onLoadedMetadata={handleLoadedMetadata}
+          onError={handleAudioError}
+        />
+
+        {/* Floating Sticky Memorize Bar */}
+        <aside
+          aria-label="Active Memorization Revision"
+          className="fixed bottom-0 inset-x-0 z-30 border-t border-primary/40 bg-card/95 backdrop-blur-md px-3 py-2.5 sm:px-6 sm:py-3 shadow-2xl animate-in slide-in-from-bottom-2"
+        >
+          <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 sm:gap-4">
+            {/* Left: Ayah info & progress */}
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <span className="font-mono text-xs sm:text-sm font-bold rounded bg-primary text-primary-foreground px-2 py-0.5 shrink-0">
+                {chapter.id}:{practiceState.currentAyah}
+              </span>
+              <div className="min-w-0">
+                <div className="text-xs sm:text-sm font-semibold text-foreground truncate flex items-center gap-1.5">
+                  <span>{chapter.nameSimple}</span>
+                  <span className="text-[11px] font-normal text-muted-foreground">
+                    (Ayah {practiceState.currentAyah - config.fromAyah + 1} of {config.toAyah - config.fromAyah + 1})
+                  </span>
+                </div>
+                <div className="text-[11px] text-muted-foreground truncate flex items-center gap-1">
+                  <span>
+                    Repeat {practiceState.repeatCount} of {config.repeatEach === "infinite" ? "∞" : config.repeatEach}
+                  </span>
+                  {config.repeatRange !== 1 && (
+                    <span>· Round {practiceState.roundCount}</span>
+                  )}
+                  {isWaitingPause && (
+                    <span className="text-primary font-medium ml-1 animate-pulse">
+                      · Recite back now...
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Controls */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={togglePause}
+                title={isPaused ? "Resume" : "Pause"}
+                aria-label={isPaused ? "Resume practice" : "Pause practice"}
+                className="flex size-8 sm:size-9 items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-xs"
+              >
+                {isPaused ? <Play size={15} className="translate-x-0.5 fill-current" /> : <Pause size={15} className="fill-current" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={skipCurrent}
+                title="Skip to next"
+                aria-label="Skip to next repeat or ayah"
+                className="rounded-full p-1.5 text-foreground hover:bg-muted transition-colors"
+              >
+                <SkipForward size={16} />
+              </button>
+
+              {onOpen && (
+                <button
+                  type="button"
+                  onClick={onOpen}
+                  title="Expand memorize settings"
+                  aria-label="Expand memorize panel"
+                  className="inline-flex items-center gap-1 rounded-sm border border-border bg-card px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+                >
+                  <SlidersHorizontal size={13} />
+                  <span className="hidden sm:inline">Settings</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={stopPractice}
+                title="Stop practice"
+                aria-label="Stop practice session"
+                className="inline-flex items-center gap-1 rounded-sm bg-destructive/10 border border-destructive/30 px-2.5 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/20 transition-colors"
+              >
+                <Square size={13} className="fill-current" />
+                <span className="hidden sm:inline">Stop</span>
+              </button>
+            </div>
+          </div>
+        </aside>
+      </>
+    );
+  }
 
   const isRange = config.toAyah > config.fromAyah;
   const repeatPills = [1, 3, 5, 10, 20, 50, "infinite"];
@@ -406,7 +551,7 @@ export function PracticeDrawer({
         onError={handleAudioError}
       />
 
-      {/* Backdrop */}
+      {/* Backdrop: Clicking minimizes panel if running, closes if idle */}
       <div
         className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity"
         onClick={onClose}
@@ -433,14 +578,28 @@ export function PracticeDrawer({
               </span>
             )}
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close practice panel"
-            className="grid size-8 place-items-center rounded-sm text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
-          >
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-1">
+            {isRunning && (
+              <button
+                type="button"
+                onClick={onClose}
+                title="Minimize panel to read Quran & Tafsir"
+                aria-label="Minimize panel to read Quran & Tafsir"
+                className="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted"
+              >
+                <ChevronDown size={14} />
+                <span>Minimize</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close practice panel"
+              className="grid size-8 place-items-center rounded-sm text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Live Running Status Banner */}
@@ -463,6 +622,42 @@ export function PracticeDrawer({
                 Recite back now (pause between repeats)...
               </div>
             )}
+
+            {/* Current Ayah Text & Translation Preview */}
+            {currentVerse && (
+              <div className="mt-3 rounded-lg border border-border/80 bg-background/70 p-3 text-left">
+                <p
+                  dir="rtl"
+                  lang="ar"
+                  className="font-quran text-lg leading-loose text-foreground select-none"
+                >
+                  {currentVerse.arabic}
+                </p>
+                {currentTranslation && (
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+                    {currentTranslation}
+                  </p>
+                )}
+                {onOpenTafsir && (
+                  <button
+                    type="button"
+                    onClick={() => onOpenTafsir(practiceState.currentAyah)}
+                    className="mt-2 inline-flex items-center gap-1 text-[11px] text-primary hover:underline font-semibold"
+                  >
+                    <BookOpen size={12} /> Open Tafsir commentary
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Minimize button to view main Quran reader */}
+            <button
+              type="button"
+              onClick={onClose}
+              className="mt-3 inline-flex items-center justify-center gap-1.5 w-full rounded-sm border border-primary/30 bg-primary/10 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
+            >
+              <Eye size={13} /> View in Quran (Minimize panel)
+            </button>
           </div>
         )}
 

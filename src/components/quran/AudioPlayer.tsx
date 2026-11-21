@@ -395,6 +395,7 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
 
       {/* Sticky Player Bar */}
       <aside
+        data-tour="quran-audio-player"
         aria-label="Quran audio player"
         className="fixed bottom-0 inset-x-0 z-20 border-t border-border bg-card/95 backdrop-blur-md px-3 py-2.5 sm:px-6 sm:py-3 shadow-lg"
       >

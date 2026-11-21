@@ -1,0 +1,66 @@
+import type { TourDefinition } from "../types";
+
+export const quranReaderTour: TourDefinition = {
+  id: "quran-reader",
+  name: "Quran Reader Tour",
+  description: "Learn how to read, search, listen ayah-by-ayah, study tafsir, and memorize verses.",
+  route: "/quran",
+  steps: [
+    {
+      id: "quran-search-list",
+      target: '[data-tour="surah-nav-header"], [data-tour="surah-search"]',
+      title: "Surah & Navigation",
+      body: "Easily navigate between surahs, view chapter metadata, or search across the entire Quran.",
+      side: "bottom",
+      align: "start",
+    },
+    {
+      id: "quran-ayah-actions",
+      target: '[data-tour="ayah-actions"]',
+      title: "Ayah Controls",
+      body: "Each verse has direct controls: play recitation from here, practice memorization, open scholarly tafsir, and copy direct links.",
+      side: "top",
+      align: "end",
+    },
+    {
+      id: "quran-practice",
+      target: '[data-tour="ayah-practice"]',
+      title: "Practice & Memorize (Muraja'a)",
+      body: "Repeat single verses or ranges with custom pauses and optional word-masking, while keeping the full Quran text visible.",
+      side: "bottom",
+      align: "center",
+    },
+    {
+      id: "quran-tafsir",
+      target: '[data-tour="ayah-tafsir"]',
+      title: "Tafsir & Commentary",
+      body: "Open authentic tafsir commentary side-by-side without losing your place in the surah.",
+      side: "bottom",
+      align: "center",
+    },
+    {
+      id: "quran-bookmark",
+      target: '[data-tour="ayah-bookmark"], [data-tour="nav-bookmarks"]',
+      title: "Bookmark Ayahs",
+      body: "Save any verse to your personal bookmarks with custom reflection notes for easy revision.",
+      side: "bottom",
+      align: "end",
+    },
+    {
+      id: "quran-player",
+      target: '[data-tour="quran-audio-player"]',
+      title: "Audio Player & Reciter",
+      body: "Listen ayah-by-ayah with smooth auto-scroll. Switch between world-class reciters anytime.",
+      side: "top",
+      align: "center",
+    },
+    {
+      id: "quran-settings",
+      target: '[data-tour="reader-settings-btn"]',
+      title: "Display & Tajweed Settings",
+      body: "Customize your Arabic script font, text sizes, translations, and colored Tajweed rules.",
+      side: "bottom",
+      align: "end",
+    },
+  ],
+};

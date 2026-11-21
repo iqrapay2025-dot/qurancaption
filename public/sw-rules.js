@@ -32,10 +32,16 @@ function shouldCache(request) {
   // NEVER cache audio files
   if (/\.(mp3|m4a|wav|ogg|aac)(\?.*)?$/i.test(pathname) || pathname.includes("/audio")) return false;
 
-  // Cache static assets: /_next/static, /brand, /icon-*, font files, apple-touch-icon
+  // Cache Google Fonts stylesheets and font assets
+  if (url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com") {
+    return true;
+  }
+
+  // Cache static assets: /_next/static, /brand, /fonts, /icon-*, font files, apple-touch-icon
   if (
     pathname.startsWith("/_next/static/") ||
     pathname.startsWith("/brand/") ||
+    pathname.startsWith("/fonts/") ||
     pathname.startsWith("/icon-") ||
     pathname === "/apple-touch-icon.png" ||
     /\.(woff|woff2|ttf|otf|png|jpg|jpeg|svg|ico)$/i.test(pathname)

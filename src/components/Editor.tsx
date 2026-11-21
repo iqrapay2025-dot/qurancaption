@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, Check, Plus, X, ChevronDown, CircleHelp, Cloud, Loader2, Pause, Play, SkipBack, SkipForward, Upload } from "lucide-react";
+import { AlertCircle, Check, Plus, X, ChevronDown, CircleHelp, Cloud, Eye, List, Loader2, Pause, Play, SkipBack, SkipForward, Sliders, Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { fmt, toArabicDigits, type Verse } from "../data";
 import { DEFAULT_TR1, DEFAULT_TR2, TRANSLITERATION_ID, type ApiErr, DEFAULT_RECITER, type ApiVerse, type SurahAudio, type Chapter, type Reciter, type TranslationRes } from "../lib/quran/types";
@@ -22,6 +22,7 @@ import { Logo, ThemeToggle } from "./shared";
 import BadgeLoader from "./BadgeLoader";
 import { GuideContent } from "./GuideContent";
 import { GUIDE_HINT_DISMISSED_KEY, shouldShowGuideHint } from "../lib/guideHint";
+import { useTour } from "./tour/TourProvider";
 
 type Ratio = "9:16" | "16:9" | "1:1";
 const RATIOS: Record<Ratio, { css: string; max: string; base: number; label: string }> = {
@@ -32,10 +33,10 @@ const RATIOS: Record<Ratio, { css: string; max: string; base: number; label: str
 const FONTS = { quran: "Amiri Quran", scheherazade: "Scheherazade New", amiri: "Amiri" } as const;
 const COLORS = ["#ffffff", "#f4ead0", "#e6c27a", "#8be0ad"];
 
-function Section({ title, children, defaultOpen = false }: { title: string; children: ReactNode; defaultOpen?: boolean }) {
+function Section({ title, children, defaultOpen = false, dataTour }: { title: string; children: ReactNode; defaultOpen?: boolean; dataTour?: string }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <section className="border-b border-border">
+    <section data-tour={dataTour} className="border-b border-border">
       <button onClick={() => setOpen(!open)} aria-expanded={open} className="flex w-full items-center justify-between px-5 py-4 text-left font-medium hover:bg-muted/60">
         {title}
         <ChevronDown size={16} className={`text-muted-foreground transition ${open ? "rotate-180" : ""}`} />
@@ -216,6 +217,7 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
   const [ratio, setRatio] = useState<Ratio>("9:16");
   const [ranges, setRanges] = useState<RangeSnap[]>([]);
   const [active, setActive] = useState(0);
+  const { startTour } = useTour();
 
   const chaptersQ = useApi<{ environment: string; chapters: Chapter[] }>("/api/quran/chapters");
   const translationsQ = useApi<{ translations: TranslationRes[] }>("/api/quran/translations");
@@ -786,30 +788,47 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
           )}
         </div>
       )}
-      <header className="flex items-center gap-3 border-b border-border bg-card px-4 py-2.5">
+      <header className="flex items-center justify-between gap-2 border-b border-border bg-card px-2.5 sm:px-4 py-2 sm:py-2.5">
         <Logo onClick={onHome} compact />
-        <input aria-label="Project name" value={project} onChange={(e) => setProject(e.target.value)} className="mx-auto hidden min-w-0 max-w-xs flex-1 rounded-sm border border-transparent bg-transparent px-3 py-1.5 text-center text-sm hover:border-border focus:border-border md:block" />
-        <div className="ml-auto flex items-center gap-2 md:ml-0">
-          <SaveIndicator status={status} savedAt={savedAt} onRetry={save} onSignup={() => requestAuth({ mode: "signup", reason: "Create a free account and your work is saved automatically." })} />
+        <input
+          data-tour="editor-project-name"
+          aria-label="Project name"
+          value={project}
+          onChange={(e) => setProject(e.target.value)}
+          className="mx-auto hidden min-w-0 max-w-xs flex-1 rounded-sm border border-transparent bg-transparent px-3 py-1.5 text-center text-sm hover:border-border focus:border-border md:block"
+        />
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <div data-tour="editor-save-indicator">
+            <SaveIndicator status={status} savedAt={savedAt} onRetry={save} onSignup={() => requestAuth({ mode: "signup", reason: "Create a free account and your work is saved automatically." })} />
+          </div>
           <ThemeToggle dark={dark} toggle={toggleTheme} />
           <button
             type="button"
+            data-tour="editor-help-button"
             onClick={() => setHelpOpen(true)}
             aria-label="Open help guide"
-            className="grid size-9 place-items-center rounded-sm border border-border text-sm font-medium hover:bg-muted"
+            className="grid size-8 sm:size-9 place-items-center rounded-sm border border-border text-sm font-medium hover:bg-muted"
           >
-            <CircleHelp size={18} aria-hidden="true" />
+            <CircleHelp size={17} aria-hidden="true" />
           </button>
-          <button onClick={tryExport} disabled={!exportTimingsReady} title={exportTimingsReady ? undefined : "Export is available once verse audio measurements have finished"} className="flex items-center disabled:opacity-50 gap-2 rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
-            <Upload size={15} /> Export
+          <button
+            data-tour="editor-export-button"
+            onClick={tryExport}
+            disabled={!exportTimingsReady}
+            title={exportTimingsReady ? undefined : "Export is available once verse audio measurements have finished"}
+            className="flex items-center disabled:opacity-50 gap-1.5 rounded-sm bg-primary px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-primary-foreground hover:opacity-90 min-h-[34px] sm:min-h-0"
+          >
+            <Upload size={14} /> <span>Export</span>
           </button>
-          <AccountMenu user={user} onLogin={() => requestAuth({ mode: "login" })} onProjects={onProjects} onSettings={onSettings} onSignOut={onSignOut} />
+          <div data-tour="editor-account-menu">
+            <AccountMenu user={user} onLogin={() => requestAuth({ mode: "login" })} onProjects={onProjects} onSettings={onSettings} onSignOut={onSignOut} />
+          </div>
         </div>
       </header>
 
       <div className="grid min-h-0 flex-1 lg:grid-cols-[380px_1fr]">
         <aside className={`${show("controls")} min-h-0 overflow-y-auto border-border bg-card lg:border-r`}>
-          <Section title="Verses" defaultOpen>
+          <Section title="Verses" defaultOpen dataTour="editor-verses-section">
             <div>
               <p className={labelCls}>Ranges{multi ? ` (${allRanges.length})` : ""}</p>
               <ul className="flex flex-wrap gap-2">
@@ -896,7 +915,7 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
             )}
           </Section>
 
-          <Section title="Layers">
+          <Section title="Layers" dataTour="editor-layers-section">
             {([
               ["Arabic text", layers.arabic, () => setLayers({ ...layers, arabic: true }), true],
               ["Translation 1", !!layers.tr1, (v: boolean) => setLayers({ ...layers, tr1: v ? DEFAULT_TR1 : null }), false],
@@ -931,7 +950,7 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
             {translationsQ.error && <Notice compact what="translations" err={translationsQ.error} retryIn={translationsQ.retryIn} onRetry={translationsQ.retry} />}
           </Section>
 
-          <Section title="Recitation">
+          <Section title="Recitation" dataTour="editor-recitation-section">
             <div className="rounded-sm border border-border bg-muted/50 p-3">
               <div className="flex items-center justify-between gap-3">
                 <div>
@@ -980,7 +999,7 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
             </div>
           </Section>
 
-          <Section title="Style">
+          <Section title="Style" dataTour="editor-style-section">
             <div className="rounded-sm border border-border bg-muted/50 p-3">
               <span className={labelCls}>Style presets</span>
               {!isPro ? (
@@ -1057,7 +1076,7 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
             <div><span className={labelCls}>Position</span><Seg value={style.pos} onChange={(v) => setStyle({ ...style, pos: v })} options={[{ v: "top", l: "Top" }, { v: "middle", l: "Middle" }, { v: "bottom", l: "Bottom" }]} /></div>
           </Section>
 
-          <Section title="Canvas size" defaultOpen>
+          <Section title="Canvas size" defaultOpen dataTour="editor-canvas-section">
             <div>
               <span className={labelCls}>Platform preset</span>
               <div className="grid grid-cols-2 gap-2">
@@ -1095,12 +1114,22 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
                       type="button"
                       onClick={() => {
                         dismissGuideHint();
-                        setHelpOpen(true);
+                        startTour("editor");
                       }}
                       className="font-semibold text-primary underline underline-offset-2"
                     >
-                      Take a 1-minute guide
-                    </button>
+                      Take an interactive guided tour
+                    </button>{" "}
+                    or read the{" "}
+                    <a
+                      href="/guide#editor"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-semibold text-primary underline underline-offset-2 hover:text-gold"
+                    >
+                      editor guide
+                    </a>
+                    .
                   </p>
                   <button
                     type="button"
@@ -1113,6 +1142,7 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
                 </div>
               )}
               <div
+                data-tour="editor-preview-canvas"
                 className={`relative w-full overflow-hidden rounded-sm border border-border shadow-lg ${style.bg === "solid" ? "" : "checker"}`}
                 style={{ aspectRatio: R.css, maxWidth: R.max, containerType: "inline-size", background: style.bg === "solid" ? style.solid : undefined, maxHeight: "62vh" }}
               >
@@ -1187,17 +1217,76 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
           </div>
 
           <div className={`${show("verses")} border-t border-border bg-card`}>
-            <div className="flex items-center justify-between px-5 py-3">
-              <h2 className="font-medium">Verses &amp; timing</h2>
+            {/* Mobile Playback Bar when on Verses tab */}
+            <div className="flex lg:hidden items-center justify-between gap-3 border-b border-border bg-muted/60 px-4 py-2.5">
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => jump(Math.max(0, idx - 1))}
+                  disabled={idx <= 0}
+                  aria-label="Previous ayah"
+                  className="grid size-9 place-items-center rounded-full hover:bg-secondary disabled:opacity-40"
+                >
+                  <SkipBack size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={togglePlay}
+                  aria-label={playing ? "Pause" : "Play"}
+                  className="grid size-10 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm hover:opacity-90"
+                >
+                  {playing ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => jump(Math.min(verses.length - 1, idx + 1))}
+                  disabled={idx >= verses.length - 1}
+                  aria-label="Next ayah"
+                  className="grid size-9 place-items-center rounded-full hover:bg-secondary disabled:opacity-40"
+                >
+                  <SkipForward size={16} />
+                </button>
+              </div>
+              <div className="flex flex-col items-end">
+                <span className="font-mono text-xs font-bold text-gold">
+                  {cur ? `Ayah ${cur.key}` : ""}
+                </span>
+                <span className="font-mono text-[11px] text-muted-foreground">
+                  {fmt(time, true)} / {fmt(total, true)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-4 sm:px-5 py-3">
+              <div className="flex items-center justify-between sm:justify-start gap-3">
+                <h2 className="font-semibold text-sm sm:text-base">Verses &amp; timing</h2>
+                <span className="text-[11px] sm:text-xs text-muted-foreground">
+                  {ready ? (manualKeys.size ? "Manual timing · click to jump" : "Measured timings · click to jump") : "Click a verse to preview"}
+                </span>
+              </div>
               {!ayahMode && !ownActive && ready && (
                 <div className="flex items-center gap-2">
-                  <button type="button" onClick={tapMark} disabled={!canTap} title="Space" className="rounded-sm bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50">
-                    {tapIdx >= verses.length ? "All verses marked" : `Tap to mark end of ${verses[tapIdx].key}`} <kbd className="ml-1 rounded-sm border border-primary-foreground/40 px-1 font-mono text-[10px]">Space</kbd>
+                  <button
+                    type="button"
+                    onClick={tapMark}
+                    disabled={!canTap}
+                    title="Space"
+                    className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-sm bg-primary px-3 py-2 sm:py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 min-h-[38px] sm:min-h-0"
+                  >
+                    {tapIdx >= verses.length ? "All verses marked" : `Tap to mark end of ${verses[tapIdx].key}`}
+                    <kbd className="hidden sm:inline-block ml-1 rounded-sm border border-primary-foreground/40 px-1 font-mono text-[10px]">Space</kbd>
                   </button>
-                  {tapIdx > 0 && <button type="button" onClick={() => setTapIdx(0)} className="text-xs font-semibold text-gold underline-offset-2 hover:underline">Restart marking</button>}
+                  {tapIdx > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setTapIdx(0)}
+                      className="text-xs font-semibold text-gold underline-offset-2 hover:underline min-h-[38px] px-2 flex items-center"
+                    >
+                      Restart
+                    </button>
+                  )}
                 </div>
               )}
-              <span className="text-xs text-muted-foreground">{ready ? (manualKeys.size ? "Manual timing · set each verse's length · click to jump" : "Timings from measured ayah files · click a verse to jump") : "Click a verse to preview it"}</span>
             </div>
             {ownActive && own && (
               <OwnTiming
@@ -1210,18 +1299,86 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
                 onUpgrade={() => requestUpgrade({ code: "auto_time_limit", message: "You've used your free auto-timing runs this month. Upgrade to Pro for up to 100 runs per month." })}
               />
             )}
-            <ul ref={listRef} className="relative max-h-80 overflow-y-auto">
+            <ul ref={listRef} className="relative overflow-y-auto max-h-[calc(100dvh-280px)] lg:max-h-80">
               {verses.map((v, i) => (
                 <li key={v.key} className="relative">
                   {i === idx && <span aria-hidden className="absolute inset-y-0 left-0 z-10 w-1 bg-accent" />}
-                  {ready && i === idx && <span aria-hidden className="absolute bottom-0 left-0 z-10 h-0.5 bg-accent" style={{ width: `${Math.min(100, ((time + t0 - v.start) / (v.end - v.start)) * 100)}%` }} />}
-                  <button onClick={() => jump(i)} aria-current={i === idx} className={`grid w-full grid-cols-[3.5rem_1fr_auto] items-center gap-3 border-t border-border px-5 py-3 text-left hover:bg-muted ${i === idx ? "bg-secondary" : ""}`}>
-                    <span className={`font-mono text-xs ${i === idx ? "font-bold text-gold" : "text-gold"}`}>{v.key}</span>
-                    <span translate="no" lang="ar" dir="rtl" className="font-quran text-lg leading-relaxed break-words">{v.arabic}</span>
-                    <span className={`font-mono text-xs text-muted-foreground ${manualKeys.has(v.key) ? "mr-20" : ""}`}>{ready ? `${fmt(v.start - t0, true)} → ${fmt(v.end - t0, true)}` : "–"}</span>
+                  {ready && i === idx && (
+                    <span
+                      aria-hidden
+                      className="absolute bottom-0 left-0 z-10 h-0.5 bg-accent"
+                      style={{ width: `${Math.min(100, ((time + t0 - v.start) / (v.end - v.start)) * 100)}%` }}
+                    />
+                  )}
+                  <button
+                    onClick={() => jump(i)}
+                    aria-current={i === idx}
+                    className={`w-full border-t border-border px-4 sm:px-5 py-3 text-left hover:bg-muted transition-colors ${
+                      i === idx ? "bg-secondary/70" : ""
+                    }`}
+                  >
+                    {/* Mobile layout: Ayah badge and timestamp on top, full-width Arabic text below */}
+                    <div className="flex sm:hidden items-center justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex items-center justify-center rounded px-2 py-0.5 font-mono text-xs font-semibold ${
+                          i === idx ? "bg-gold/20 text-gold font-bold" : "bg-muted text-gold"
+                        }`}>
+                          {v.key}
+                        </span>
+                        {i === idx && playing && (
+                          <span className="flex items-center gap-1 text-[11px] text-primary font-medium">
+                            <span className="size-1.5 rounded-full bg-primary animate-ping" />
+                            Playing
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs text-muted-foreground">
+                          {ready ? `${fmt(v.start - t0, true)} → ${fmt(v.end - t0, true)}` : "–"}
+                        </span>
+                        {manualKeys.has(v.key) && (
+                          <span className="text-[10px] text-gold uppercase tracking-wider font-semibold">
+                            Manual
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="sm:hidden">
+                      <p translate="no" lang="ar" dir="rtl" className="font-quran text-lg leading-loose text-foreground break-words text-right">
+                        {v.arabic}
+                      </p>
+                      {manualKeys.has(v.key) && (
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          className="mt-2 pt-2 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground"
+                        >
+                          <span>Duration in seconds:</span>
+                          <label className="flex items-center gap-1">
+                            <input
+                              type="number"
+                              min={0.5}
+                              max={600}
+                              step={0.5}
+                              value={manualDur[v.key] ?? Math.round((v.end - v.start) * 2) / 2}
+                              onChange={(e) => setManualDur((m) => ({ ...m, [v.key]: Math.max(0.5, Math.min(600, Number(e.target.value) || 5)) }))}
+                              className="w-16 rounded-sm border border-border bg-background px-2 py-1 text-right font-mono text-xs text-foreground min-h-[32px]"
+                            />
+                            <span>s</span>
+                          </label>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Desktop layout: 3-column grid */}
+                    <div className="hidden sm:grid sm:grid-cols-[3.5rem_1fr_auto] sm:items-center sm:gap-3">
+                      <span className={`font-mono text-xs ${i === idx ? "font-bold text-gold" : "text-gold"}`}>{v.key}</span>
+                      <span translate="no" lang="ar" dir="rtl" className="font-quran text-lg leading-relaxed break-words">{v.arabic}</span>
+                      <span className={`font-mono text-xs text-muted-foreground ${manualKeys.has(v.key) ? "mr-20" : ""}`}>{ready ? `${fmt(v.start - t0, true)} → ${fmt(v.end - t0, true)}` : "–"}</span>
+                    </div>
                   </button>
+                  {/* Desktop manual duration input */}
                   {manualKeys.has(v.key) && (
-                    <label className="absolute right-3 top-1/2 z-20 flex -translate-y-1/2 items-center gap-1 text-xs text-muted-foreground">
+                    <label className="hidden sm:flex absolute right-3 top-1/2 z-20 -translate-y-1/2 items-center gap-1 text-xs text-muted-foreground">
                       <span className="sr-only">Duration of ayah {v.key} in seconds</span>
                       <input type="number" min={0.5} max={600} step={0.5} value={manualDur[v.key] ?? Math.round((v.end - v.start) * 2) / 2} onChange={(e) => setManualDur((m) => ({ ...m, [v.key]: Math.max(0.5, Math.min(600, Number(e.target.value) || 5)) }))} className="w-14 rounded-sm border border-border bg-background px-1.5 py-1 text-right font-mono text-xs text-foreground" />s
                     </label>
@@ -1235,8 +1392,24 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
       <AttributionBar translations={sourcesFor(translations, [...new Set([layers.tr1, layers.tr2, layers.translit ? TRANSLITERATION_ID : null])])} reciter={ownActive ? null : reciter} />
 
       <nav className="grid grid-cols-3 border-t border-border bg-card lg:hidden" aria-label="Editor sections">
-        {([["preview", "Preview"], ["controls", "Controls"], ["verses", "Verses"]] as const).map(([k, l]) => (
-          <button key={k} onClick={() => setTab(k)} aria-current={tab === k} className={`py-3.5 text-sm font-medium ${tab === k ? "border-t-2 border-accent text-foreground" : "text-muted-foreground"}`}>{l}</button>
+        {([
+          ["preview", "Preview", Eye],
+          ["controls", "Controls", Sliders],
+          ["verses", "Verses", List],
+        ] as const).map(([k, l, Icon]) => (
+          <button
+            key={k}
+            onClick={() => setTab(k)}
+            aria-current={tab === k}
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-2.5 sm:py-3.5 min-h-[48px] text-xs sm:text-sm font-medium transition-colors ${
+              tab === k
+                ? "border-t-2 border-accent text-foreground font-semibold bg-muted/40"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Icon size={16} className={tab === k ? "text-gold" : "text-muted-foreground"} aria-hidden="true" />
+            <span>{l}</span>
+          </button>
         ))}
       </nav>
 
@@ -1259,18 +1432,39 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
                 Your 1-minute guide
               </h2>
               <p className="text-xs text-muted-foreground">
-                Your editor work stays as it is while this guide is open.
+                Your editor work stays as it is while this guide is open. For the full site guide, visit{" "}
+                <a
+                  href="/guide#editor"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline text-primary hover:text-gold transition-colors"
+                >
+                  Ayah Studio Guide
+                </a>
+                .
               </p>
             </div>
-            <button
-              type="button"
-              autoFocus
-              onClick={() => setHelpOpen(false)}
-              aria-label="Close help guide"
-              className="grid size-10 shrink-0 place-items-center rounded-sm border border-border hover:bg-muted"
-            >
-              <X size={18} aria-hidden="true" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setHelpOpen(false);
+                  startTour("editor");
+                }}
+                className="inline-flex items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+              >
+                Start interactive tour
+              </button>
+              <button
+                type="button"
+                autoFocus
+                onClick={() => setHelpOpen(false)}
+                aria-label="Close help guide"
+                className="grid size-9 shrink-0 place-items-center rounded-sm border border-border hover:bg-muted"
+              >
+                <X size={18} aria-hidden="true" />
+              </button>
+            </div>
           </header>
           <div className="overflow-y-auto px-4 py-5 sm:px-6">
             <GuideContent compact />

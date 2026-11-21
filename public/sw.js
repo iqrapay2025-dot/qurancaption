@@ -1,7 +1,7 @@
 // public/sw.js
 importScripts("/sw-rules.js");
 
-const CACHE_NAME = "ayah-studio-v1";
+const CACHE_NAME = "ayah-studio-v2";
 const PRECACHE_ASSETS = [
   "/offline",
   "/brand/ayah-badge-dark.png",
@@ -10,6 +10,10 @@ const PRECACHE_ASSETS = [
   "/icon-512.png",
   "/icon-512-maskable.png",
   "/apple-touch-icon.png",
+  "/fonts/AmiriQuran-Regular.woff2",
+  "/fonts/Amiri-Regular.ttf",
+  "/fonts/ScheherazadeNew-Regular.woff2",
+  "/fonts/ScheherazadeNew-SemiBold.woff2",
 ];
 
 self.addEventListener("install", (event) => {
@@ -73,7 +77,7 @@ self.addEventListener("fetch", (event) => {
     caches.match(req).then((cached) => {
       if (cached) return cached;
       return fetch(req).then((response) => {
-        if (!response || response.status !== 200 || response.type !== "basic") {
+        if (!response || response.status !== 200 || (response.type !== "basic" && response.type !== "cors")) {
           return response;
         }
         const cloned = response.clone();

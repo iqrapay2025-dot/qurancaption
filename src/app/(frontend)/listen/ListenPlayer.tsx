@@ -22,6 +22,7 @@ import {
 } from "@/lib/listen/player";
 import { useGlobalAudio } from "@/components/audio/GlobalAudioProvider";
 import BadgeLoader from "@/components/BadgeLoader";
+import { TourReplayButton } from "@/components/tour/TourReplayButton";
 
 export const STORAGE_KEYS = {
   reciter: "ayah-listen-reciter",
@@ -158,10 +159,13 @@ export function ListenPlayer() {
       {/* Header controls: Reciter picker & Search box */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full max-w-full">
         {/* Reciter picker */}
-        <div className="flex flex-col gap-1 sm:max-w-xs w-full">
-          <label htmlFor="reciter-select" className="text-xs font-medium text-muted-foreground">
-            Reciter
-          </label>
+        <div data-tour="listen-reciter-select" className="flex flex-col gap-1 sm:max-w-xs w-full">
+          <div className="flex items-center justify-between">
+            <label htmlFor="reciter-select" className="text-xs font-medium text-muted-foreground">
+              Reciter
+            </label>
+            <TourReplayButton tourId="listen" className="sm:hidden" />
+          </div>
           <select
             id="reciter-select"
             value={reciterId}
@@ -177,42 +181,47 @@ export function ListenPlayer() {
           </select>
         </div>
 
-        {/* Search box */}
-        <div className="flex flex-col gap-1 sm:max-w-sm w-full">
-          <label htmlFor="search-input" className="text-xs font-medium text-muted-foreground">
-            Search Surahs
-          </label>
-          <div className="relative w-full">
-            <Search
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-              aria-hidden="true"
-            />
-            <input
-              id="search-input"
-              ref={searchInputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by surah name, Arabic, meaning or number..."
-              className="w-full rounded-sm border border-border bg-card pl-9 pr-8 py-2 text-xs sm:text-sm placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-ring"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                aria-label="Clear search"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                <X size={14} />
-              </button>
-            )}
+        {/* Search box & Tour replay button on desktop */}
+        <div className="flex items-center gap-3 sm:max-w-md w-full">
+          <div className="flex flex-col gap-1 w-full">
+            <label htmlFor="search-input" className="text-xs font-medium text-muted-foreground">
+              Search Surahs
+            </label>
+            <div className="relative w-full">
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+                aria-hidden="true"
+              />
+              <input
+                id="search-input"
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by surah name, Arabic, meaning or number..."
+                className="w-full rounded-sm border border-border bg-card pl-9 pr-8 py-2 text-xs sm:text-sm placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-ring"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  aria-label="Clear search"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="hidden sm:flex flex-col justify-end pt-5 shrink-0">
+            <TourReplayButton tourId="listen" />
           </div>
         </div>
       </div>
 
       {/* Surah Rows List */}
-      <div className="grid gap-2 w-full max-w-full overflow-hidden">
+      <div data-tour="listen-surah-list" className="grid gap-2 w-full max-w-full overflow-hidden">
         {filteredChapters.map((chapter) => {
           const isCurrent = chapter.id === surah;
           const isRowActivePlaying = isCurrent && isPlaying;
@@ -316,6 +325,7 @@ export function ListenPlayer() {
 
       {/* Persistent Bottom Player Bar on /listen */}
       <div
+        data-tour="listen-player-bar"
         role="region"
         aria-label="Audio player"
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md shadow-2xl px-3 sm:px-4 py-2 sm:py-3 transition-transform pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
@@ -360,7 +370,7 @@ export function ListenPlayer() {
             </div>
           ) : (
             /* Center Controls & Seek Bar */
-            <div className="flex flex-1 flex-col items-center gap-1 min-w-0 w-full">
+            <div data-tour="listen-playback-controls" className="flex flex-1 flex-col items-center gap-1 min-w-0 w-full">
               {/* Control buttons: Prev, Play/Pause, Next */}
               <div className="flex items-center gap-4">
                 <button
@@ -413,7 +423,7 @@ export function ListenPlayer() {
           )}
 
           {/* Right side controls: Speed, Repeat, Sleep Timer, Volume */}
-          <div className="flex items-center justify-end gap-1.5 sm:gap-2 shrink-0 md:w-64">
+          <div data-tour="listen-extra-controls" className="flex items-center justify-end gap-1.5 sm:gap-2 shrink-0 md:w-64">
             {/* Speed button */}
             <button
               type="button"

@@ -50,15 +50,15 @@ export default function UpgradeDialog({ upgrade, signedIn, onClose, onPlans }: {
         <div className="mt-6 flex flex-col gap-2 sm:flex-row-reverse">
           {signedIn ? (
             <>
-              <button onClick={() => checkout("auto")} disabled={busy} className="flex-1 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60">
-                {busy ? "Redirecting…" : `Auto-renew monthly (card) · ₦${PRO_PRICE_NGN.toLocaleString()}/month`}
+              <button onClick={() => checkout("auto")} disabled={busy} className="flex-1 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60 min-h-[44px]">
+                {busy ? "Redirecting…" : `Auto-renew monthly (card) · ₦${Math.round(PRO_PRICE_NGN).toLocaleString()}/month`}
               </button>
-              <button onClick={() => checkout("manual")} disabled={busy} className="flex-1 rounded-sm border border-border px-4 py-2.5 text-sm font-medium hover:bg-secondary disabled:opacity-60">
+              <button onClick={() => checkout("manual")} disabled={busy} className="flex-1 rounded-sm border border-border px-4 py-2.5 text-sm font-medium hover:bg-secondary disabled:opacity-60 min-h-[44px]">
                 Pay monthly (card, bank transfer, USSD, QR)
               </button>
             </>
           ) : (
-            <button onClick={onPlans} className="flex-1 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">{signedIn ? `See Pro · ₦${PRO_PRICE_NGN.toLocaleString()}/month` : "See plans"}</button>
+            <button onClick={onPlans} className="flex-1 rounded-sm bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 min-h-[44px]">{signedIn ? `See Pro · ₦${Math.round(PRO_PRICE_NGN).toLocaleString()}/month` : "See plans"}</button>
           )}
           {error && <p role="alert" className="mt-3 rounded-sm border border-red-500/40 bg-red-500/10 p-2 text-sm text-red-700 dark:text-red-300">{error}</p>}
           <button onClick={onClose} className="flex-1 rounded-sm border border-border px-4 py-2.5 text-sm font-medium hover:bg-secondary">Not now</button>

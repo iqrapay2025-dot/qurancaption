@@ -13,7 +13,7 @@ export function SurahList({ chapters }: { chapters: Chapter[] }) {
   return (
     <div className="w-full">
       {/* Search Input */}
-      <div className="relative mb-8">
+      <div data-tour="surah-search" className="relative mb-8">
         <label htmlFor="surah-search" className="sr-only">
           Search surahs
         </label>

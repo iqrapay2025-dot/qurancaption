@@ -50,6 +50,13 @@ describe("Service Worker Cache Rules (Prompt 7)", () => {
     expect(shouldCache({ url: "https://ayahstudio.com/offline", method: "GET" })).toBe(true);
   });
 
+  it("caches Arabic font files and Google Fonts stylesheets and assets", () => {
+    expect(shouldCache({ url: "https://ayahstudio.com/fonts/AmiriQuran-Regular.woff2", method: "GET" })).toBe(true);
+    expect(shouldCache({ url: "https://ayahstudio.com/fonts/Amiri-Regular.ttf", method: "GET" })).toBe(true);
+    expect(shouldCache({ url: "https://fonts.googleapis.com/css2?family=Amiri+Quran", method: "GET" })).toBe(true);
+    expect(shouldCache({ url: "https://fonts.gstatic.com/s/amiriquran/v19/abc.woff2", method: "GET" })).toBe(true);
+  });
+
   it("page navigations are identified for offline fallback", () => {
     expect(isPageNavigation({ mode: "navigate", url: "https://ayahstudio.com/quran" })).toBe(true);
     expect(isPageNavigation({ mode: "navigate", url: "https://ayahstudio.com/listen" })).toBe(true);

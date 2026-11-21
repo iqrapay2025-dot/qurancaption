@@ -10,7 +10,7 @@ export const SITE = {
   tagline: BRAND_TAGLINE,
   description: BRAND_DESCRIPTION,
   url: siteUrl(),
-  email: "qurancaptionstudio@gmail.com",
+  email: "aayahstudiomail@gmail.com",
   updated: "11 November 2026",
   api: { name: "UmmahAPI", url: "https://ummahapi.com/api/docs" },
 };

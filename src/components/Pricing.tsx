@@ -80,48 +80,60 @@ export default function Pricing({ user, ready, dark, toggleTheme, onHome, onStar
         <h1 className="text-center font-display text-3xl font-bold sm:text-4xl">Free to begin, Pro when you grow</h1>
         <p className="mx-auto mt-3 max-w-xl text-center text-muted-foreground">Cancel any time. You keep Pro until the end of the period you've paid for.</p>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
-          <div className="flex flex-col rounded-md border border-border bg-card p-7">
-            <div className="flex items-baseline justify-between"><h2 className="text-xl font-bold">Free</h2><p><span className="text-4xl font-bold">$0</span><span className="text-sm text-muted-foreground"> /month</span></p></div>
-            <ul className="mt-6 flex-1 space-y-3">{FREE.map((i) => <li key={i} className="flex gap-3 text-sm text-muted-foreground"><Check size={18} className="mt-0.5 shrink-0 text-gold" />{i}</li>)}</ul>
-            <button onClick={onStart} className="mt-8 w-full rounded-sm border border-foreground/80 px-5 py-3 text-sm font-semibold hover:bg-foreground hover:text-background">{user && !isPro ? "Your current plan · Open editor" : "Start free"}</button>
+        <div className="mt-8 sm:mt-10 grid gap-6 md:grid-cols-2">
+          <div className="flex flex-col rounded-md border border-border bg-card p-5 sm:p-7">
+            <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-2">
+              <h2 className="text-lg sm:text-xl font-bold">Free</h2>
+              <p>
+                <span className="text-2xl sm:text-3xl lg:text-4xl font-bold">$0</span>
+                <span className="text-xs sm:text-sm text-muted-foreground"> /month</span>
+              </p>
+            </div>
+            <ul className="mt-5 sm:mt-6 flex-1 space-y-2.5 sm:space-y-3">{FREE.map((i) => <li key={i} className="flex gap-2.5 sm:gap-3 text-xs sm:text-sm text-muted-foreground"><Check size={18} className="mt-0.5 shrink-0 text-gold" />{i}</li>)}</ul>
+            <button onClick={onStart} className="mt-6 sm:mt-8 w-full min-h-[44px] rounded-sm border border-foreground/80 px-5 py-3 text-sm font-semibold hover:bg-foreground hover:text-background">{user && !isPro ? "Your current plan · Open editor" : "Start free"}</button>
           </div>
-          <div className="flex flex-col rounded-md border-2 border-accent bg-card p-7">
-            <div className="flex items-baseline justify-between"><h2 className="text-xl font-bold">Pro</h2><p><span className="text-4xl font-bold">{fw.display}</span><span className="text-sm text-muted-foreground"> /month</span></p></div>
-            <ul className="mt-6 flex-1 space-y-3">{PRO.map((i) => <li key={i} className="flex gap-3 text-sm text-muted-foreground"><Check size={18} className="mt-0.5 shrink-0 text-gold" />{i}</li>)}</ul>
+          <div className="flex flex-col rounded-md border-2 border-accent bg-card p-5 sm:p-7">
+            <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-2">
+              <h2 className="text-lg sm:text-xl font-bold">Pro</h2>
+              <p>
+                <span className="text-2xl sm:text-3xl lg:text-4xl font-bold">{fw.display}</span>
+                <span className="text-xs sm:text-sm text-muted-foreground"> /month</span>
+              </p>
+            </div>
+            <ul className="mt-5 sm:mt-6 flex-1 space-y-2.5 sm:space-y-3">{PRO.map((i) => <li key={i} className="flex gap-2.5 sm:gap-3 text-xs sm:text-sm text-muted-foreground"><Check size={18} className="mt-0.5 shrink-0 text-gold" />{i}</li>)}</ul>
             {isPro ? (
-              <button onClick={onSettings} className="mt-8 w-full rounded-sm bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">You're on Pro · Manage billing</button>
+              <button onClick={onSettings} className="mt-6 sm:mt-8 w-full min-h-[44px] rounded-sm bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">You&apos;re on Pro · Manage billing</button>
             ) : (
               <>
-                <fieldset className="mt-8">
+                <fieldset className="mt-6 sm:mt-8">
                   <legend className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Pay with</legend>
-                  <div className="grid grid-cols-2 gap-2">
-                    {([["paystack", `Pay ₦${PRO_PRICE_NGN.toLocaleString()} with Paystack`, "Cards, bank, mobile money"], ["flutterwave", `Pay ${fw.display} with Flutterwave`, fw.methodsLabel]] as const).map(([k, n, d]) => (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {([["paystack", `Pay ₦${Math.round(PRO_PRICE_NGN).toLocaleString()} with Paystack`, "Cards, bank, mobile money"], ["flutterwave", `Pay ${fw.display} with Flutterwave`, fw.methodsLabel]] as const).map(([k, n, d]) => (
                       <label key={k} className={`cursor-pointer rounded-sm border p-3 text-sm ${provider === k ? "border-primary bg-secondary" : "border-border hover:bg-muted"}`}>
                         <input type="radio" name="provider" value={k} checked={provider === k} onChange={() => setProvider(k)} className="sr-only" />
-                        <b className="block">{n}</b><span className="text-xs text-muted-foreground">{d}</span>
+                        <b className="block text-xs sm:text-sm">{n}</b><span className="text-[11px] sm:text-xs text-muted-foreground">{d}</span>
                       </label>
                     ))}
                   </div>
                 </fieldset>
                 {provider === "paystack" && (
-                  <fieldset className="mt-6">
+                  <fieldset className="mt-5 sm:mt-6">
                     <legend className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">How to pay</legend>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       {([
                         ["auto", "Auto-renew monthly", "Card only · renews automatically every month"],
                         ["manual", "Pay monthly", "Card, bank transfer, USSD, QR · renews only when you pay"],
                       ] as const).map(([k, n, d]) => (
                         <label key={k} className={`cursor-pointer rounded-sm border p-3 text-sm ${mode === k ? "border-primary bg-secondary" : "border-border hover:bg-muted"}`}>
                           <input type="radio" name="mode" value={k} checked={mode === k} onChange={() => setMode(k)} className="sr-only" />
-                          <b className="block">{n}</b><span className="text-xs text-muted-foreground">{d}</span>
+                          <b className="block text-xs sm:text-sm">{n}</b><span className="text-[11px] sm:text-xs text-muted-foreground">{d}</span>
                         </label>
                       ))}
                     </div>
                   </fieldset>
                 )}
                 {error && <p role="alert" className="mt-4 rounded-sm border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">{error}</p>}
-                <button onClick={upgrade} disabled={busy || !ready} className="mt-4 w-full rounded-sm bg-linear-to-b from-[#2cbd6d] to-[#178f4a] px-5 py-3 text-sm font-semibold text-white shadow-md hover:brightness-95 disabled:opacity-60">
+                <button onClick={upgrade} disabled={busy || !ready} className="mt-6 w-full min-h-[44px] rounded-sm bg-linear-to-b from-[#2cbd6d] to-[#178f4a] px-5 py-3 text-sm font-semibold text-white shadow-md hover:brightness-95 disabled:opacity-60">
                   {busy ? "Redirecting to checkout…" : user ? `Upgrade to Pro with ${provider === "paystack" ? "Paystack" : "Flutterwave"}` : "Sign up to upgrade"}
                 </button>
               </>

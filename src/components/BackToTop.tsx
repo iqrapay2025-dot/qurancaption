@@ -28,12 +28,12 @@ export default function BackToTop() {
           : "smooth";
         window.scrollTo({ top: 0, behavior });
       }}
-      className={`fixed right-4 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground shadow-lg transition hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none ${
-        isListen ? "bottom-[168px] sm:bottom-24" : "bottom-20 md:bottom-6"
+      className={`fixed right-3.5 sm:right-5 z-40 flex size-9 sm:size-10 items-center justify-center rounded-full border border-border/80 bg-card/90 backdrop-blur-xs text-foreground/80 shadow-md transition-all hover:bg-muted hover:text-foreground hover:shadow-lg focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none ${
+        isListen ? "bottom-[140px] sm:bottom-24" : "bottom-16 sm:bottom-6"
       }`}
     >
-      <ArrowUp size={17} aria-hidden="true" />
-      Go back up
+      <ArrowUp size={16} aria-hidden="true" />
+      <span className="sr-only">Go back up</span>
     </button>
   );
 }

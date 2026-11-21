@@ -2,58 +2,60 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { GuideContent } from "@/components/GuideContent";
-import { GUIDE_FAQ } from "@/lib/guide";
 import { getActiveDonateUrl } from "@/lib/donate";
 
 export const metadata: Metadata = {
-  title: "User guide",
+  title: "User Guide | Ayah Studio",
   description:
-    "Learn how to choose Quran verses, preview recitation, style captions and export files in Ayah Studio.",
+    "Complete guide to Ayah Studio: read with tafsir, listen to world-class reciters, memorize verses, and design stunning Quran video captions.",
   alternates: { canonical: "/guide" },
+  openGraph: {
+    title: "Ayah Studio Guide",
+    description:
+      "Complete guide to reading the Quran, listening to reciters, and creating video captions in Ayah Studio.",
+    url: "/guide",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ayah Studio Guide",
+    description:
+      "Complete guide to reading the Quran, listening to reciters, and creating video captions in Ayah Studio.",
+  },
 };
 
 export default function GuidePage() {
   const hasDonateUrl = Boolean(getActiveDonateUrl());
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
+      {/* Skip to content link for accessibility */}
+      <a
+        href="#guide-main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-sm focus:shadow-md"
+      >
+        Skip to guide content
+      </a>
+
       <SiteHeader />
-      <main className="mx-auto max-w-3xl flex-1 px-5 py-10 sm:py-14 w-full">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Ayah Studio guide
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-          Follow these steps to read the Quran, make captions, match them to a recitation and
-          bring them into your video editor.
-        </p>
-        <div className="mt-8">
-          <GuideContent />
-        </div>
-        <section aria-labelledby="guide-faq" className="mt-10">
-          <h2 id="guide-faq" className="text-xl font-bold">
-            FAQ
-          </h2>
-          <dl className="mt-4 space-y-3">
-            {GUIDE_FAQ.map(({ question, answer }) => (
-              <div
-                key={question}
-                className="rounded-sm border border-border bg-card p-4"
-              >
-                <dt className="font-semibold">{question}</dt>
-                <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  {answer}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-        <Link
-          href="/#/editor"
-          className="mt-8 inline-flex rounded-sm bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
-        >
-          Start creating
-        </Link>
+
+      <main id="guide-main" className="mx-auto max-w-6xl flex-1 px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
+        <header className="mb-8 sm:mb-12 max-w-3xl">
+          <span className="text-xs font-semibold uppercase tracking-wider text-gold mb-2 block">
+            Documentation & Help
+          </span>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
+            Ayah Studio Guide
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Everything you need to know about reading the Quran with classical tafsirs, streaming recitations with the background player, memorizing verses, and creating beautiful video captions.
+          </p>
+        </header>
+
+        <GuideContent />
       </main>
-      <footer className="border-t border-border px-5 py-6 text-center text-sm text-muted-foreground">
+
+      <footer className="border-t border-border px-5 py-8 text-center text-sm text-muted-foreground bg-card/40">
         <div className="flex items-center justify-center gap-2 mb-3">
           <img
             src="/brand/ayah-badge-dark.png"
@@ -64,36 +66,40 @@ export default function GuidePage() {
           />
           <span className="font-semibold text-foreground">Ayah Studio</span>
         </div>
-        <div>
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs sm:text-sm">
           <Link className="underline hover:text-foreground" href="/guide">
             Guide
-          </Link>{" "}
-          ·{" "}
+          </Link>
+          <span>·</span>
           <Link className="underline hover:text-foreground" href="/quran">
             Quran
-          </Link>{" "}
-          ·{" "}
+          </Link>
+          <span>·</span>
+          <Link className="underline hover:text-foreground" href="/listen">
+            Listen
+          </Link>
+          <span>·</span>
           <Link className="underline hover:text-foreground" href="/editors">
             Editors
-          </Link>{" "}
-          ·{" "}
+          </Link>
+          <span>·</span>
           <Link className="underline hover:text-foreground" href="/terms">
             Terms of use
-          </Link>{" "}
-          ·{" "}
+          </Link>
+          <span>·</span>
           <Link className="underline hover:text-foreground" href="/privacy">
             Privacy policy
           </Link>
           {hasDonateUrl && (
             <>
-              {" "}·{" "}
+              <span>·</span>
               <Link className="underline hover:text-foreground" href="/donate">
                 Donate
               </Link>
             </>
           )}
         </div>
-        <p className="mt-3 text-xs">© Ayah Studio</p>
+        <p className="mt-4 text-xs text-muted-foreground/80">© Ayah Studio</p>
       </footer>
     </div>
   );

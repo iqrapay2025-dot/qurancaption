@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import BadgeLoader from "@/components/BadgeLoader";
 import { OfflineDownloadsView } from "./OfflineDownloadsView";
+import { TourReplayButton } from "@/components/tour/TourReplayButton";
 import {
   getLibrary,
   subscribeLibrary,
@@ -174,7 +175,7 @@ export function BookmarksView() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
+    <div data-tour="bookmarks-container" className="mx-auto max-w-4xl px-4 py-8 sm:py-12">
       {/* Top Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-6 mb-6">
         <div>
@@ -187,7 +188,8 @@ export function BookmarksView() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2">
+        <div data-tour="bookmarks-backup-buttons" className="flex items-center gap-2">
+          <TourReplayButton tourId="bookmarks" />
           <input
             ref={fileInputRef}
             type="file"
@@ -215,7 +217,7 @@ export function BookmarksView() {
       </div>
 
       {/* Tabs Switcher */}
-      <div className="flex items-center gap-2 mb-6 border-b border-border pb-3">
+      <div data-tour="bookmarks-tabs" className="flex items-center gap-2 mb-6 border-b border-border pb-3">
         <button
           type="button"
           onClick={() => setActiveTab("bookmarks")}

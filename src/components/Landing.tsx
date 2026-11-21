@@ -141,10 +141,10 @@ export default function Landing({
               {BRAND_DESCRIPTION}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/quran" className={btnGreen}>
+              <Link href="/quran" data-tour="hero-read-quran" className={btnGreen}>
                 Read the Quran <ArrowRight size={16} />
               </Link>
-              <button type="button" onClick={onStart} className={btnOutline}>
+              <button type="button" data-tour="hero-create-captions" onClick={onStart} className={btnOutline}>
                 Create captions
               </button>
             </div>
@@ -199,6 +199,7 @@ export default function Landing({
           {readFeatures.map((f) => (
             <div
               key={f.title}
+              data-tour={f.title === "Listen" ? "feature-listen" : undefined}
               className="rounded-md border border-border bg-card p-6 shadow-xs transition-shadow hover:shadow-md flex flex-col justify-between"
             >
               <div>
@@ -280,7 +281,8 @@ export default function Landing({
           {[
             {
               name: "Free",
-              price: "$0",
+              amount: "$0",
+              conversion: null,
               items: [
                 "Up to 3 saved projects",
                 "SRT and VTT export",
@@ -291,7 +293,8 @@ export default function Landing({
             },
             {
               name: "Pro",
-              price: `$${FLUTTERWAVE_PRICE_USD} (₦${PRO_PRICE_NGN.toLocaleString()})`,
+              amount: `$${FLUTTERWAVE_PRICE_USD}`,
+              conversion: `₦${Math.round(PRO_PRICE_NGN).toLocaleString()}`,
               items: [
                 "Unlimited projects and verses",
                 "SRT and VTT export",
@@ -303,28 +306,35 @@ export default function Landing({
           ].map((p) => (
             <div
               key={p.name}
-              className={`rounded-md bg-card p-7 transition-shadow hover:shadow-lg ${
+              className={`rounded-md bg-card p-5 sm:p-7 transition-shadow hover:shadow-lg ${
                 p.pro ? "border-2 border-accent" : "border border-border"
               }`}
             >
-              <div className="flex items-baseline justify-between">
-                <h3 className="text-xl font-bold">{p.name}</h3>
-                <p>
-                  <span className="text-4xl font-bold">{p.price}</span>
-                  <span className="text-sm text-muted-foreground"> /month</span>
-                </p>
+              <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-2">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground">{p.name}</h3>
+                <div className="flex flex-wrap items-baseline gap-1.5">
+                  <span className="text-2xl sm:text-3xl font-bold text-foreground">
+                    {p.amount}
+                  </span>
+                  {p.conversion && (
+                    <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+                      ({p.conversion})
+                    </span>
+                  )}
+                  <span className="text-xs sm:text-sm text-muted-foreground"> /month</span>
+                </div>
               </div>
-              <ul className="mt-6 space-y-3">
+              <ul className="mt-5 sm:mt-6 space-y-2.5 sm:space-y-3">
                 {p.items.map((i) => (
-                  <li key={i} className="flex gap-3 text-sm text-muted-foreground">
-                    <Check size={18} className="mt-0.5 shrink-0 text-gold" />
+                  <li key={i} className="flex gap-2.5 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
+                    <Check size={17} className="mt-0.5 shrink-0 text-gold" />
                     {i}
                   </li>
                 ))}
               </ul>
               <button
                 onClick={p.pro ? onPricing : onStart}
-                className={`${p.pro ? btnGreen : btnOutline} mt-8 w-full`}
+                className={`${p.pro ? btnGreen : btnOutline} mt-6 sm:mt-8 w-full min-h-[44px]`}
               >
                 {p.pro ? "Go Pro" : "Start free"}
               </button>
@@ -372,9 +382,9 @@ export default function Landing({
             <h4 className="mb-3 text-sm font-bold text-white">Contact</h4>
             <a
               className="block text-sm hover:text-[#6fe3a0]"
-              href="mailto:qurancaptionstudio@gmail.com"
+              href="mailto:aayahstudiomail@gmail.com"
             >
-              Ayah Studio support (qurancaptionstudio@gmail.com)
+              Ayah Studio support (aayahstudiomail@gmail.com)
             </a>
             <div className="mt-3 flex flex-wrap gap-4 text-sm">
               <a className="hover:text-[#6fe3a0]" href="/">
