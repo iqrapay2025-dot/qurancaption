@@ -16,7 +16,8 @@ if (isProd && !process.env.NEXT_PUBLIC_SITE_URL) {
   )
 }
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'
+const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aayahstudio.vercel.app'
+const siteUrl = rawSiteUrl.includes('qurancaptionstudio') ? 'https://aayahstudio.vercel.app' : rawSiteUrl
 
 // Content-Security-Policy.
 // Notes:

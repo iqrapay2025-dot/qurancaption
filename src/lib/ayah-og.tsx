@@ -14,12 +14,12 @@ let cachedBadge: string | null = null;
 function loadArabicFont(): ArrayBuffer | null {
   if (cachedFont) return cachedFont;
   const candidates = [
-    path.join(process.cwd(), "public/fonts/Almarai-Regular.ttf"),
+    path.join(process.cwd(), "public", "fonts", "Almarai-Regular.ttf"),
   ];
   for (const p of candidates) {
     try {
-      if (fs.existsSync(p)) {
-        const buf = fs.readFileSync(p);
+      if (fs.existsSync(/*turbopackIgnore: true*/ p)) {
+        const buf = fs.readFileSync(/*turbopackIgnore: true*/ p);
         cachedFont = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
         return cachedFont;
       }
@@ -31,14 +31,14 @@ function loadArabicFont(): ArrayBuffer | null {
 function loadBadgeDataUrl(): string {
   if (cachedBadge) return cachedBadge;
   const candidates = [
-    path.join(process.cwd(), "public/brand/ayah-badge-dark-96.png"),
-    path.join(process.cwd(), "public/brand/ayah-badge-dark-48.png"),
-    path.join(process.cwd(), "public/brand/ayah-badge-dark.png"),
+    path.join(process.cwd(), "public", "brand", "ayah-badge-dark-96.png"),
+    path.join(process.cwd(), "public", "brand", "ayah-badge-dark-48.png"),
+    path.join(process.cwd(), "public", "brand", "ayah-badge-dark.png"),
   ];
   for (const p of candidates) {
     try {
-      if (fs.existsSync(p)) {
-        const buf = fs.readFileSync(p);
+      if (fs.existsSync(/*turbopackIgnore: true*/ p)) {
+        const buf = fs.readFileSync(/*turbopackIgnore: true*/ p);
         cachedBadge = `data:image/png;base64,${buf.toString("base64")}`;
         return cachedBadge;
       }

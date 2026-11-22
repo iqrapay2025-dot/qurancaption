@@ -8,7 +8,7 @@ import {
   makeSiteSettings,
   sanitizeHtmlAttribute,
 } from "@/lib/make-site-settings"
-import { SITE } from "@/lib/site"
+import { SITE, siteUrl } from "@/lib/site"
 import { BRAND_NAME, BRAND_DESCRIPTION, SEO_TITLE } from "@/lib/brand"
 import "./styles.css"
 import CookieConsent from "@/components/CookieConsent"
@@ -24,13 +24,7 @@ const googleAnalyticsId = sanitizeHtmlAttribute(
 )
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL
-      ? process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")
-      : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3001",
-  ),
+  metadataBase: new URL(siteUrl()),
   title: { default: title, template: `%s | ${BRAND_NAME}` },
   description,
   applicationName: BRAND_NAME,
