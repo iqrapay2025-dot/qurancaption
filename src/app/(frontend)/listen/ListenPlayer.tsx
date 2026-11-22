@@ -330,7 +330,7 @@ export function ListenPlayer() {
         aria-label="Audio player"
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md shadow-2xl px-3 sm:px-4 py-2 sm:py-3 transition-transform pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
       >
-        <div className="mx-auto max-w-6xl flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4 w-full overflow-hidden">
+        <div className="mx-auto max-w-6xl flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4 w-full">
           {/* Top row on mobile / Left column on desktop: Surah Info */}
           <div className="flex items-center justify-between md:justify-start gap-2 sm:gap-3 min-w-0 md:w-64 shrink-0">
             <div className="flex flex-col min-w-0 truncate">
@@ -423,7 +423,7 @@ export function ListenPlayer() {
           )}
 
           {/* Right side controls: Speed, Repeat, Sleep Timer, Volume */}
-          <div data-tour="listen-extra-controls" className="flex items-center justify-end gap-1.5 sm:gap-2 shrink-0 md:w-64">
+          <div data-tour="listen-extra-controls" className="flex items-center justify-center md:justify-end gap-1.5 sm:gap-2 w-full md:w-64 shrink-0">
             {/* Speed button */}
             <button
               type="button"
@@ -493,13 +493,13 @@ export function ListenPlayer() {
               )}
             </div>
 
-            {/* Volume (Desktop only) */}
-            <div className="hidden md:flex items-center gap-1 pl-2 border-l border-border/60">
+            {/* Volume control */}
+            <div className="flex items-center gap-1 pl-1.5 sm:pl-2 border-l border-border/60">
               <button
                 type="button"
                 aria-label={isMuted ? "Unmute" : "Mute"}
                 onClick={toggleMute}
-                className="grid size-7 place-items-center text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring rounded-sm"
+                className="grid size-7 place-items-center text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring rounded-sm touch-manipulation"
               >
                 {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
               </button>
@@ -511,7 +511,7 @@ export function ListenPlayer() {
                 value={isMuted ? 0 : volume}
                 onChange={(e) => setVolume(Number(e.target.value))}
                 aria-label="Volume slider"
-                className="h-1.5 w-16 cursor-pointer accent-primary rounded bg-muted focus-visible:outline-2 focus-visible:outline-ring"
+                className="h-1.5 w-14 sm:w-16 cursor-pointer accent-primary rounded bg-muted focus-visible:outline-2 focus-visible:outline-ring touch-manipulation"
               />
             </div>
           </div>
