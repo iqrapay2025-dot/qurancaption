@@ -9,6 +9,7 @@ import * as migration_20261113_113000_auto_time_usage from './20261113_113000_au
 import * as migration_20261113_160000_email_verification from './20261113_160000_email_verification';
 import * as migration_20261119_090000_ensure_user_auth_columns from './20261119_090000_ensure_user_auth_columns';
 import * as migration_20261118_153500_add_email_token_expires from './20261118_153500_add_email_token_expires';
+import * as migration_20261122_101500_add_user_avatar_url from './20261122_101500_add_user_avatar_url';
 
 export const migrations = [
   {
@@ -65,5 +66,10 @@ export const migrations = [
     up: migration_20261119_090000_ensure_user_auth_columns.up,
     down: migration_20261119_090000_ensure_user_auth_columns.down,
     name: '20261119_090000_ensure_user_auth_columns',
+  },
+  {
+    up: migration_20261122_101500_add_user_avatar_url.up,
+    down: migration_20261122_101500_add_user_avatar_url.down,
+    name: '20261122_101500_add_user_avatar_url',
   },
 ];
