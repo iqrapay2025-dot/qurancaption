@@ -11,7 +11,7 @@ export function Logo({ onClick, compact }: { onClick?: () => void; compact?: boo
           <source srcSet="/brand/ayah-badge-light-48.webp 1x, /brand/ayah-badge-light-96.webp 2x" type="image/webp" />
           <img
             src="/brand/ayah-badge-light-48.png"
-            alt="Ayah Studio"
+            alt="Aayah Studio"
             width={36}
             height={36}
             fetchPriority="high"
@@ -23,7 +23,7 @@ export function Logo({ onClick, compact }: { onClick?: () => void; compact?: boo
           <source srcSet="/brand/ayah-badge-dark-48.webp 1x, /brand/ayah-badge-dark-96.webp 2x" type="image/webp" />
           <img
             src="/brand/ayah-badge-dark-48.png"
-            alt="Ayah Studio"
+            alt="Aayah Studio"
             width={36}
             height={36}
             fetchPriority="high"
@@ -42,7 +42,7 @@ export function Logo({ onClick, compact }: { onClick?: () => void; compact?: boo
 function Wrapper({ onClick, children }: { onClick?: () => void; children: React.ReactNode }) {
   const cls = "flex items-center gap-2.5 rounded-sm";
   return onClick ? (
-    <button onClick={onClick} className={cls} aria-label="Ayah Studio home">{children}</button>
+    <button onClick={onClick} className={cls} aria-label="Aayah Studio home">{children}</button>
   ) : (
     <span className={cls}>{children}</span>
   );

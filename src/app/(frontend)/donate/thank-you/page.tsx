@@ -5,8 +5,8 @@ import { getActiveDonateUrl } from "@/lib/donate";
 import { Heart, BookOpen, Headphones, Home } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Thank You - Ayah Studio",
-  description: "Thank you for supporting Ayah Studio.",
+  title: "Thank You - Aayah Studio",
+  description: "Thank you for supporting Aayah Studio.",
   robots: {
     index: false,
     follow: false,
@@ -28,7 +28,7 @@ export default function ThankYouPage() {
         </h1>
 
         <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg">
-          Thank you deeply for your support. Your generosity helps keep Ayah Studio completely free, ad-free, and accessible for readers and learners around the world.
+          Thank you deeply for your support. Your generosity helps keep Aayah Studio completely free, ad-free, and accessible for readers and learners around the world.
         </p>
 
         <div className="mt-6 rounded-lg border border-border bg-card p-4 sm:p-5 max-w-lg w-full text-left">
@@ -72,7 +72,7 @@ export default function ThankYouPage() {
             <source srcSet="/brand/ayah-badge-dark-48.webp" type="image/webp" />
             <img
               src="/brand/ayah-badge-dark-48.png"
-              alt="Ayah Studio"
+              alt="Aayah Studio"
               width={24}
               height={24}
               loading="lazy"
@@ -80,7 +80,7 @@ export default function ThankYouPage() {
               className="size-6 object-contain"
             />
           </picture>
-          <span className="font-semibold text-foreground">Ayah Studio</span>
+          <span className="font-semibold text-foreground">Aayah Studio</span>
         </div>
         <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs sm:text-sm">
           <Link className="underline hover:text-foreground" href="/guide">
@@ -115,7 +115,7 @@ export default function ThankYouPage() {
             </>
           )}
         </div>
-        <p className="mt-3 text-xs">© Ayah Studio</p>
+        <p className="mt-3 text-xs">© Aayah Studio</p>
       </footer>
     </div>
   );

@@ -111,10 +111,10 @@ export const GUIDE_PRO_FEATURES =
 export const GUIDE_SECTIONS: GuideSection[] = [
   {
     id: "welcome",
-    title: "Welcome to Ayah Studio",
+    title: "Welcome to Aayah Studio",
     navTitle: "Welcome",
     summary:
-      "Ayah Studio is a complete web platform for reading, listening to, memorizing, and creating beautiful social video captions for the Holy Quran.",
+      "Aayah Studio is a complete web platform for reading, listening to, memorizing, and creating beautiful social video captions for the Holy Quran.",
     tourId: "welcome",
     tourRoute: "/",
     tourLabel: "Start Welcome tour",
@@ -122,8 +122,8 @@ export const GUIDE_SECTIONS: GuideSection[] = [
     pageLabel: "Visit Home page",
     subsections: [
       {
-        title: "Who Ayah Studio is for",
-        body: "Ayah Studio is built for readers, students of knowledge, content creators, and anyone who wants to connect with the Holy Quran. Whether you are reading at home, listening on the go, memorizing verses, or crafting Quran video reels for social media, Ayah Studio provides all the tools you need in one place.",
+        title: "Who Aayah Studio is for",
+        body: "Aayah Studio is built for readers, students of knowledge, content creators, and anyone who wants to connect with the Holy Quran. Whether you are reading at home, listening on the go, memorizing verses, or crafting Quran video reels for social media, Aayah Studio provides all the tools you need in one place.",
       },
       {
         title: "Core capabilities",
@@ -173,7 +173,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
       },
       {
         title: "Offline reading",
-        body: "Download surahs for offline reading with one click. Ayah Studio stores the Arabic text and translations securely in your browser's local IndexedDB so you can read anytime without internet.",
+        body: "Download surahs for offline reading with one click. Aayah Studio stores the Arabic text and translations securely in your browser's local IndexedDB so you can read anytime without internet.",
       },
     ],
   },
@@ -207,7 +207,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
       },
       {
         title: "Saved position & auto-resume",
-        body: "Ayah Studio remembers your exact timestamp and surah so you can pick up right where you left off when you return to the Listen page.",
+        body: "Aayah Studio remembers your exact timestamp and surah so you can pick up right where you left off when you return to the Listen page.",
       },
     ],
   },
@@ -230,7 +230,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
       },
       {
         title: "Download as an image card",
-        body: "Click Download image to render an elegant 1080x1350 (4:5) card right in your browser. Choose between Light and Dark themes, PNG or JPG format, with gold borders, authentic Arabic typography, and official Ayah Studio branding.",
+        body: "Click Download image to render an elegant 1080x1350 (4:5) card right in your browser. Choose between Light and Dark themes, PNG or JPG format, with gold borders, authentic Arabic typography, and official Aayah Studio branding.",
       },
     ],
   },
@@ -282,7 +282,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
       },
       {
         title: "Where bookmarks are saved",
-        body: "Ayah bookmarks are saved in your browser's persistent storage. They remain available whenever you visit Ayah Studio on that browser and device.",
+        body: "Ayah bookmarks are saved in your browser's persistent storage. They remain available whenever you visit Aayah Studio on that browser and device.",
       },
     ],
   },
@@ -291,7 +291,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
     title: "Free Plan and Pro",
     navTitle: "Free vs Pro",
     summary:
-      "Ayah Studio provides generous free tools for all Muslims and students of knowledge, alongside powerful Pro capabilities for content creators.",
+      "Aayah Studio provides generous free tools for all Muslims and students of knowledge, alongside powerful Pro capabilities for content creators.",
     pageHref: "/pricing",
     pageLabel: "View Pricing Plans",
     subsections: [
@@ -393,15 +393,15 @@ export const GUIDE_FAQ: GuideFaqItem[] = [
   },
   {
     category: "general",
-    question: "Can I install Ayah Studio on my phone or computer?",
+    question: "Can I install Aayah Studio on my phone or computer?",
     answer:
-      "Yes. Ayah Studio is a Progressive Web App (PWA). On mobile (Safari on iOS or Chrome on Android), tap 'Share' or the browser menu and select 'Add to Home Screen'. On desktop Chrome/Edge, click the install icon in the URL bar to run it as a standalone app.",
+      "Yes. Aayah Studio is a Progressive Web App (PWA). On mobile (Safari on iOS or Chrome on Android), tap 'Share' or the browser menu and select 'Add to Home Screen'. On desktop Chrome/Edge, click the install icon in the URL bar to run it as a standalone app.",
   },
   {
     category: "account",
     question: "Where are my bookmarks saved?",
     answer:
-      "Bookmarks are saved in your browser's persistent local storage. They remain available whenever you visit Ayah Studio on that browser and device.",
+      "Bookmarks are saved in your browser's persistent local storage. They remain available whenever you visit Aayah Studio on that browser and device.",
   },
   {
     category: "editor",

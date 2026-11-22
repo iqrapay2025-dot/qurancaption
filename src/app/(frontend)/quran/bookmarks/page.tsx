@@ -3,7 +3,7 @@ import { QuranShell } from "@/components/quran/QuranShell";
 import { BookmarksView } from "@/components/quran/BookmarksView";
 
 export const metadata: Metadata = {
-  title: "Bookmarks - Saved Ayahs | Ayah Studio",
+  title: "Bookmarks - Saved Ayahs | Aayah Studio",
   description: "View and manage your bookmarked Quran verses, with offline browser storage and notes.",
   alternates: { canonical: "/quran/bookmarks" },
 };

@@ -173,7 +173,7 @@ describe("Library Storage Wrapper (Prompt 3)", () => {
       addBookmark({ surah: 2, ayah: 255, note: "Throne Verse" });
       const json = exportBookmarksJson();
       const parsed = JSON.parse(json);
-      expect(parsed.app).toBe("Ayah Studio");
+      expect(parsed.app).toBe("Aayah Studio");
       expect(parsed.bookmarks).toHaveLength(1);
       expect(parsed.bookmarks[0].verseKey).toBe("2:255");
     });
@@ -186,7 +186,7 @@ describe("Library Storage Wrapper (Prompt 3)", () => {
     it("merges valid bookmarks without duplicates and reports added count", () => {
       addBookmark({ surah: 1, ayah: 1 });
       const importPayload = JSON.stringify({
-        app: "Ayah Studio",
+        app: "Aayah Studio",
         bookmarks: [
           { surah: 1, ayah: 1, note: "Already there" },
           { surah: 2, ayah: 255, note: "Newly added" },

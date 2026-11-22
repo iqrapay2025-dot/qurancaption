@@ -21,13 +21,13 @@ export default function SplashLoader() {
     <div
       className="ql-loader"
       role="status"
-      aria-label="Loading Ayah Studio"
+      aria-label="Loading Aayah Studio"
       onAnimationEnd={(e) => {
         if (e.animationName === "ql-exit") setShow(false);
       }}
     >
       <div className="flex items-center justify-center p-4">
-        <BadgeLoader size="page" label="Loading Ayah Studio" />
+        <BadgeLoader size="page" label="Loading Aayah Studio" />
       </div>
     </div>
   );

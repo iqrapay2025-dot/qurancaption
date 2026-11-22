@@ -1,8 +1,8 @@
-# Background & Persistent Audio in Ayah Studio
+# Background & Persistent Audio in Aayah Studio
 
 ## Architecture Overview
 
-Ayah Studio implements a **persistent single-source audio architecture** that keeps Quran recitations playing seamlessly as users navigate across the website.
+Aayah Studio implements a **persistent single-source audio architecture** that keeps Quran recitations playing seamlessly as users navigate across the website.
 
 ```
                   ┌────────────────────────────────────────┐
@@ -63,7 +63,7 @@ Browsers enforce strict security and power-management policies around audio play
 - **Battery Optimization**: Standard Chrome tabs in the background may be deprioritized by aggressive OEM battery managers (e.g. Xiaomi, Samsung). Adding the site to the Home Screen (PWA) circumvents background throttling.
 
 ### Installed PWA (Progressive Web App)
-- Running Ayah Studio as an **Installed PWA** (`Add to Home Screen` / `Install App`):
+- Running Aayah Studio as an **Installed PWA** (`Add to Home Screen` / `Install App`):
   - Provides a dedicated standalone process separate from general browser tabs.
   - Grants higher OS lifecycle priority for background audio decoding and streaming.
   - Eliminates browser UI chrome for an immersive listening experience.
@@ -72,12 +72,12 @@ Browsers enforce strict security and power-management policies around audio play
 
 ## 3. Media Session API Integration
 
-Ayah Studio connects to the standard `navigator.mediaSession` API whenever audio is loaded:
+Aayah Studio connects to the standard `navigator.mediaSession` API whenever audio is loaded:
 
 - **Metadata**:
   - `title`: Surah name (e.g. `Al-Fatihah (The Opening)`) and Surah number.
   - `artist`: Reciter name (e.g. `Mishari Rashid al-Afasy`).
-  - `album`: `"Ayah Studio — Holy Quran"`.
+  - `album`: `"Aayah Studio — Holy Quran"`.
   - `artwork`: Multi-resolution brand badges (`512x512` and `192x192` PNGs).
 - **Transport Action Handlers**:
   - `play`: Resumes playback.

@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     if (token) {
       const link = `${siteUrl()}/#/reset?token=${encodeURIComponent(token)}`;
       const html = renderPasswordResetEmailHtml({ resetUrl: link });
-      const sent = await sendMail(email, "Reset your Ayah Studio password", html);
+      const sent = await sendMail(email, "Reset your Aayah Studio password", html);
       if (!sent) {
         console.error(`[auth] forgot-password email failed for ${email}`);
       }

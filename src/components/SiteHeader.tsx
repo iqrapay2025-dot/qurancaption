@@ -585,7 +585,7 @@ export function SiteHeader({
                 className="my-1 rounded-sm bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 flex items-center justify-between"
               >
                 <span>Donate</span>
-                <span className="text-xs font-normal opacity-90">Support Ayah Studio →</span>
+                <span className="text-xs font-normal opacity-90">Support Aayah Studio →</span>
               </Link>
             )}
 

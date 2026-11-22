@@ -51,7 +51,7 @@ describe("trimAyahDescription", () => {
     const shortText = "In the name of Allah, the Entirely Merciful, the Especially Merciful";
     const desc = trimAyahDescription(shortText);
     expect(desc).toContain(shortText);
-    expect(desc).toContain("Read, listen and create Quran caption videos on Ayah Studio.");
+    expect(desc).toContain("Read, listen and create Quran caption videos on Aayah Studio.");
   });
 
   it("trims long translations on word boundary with ellipsis", () => {
@@ -60,7 +60,7 @@ describe("trimAyahDescription", () => {
     const desc = trimAyahDescription(longText, 120);
     expect(desc).toContain("…");
     expect(desc.length).toBeLessThan(220);
-    expect(desc).toContain("Read, listen and create Quran caption videos on Ayah Studio.");
+    expect(desc).toContain("Read, listen and create Quran caption videos on Aayah Studio.");
     // Verify it didn't cut inside a word (e.g. no trailing broken fragment)
     const beforeEllipsis = desc.split("…")[0];
     expect(beforeEllipsis.endsWith(" ")).toBe(false);
@@ -68,7 +68,7 @@ describe("trimAyahDescription", () => {
 
   it("handles empty or non-string input safely", () => {
     const desc = trimAyahDescription("");
-    expect(desc).toContain("Ayah Studio");
+    expect(desc).toContain("Aayah Studio");
   });
 });
 

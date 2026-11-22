@@ -5,9 +5,9 @@ import { getActiveDonateUrl } from "@/lib/donate";
 import { Heart, Server, BookOpen, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Support Ayah Studio",
+  title: "Support Aayah Studio",
   description:
-    "Reading and listening to the Quran are free for everyone, with no account needed. Donations help keep Ayah Studio accessible, ad-free, and continuously improving.",
+    "Reading and listening to the Quran are free for everyone, with no account needed. Donations help keep Aayah Studio accessible, ad-free, and continuously improving.",
   alternates: { canonical: "/donate" },
 };
 
@@ -24,11 +24,11 @@ export default function DonatePage() {
         </div>
 
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-          Support Ayah Studio
+          Support Aayah Studio
         </h1>
 
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
-          Reading and listening to the Quran are free for everyone, with no account needed. Ayah Studio is built for the global community, and your donations help keep it free, accessible, and ad-free for all.
+          Reading and listening to the Quran are free for everyone, with no account needed. Aayah Studio is built for the global community, and your donations help keep it free, accessible, and ad-free for all.
         </p>
 
         {donateUrl ? (
@@ -109,7 +109,7 @@ export default function DonatePage() {
             <source srcSet="/brand/ayah-badge-dark-48.webp" type="image/webp" />
             <img
               src="/brand/ayah-badge-dark-48.png"
-              alt="Ayah Studio"
+              alt="Aayah Studio"
               width={24}
               height={24}
               loading="lazy"
@@ -117,7 +117,7 @@ export default function DonatePage() {
               className="size-6 object-contain"
             />
           </picture>
-          <span className="font-semibold text-foreground">Ayah Studio</span>
+          <span className="font-semibold text-foreground">Aayah Studio</span>
         </div>
         <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs sm:text-sm">
           <Link className="underline hover:text-foreground" href="/guide">
@@ -152,7 +152,7 @@ export default function DonatePage() {
             Privacy policy
           </Link>
         </div>
-        <p className="mt-3 text-xs">© Ayah Studio</p>
+        <p className="mt-3 text-xs">© Aayah Studio</p>
       </footer>
     </div>
   );

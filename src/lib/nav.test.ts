@@ -44,7 +44,7 @@ describe("NAV_ITEMS", () => {
 
     expect(learnItem?.children?.[0]).toEqual({
       label: "How it works",
-      description: "Overview of Ayah Studio & the editor",
+      description: "Overview of Aayah Studio & the editor",
       href: "/how-it-works",
       icon: "Compass",
     });

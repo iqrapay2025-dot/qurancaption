@@ -87,7 +87,7 @@ export function InstallAppButton({
           onClick={handleInstallClick}
           data-tour="install-app-menu"
           className={`flex w-full items-center gap-2.5 rounded-sm px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors ${className}`}
-          aria-label="Install Ayah Studio App"
+          aria-label="Install Aayah Studio App"
         >
           <Download size={16} className="text-primary shrink-0" aria-hidden="true" />
           <div className="flex flex-col text-left">
@@ -107,7 +107,7 @@ export function InstallAppButton({
           onClick={handleInstallClick}
           data-tour="install-app-button"
           className={`inline-flex items-center gap-2 rounded-sm border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors shadow-xs ${className}`}
-          aria-label="Install Ayah Studio App"
+          aria-label="Install Aayah Studio App"
         >
           <Download size={14} className="text-primary" aria-hidden="true" />
           <span>Install app</span>
@@ -121,7 +121,7 @@ export function InstallAppButton({
         onClick={handleInstallClick}
         data-tour="install-app-link"
         className={`inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors underline ${className}`}
-        aria-label="Install Ayah Studio App"
+        aria-label="Install Aayah Studio App"
       >
         <Download size={13} aria-hidden="true" /> Install app
       </button>
@@ -136,14 +136,14 @@ export function InstallAppButton({
       {showGuide && (
         <div
           role="dialog"
-          aria-label="How to install Ayah Studio"
+          aria-label="How to install Aayah Studio"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in backdrop-blur-xs"
         >
           <div className="w-full max-w-md rounded-xl border border-border bg-card p-5 sm:p-6 shadow-2xl text-left">
             <div className="flex items-center justify-between border-b border-border pb-3 mb-4">
               <div className="flex items-center gap-2">
                 <Download size={18} className="text-primary" />
-                <h3 className="text-base font-semibold text-foreground">Install Ayah Studio</h3>
+                <h3 className="text-base font-semibold text-foreground">Install Aayah Studio</h3>
               </div>
               <button
                 type="button"
@@ -156,7 +156,7 @@ export function InstallAppButton({
             </div>
 
             <p className="text-xs text-muted-foreground mb-4">
-              Install Ayah Studio directly to your home screen or desktop for fast offline reading, listening, and native app performance.
+              Install Aayah Studio directly to your home screen or desktop for fast offline reading, listening, and native app performance.
             </p>
 
             {/* Platform Selector Tabs */}
@@ -270,7 +270,7 @@ export function InstallAppButton({
                     2
                   </span>
                   <span>
-                    Alternatively, click the browser menu (⋮) and select <strong>Save and share &gt; Install Ayah Studio</strong>.
+                    Alternatively, click the browser menu (⋮) and select <strong>Save and share &gt; Install Aayah Studio</strong>.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
@@ -278,7 +278,7 @@ export function InstallAppButton({
                     3
                   </span>
                   <span>
-                    Click <strong>Install</strong> to launch Ayah Studio in its own standalone window.
+                    Click <strong>Install</strong> to launch Aayah Studio in its own standalone window.
                   </span>
                 </li>
               </ol>

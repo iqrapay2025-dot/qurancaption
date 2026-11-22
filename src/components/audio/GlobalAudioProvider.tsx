@@ -561,8 +561,8 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
 
     navigator.mediaSession.metadata = new MediaMetadata({
       title: chap ? `${chap.id}. ${chap.nameSimple} (${chap.nameArabic})` : "Quran Recitation",
-      artist: rec ? rec.name : "Ayah Studio Reciter",
-      album: "Ayah Studio",
+      artist: rec ? rec.name : "Aayah Studio Reciter",
+      album: "Aayah Studio",
       artwork: [
         {
           src: "/brand/ayah-badge-dark.png",

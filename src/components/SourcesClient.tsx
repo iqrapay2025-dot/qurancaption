@@ -242,7 +242,7 @@ export function SourcesClient() {
             <h2>Caption Timing & Alignment</h2>
           </div>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Caption timings in Ayah Studio are computed directly from recitation audio and ayah
+            Caption timings in Aayah Studio are computed directly from recitation audio and ayah
             lengths. While automated timing provides accurate alignment for creating video
             subtitles, exact pause and word boundaries may be approximate.
           </p>

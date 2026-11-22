@@ -3,7 +3,7 @@ import { LegalPage } from "@/components/LegalPage"
 import ContactForm from "@/components/ContactForm"
 import { SITE } from "@/lib/site"
 
-export const metadata: Metadata = { title: "Contact", description: "Get help with Ayah Studio.", alternates: { canonical: "/contact" } }
+export const metadata: Metadata = { title: "Contact", description: "Get help with Aayah Studio.", alternates: { canonical: "/contact" } }
 
 export default function Contact() {
   return (

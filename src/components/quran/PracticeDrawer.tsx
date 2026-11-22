@@ -280,7 +280,7 @@ export function PracticeDrawer({
           navigator.mediaSession.metadata = new MediaMetadata({
             title: `${chapter.nameSimple} ${chapter.id}:${state.currentAyah}`,
             artist: reciterName,
-            album: "Ayah Studio Practice",
+            album: "Aayah Studio Practice",
             artwork: [{ src: "/brand/ayah-badge-dark.png", sizes: "512x512", type: "image/png" }],
           });
           navigator.mediaSession.setActionHandler("play", () => {

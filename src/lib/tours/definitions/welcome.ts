@@ -3,12 +3,12 @@ import type { TourDefinition } from "../types";
 export const welcomeTour: TourDefinition = {
   id: "welcome",
   name: "Welcome Tour",
-  description: "An overview of Ayah Studio, from reading to creating video captions.",
+  description: "An overview of Aayah Studio, from reading to creating video captions.",
   route: "/",
   steps: [
     {
       id: "welcome-intro",
-      title: "Welcome to Ayah Studio",
+      title: "Welcome to Aayah Studio",
       body: "A calm, beautiful place to read the Quran, listen to world-class reciters, and create timed captions for your videos.",
     },
     {
@@ -55,7 +55,7 @@ export const welcomeTour: TourDefinition = {
       id: "welcome-install",
       target: '[data-tour="install-app-footer"]',
       title: "Install as a Mobile or Desktop App",
-      body: "Ayah Studio works offline! Click 'Install app' right here in the footer to install on your phone or computer. On iPhone Safari tap Share > Add to Home Screen; on Android or Chrome click Install.",
+      body: "Aayah Studio works offline! Click 'Install app' right here in the footer to install on your phone or computer. On iPhone Safari tap Share > Add to Home Screen; on Android or Chrome click Install.",
       side: "top",
       align: "center",
     },

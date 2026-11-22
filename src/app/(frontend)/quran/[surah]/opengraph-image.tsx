@@ -5,7 +5,7 @@ import { parseSurahParam, SURAH_NAMES_SIMPLE } from "@/lib/quran/reader";
 import { getChapters } from "@/lib/quran/server";
 import { BRAND_NAME } from "@/lib/brand";
 
-export const alt = "Ayah Studio — Surah Reader";
+export const alt = "Aayah Studio — Surah Reader";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

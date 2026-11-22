@@ -327,7 +327,7 @@ export function GuideContent({ compact = false }: { compact?: boolean }) {
               </h2>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
-              Prefer seeing the interface in action? Launch interactive spotlight tours that guide you through every part of Ayah Studio.
+              Prefer seeing the interface in action? Launch interactive spotlight tours that guide you through every part of Aayah Studio.
             </p>
           </div>
           <div className="shrink-0 flex items-center gap-2">
@@ -347,24 +347,24 @@ export function GuideContent({ compact = false }: { compact?: boolean }) {
               className="group inline-flex items-center gap-2 text-foreground hover:text-gold transition-colors focus-visible:outline-2 focus-visible:outline-ring rounded-sm"
             >
               <h2 id="heading-welcome" className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Welcome to Ayah Studio
+                Welcome to Aayah Studio
               </h2>
               <span className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity text-lg font-normal" aria-hidden="true">
                 #
               </span>
             </a>
             <p className="mt-2 text-sm sm:text-base leading-relaxed text-muted-foreground">
-              Ayah Studio is a modern web application dedicated to reading, listening to, memorizing, and creating beautiful social video captions for the Holy Quran.
+              Aayah Studio is a modern web application dedicated to reading, listening to, memorizing, and creating beautiful social video captions for the Holy Quran.
             </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-sm border border-border bg-card p-4">
               <h3 className="font-semibold text-sm sm:text-base text-foreground">
-                Who Ayah Studio is for
+                Who Aayah Studio is for
               </h3>
               <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-                Built for readers, students of knowledge, content creators, and anyone seeking to connect with the Quran. Whether studying at home, listening on your daily commute, memorizing verses, or crafting video reels for social media, Ayah Studio brings all your tools together.
+                Built for readers, students of knowledge, content creators, and anyone seeking to connect with the Quran. Whether studying at home, listening on your daily commute, memorizing verses, or crafting video reels for social media, Aayah Studio brings all your tools together.
               </p>
             </div>
             <div className="rounded-sm border border-border bg-card p-4">
@@ -481,7 +481,7 @@ export function GuideContent({ compact = false }: { compact?: boolean }) {
                 Offline reading
               </h3>
               <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-                Download surahs for offline reading with one click. Ayah Studio stores the Arabic text and translations securely in your browser&apos;s local IndexedDB so you can read anytime without internet.
+                Download surahs for offline reading with one click. Aayah Studio stores the Arabic text and translations securely in your browser&apos;s local IndexedDB so you can read anytime without internet.
               </p>
             </div>
           </div>
@@ -563,7 +563,7 @@ export function GuideContent({ compact = false }: { compact?: boolean }) {
                 Saved position & auto-resume
               </h3>
               <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-                Ayah Studio remembers your exact timestamp and surah so you can pick up right where you left off when you return to the Listen page.
+                Aayah Studio remembers your exact timestamp and surah so you can pick up right where you left off when you return to the Listen page.
               </p>
             </div>
           </div>
@@ -750,7 +750,7 @@ export function GuideContent({ compact = false }: { compact?: boolean }) {
                 Where bookmarks are saved
               </h3>
               <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-                Ayah bookmarks are saved in your browser&apos;s persistent local storage. They remain available whenever you visit Ayah Studio on that browser and device.
+                Ayah bookmarks are saved in your browser&apos;s persistent local storage. They remain available whenever you visit Aayah Studio on that browser and device.
               </p>
             </div>
           </div>
@@ -786,7 +786,7 @@ export function GuideContent({ compact = false }: { compact?: boolean }) {
               </span>
             </a>
             <p className="mt-2 text-sm sm:text-base leading-relaxed text-muted-foreground">
-              Ayah Studio provides generous free tools for all Muslims and students of knowledge, alongside powerful Pro capabilities for content creators.
+              Aayah Studio provides generous free tools for all Muslims and students of knowledge, alongside powerful Pro capabilities for content creators.
             </p>
           </div>
 
@@ -949,7 +949,7 @@ export function GuideContent({ compact = false }: { compact?: boolean }) {
         {/* Bottom CTA Card */}
         <div className="rounded-sm border border-border bg-card p-6 text-center space-y-3">
           <h2 className="text-lg sm:text-xl font-bold text-foreground">
-            Ready to explore Ayah Studio?
+            Ready to explore Aayah Studio?
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
             Choose whether to read the Quran with tafsir, listen to world-class reciters, or create timed video captions.

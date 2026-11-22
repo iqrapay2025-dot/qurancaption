@@ -25,10 +25,10 @@ export function validateAyahParams(
 export function trimAyahDescription(
   translation: string,
   maxLength = 170,
-  suffix = " Read, listen and create Quran caption videos on Ayah Studio."
+  suffix = " Read, listen and create Quran caption videos on Aayah Studio."
 ): string {
   if (!translation || typeof translation !== "string") {
-    return `Read and listen to the Holy Quran with translation and tafsir on Ayah Studio.`;
+    return `Read and listen to the Holy Quran with translation and tafsir on Aayah Studio.`;
   }
   const clean = translation.replace(/\s+/g, " ").trim();
   if (clean.length <= maxLength) {

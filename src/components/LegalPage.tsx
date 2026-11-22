@@ -22,7 +22,7 @@ export function LegalPage({ title, children }: { title: string; children: ReactN
             <source srcSet="/brand/ayah-badge-dark-48.webp" type="image/webp" />
             <img
               src="/brand/ayah-badge-dark-48.png"
-              alt="Ayah Studio"
+              alt="Aayah Studio"
               width={24}
               height={24}
               loading="lazy"
@@ -30,7 +30,7 @@ export function LegalPage({ title, children }: { title: string; children: ReactN
               className="size-6 object-contain"
             />
           </picture>
-          <span className="font-semibold text-foreground">Ayah Studio</span>
+          <span className="font-semibold text-foreground">Aayah Studio</span>
         </div>
         <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
           <Link className="underline hover:text-foreground" href="/guide">
@@ -54,10 +54,10 @@ export function LegalPage({ title, children }: { title: string; children: ReactN
           </Link>
           ·
           <a className="underline hover:text-foreground" href={`mailto:${SITE.email}`}>
-            Ayah Studio support
+            Aayah Studio support
           </a>
         </div>
-        <p className="mt-3 text-xs">© Ayah Studio</p>
+        <p className="mt-3 text-xs">© Aayah Studio</p>
       </footer>
     </div>
   );

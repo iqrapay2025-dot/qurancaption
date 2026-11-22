@@ -38,7 +38,7 @@ export default function BadgeLoader({
           <source srcSet={lightWebp} type="image/webp" />
           <img
             src={lightFallback}
-            alt="Ayah Studio"
+            alt="Aayah Studio"
             width={imgSize}
             height={imgSize}
             loading="eager"
@@ -51,7 +51,7 @@ export default function BadgeLoader({
           <source srcSet={darkWebp} type="image/webp" />
           <img
             src={darkFallback}
-            alt="Ayah Studio"
+            alt="Aayah Studio"
             width={imgSize}
             height={imgSize}
             loading="eager"

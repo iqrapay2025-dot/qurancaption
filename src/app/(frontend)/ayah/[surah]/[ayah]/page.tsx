@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!valid) {
     return {
-      title: "Ayah Not Found — Ayah Studio",
+      title: "Ayah Not Found — Aayah Studio",
       description: "The requested Quran verse could not be found.",
     };
   }
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   } catch {}
 
-  const title = `Surah ${valid.surahName} ${valid.surah}:${valid.ayah} — Ayah Studio`;
+  const title = `Surah ${valid.surahName} ${valid.surah}:${valid.ayah} — Aayah Studio`;
   const description = trimAyahDescription(translation);
   const canonical = `/ayah/${valid.surah}/${valid.ayah}`;
   const fullUrl = buildAyahShareUrl(valid.surah, valid.ayah, siteUrl());
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: { canonical },
     openGraph: {
       type: "article",
-      siteName: "Ayah Studio",
+      siteName: "Aayah Studio",
       url: fullUrl,
       title,
       description,
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           width: 1200,
           height: 630,
           type: "image/png",
-          alt: `Surah ${valid.surahName} ${valid.surah}:${valid.ayah} — Ayah Studio`,
+          alt: `Surah ${valid.surahName} ${valid.surah}:${valid.ayah} — Aayah Studio`,
         },
       ],
     },
@@ -205,7 +205,7 @@ export default async function AyahSharePage({ params }: PageProps) {
           )}
         </article>
 
-        {/* Ayah Studio Intro Section */}
+        {/* Aayah Studio Intro Section */}
         <section
           aria-labelledby="about-ayah-studio"
           className="mt-10 rounded-xl border border-border bg-card/60 p-6 sm:p-8"
@@ -213,11 +213,11 @@ export default async function AyahSharePage({ params }: PageProps) {
           <div className="flex items-center gap-2 text-primary font-semibold text-sm mb-2">
             <Sparkles size={16} />
             <h2 id="about-ayah-studio" className="font-semibold text-base sm:text-lg text-foreground">
-              About Ayah Studio
+              About Aayah Studio
             </h2>
           </div>
           <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
-            Ayah Studio is a serene Quran platform designed for seekers and creators worldwide.
+            Aayah Studio is a serene Quran platform designed for seekers and creators worldwide.
             Read authentic translations, study classical tafsir, listen to world-renowned reciters,
             and create beautiful synced Quran video captions for free with no account required.
           </p>
@@ -226,7 +226,7 @@ export default async function AyahSharePage({ params }: PageProps) {
               href="/"
               className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-primary hover:underline"
             >
-              Explore Ayah Studio home <ArrowRight size={14} />
+              Explore Aayah Studio home <ArrowRight size={14} />
             </Link>
             <span className="text-muted-foreground/60">·</span>
             <Link
@@ -246,7 +246,7 @@ export default async function AyahSharePage({ params }: PageProps) {
             <source srcSet="/brand/ayah-badge-dark-48.webp" type="image/webp" />
             <img
               src="/brand/ayah-badge-dark-48.png"
-              alt="Ayah Studio"
+              alt="Aayah Studio"
               width={24}
               height={24}
               loading="lazy"
@@ -254,7 +254,7 @@ export default async function AyahSharePage({ params }: PageProps) {
               className="size-6 object-contain"
             />
           </picture>
-          <span className="font-semibold text-foreground">Ayah Studio</span>
+          <span className="font-semibold text-foreground">Aayah Studio</span>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs sm:text-sm">
           <Link className="underline hover:text-foreground" href="/guide">
@@ -285,7 +285,7 @@ export default async function AyahSharePage({ params }: PageProps) {
             </>
           )}
         </div>
-        <p className="mt-3 text-xs">© Ayah Studio · Free for the Ummah</p>
+        <p className="mt-3 text-xs">© Aayah Studio · Free for the Ummah</p>
       </footer>
     </div>
   );

@@ -8,20 +8,20 @@ import { InstallAppButton } from "@/components/InstallAppButton";
 import { getActiveDonateUrl } from "@/lib/donate";
 
 export const metadata: Metadata = {
-  title: "Listen to the Quran - Full Surah Recitations | Ayah Studio",
+  title: "Listen to the Quran - Full Surah Recitations | Aayah Studio",
   description: "Full-surah recitations by the reciter you choose. Pick a surah and press play.",
   alternates: { canonical: "/listen" },
   openGraph: {
-    title: "Listen to the Quran - Full Surah Recitations | Ayah Studio",
+    title: "Listen to the Quran - Full Surah Recitations | Aayah Studio",
     description: "Full-surah recitations by the reciter you choose. Pick a surah and press play.",
     url: "/listen",
-    siteName: "Ayah Studio",
+    siteName: "Aayah Studio",
     images: [
       {
         url: "/brand/ayah-badge-dark.png",
         width: 512,
         height: 512,
-        alt: "Ayah Studio",
+        alt: "Aayah Studio",
       },
     ],
   },
@@ -61,7 +61,7 @@ export default function ListenPage() {
               <source srcSet="/brand/ayah-badge-dark-48.webp" type="image/webp" />
               <img
                 src="/brand/ayah-badge-dark-48.png"
-                alt="Ayah Studio"
+                alt="Aayah Studio"
                 width={28}
                 height={28}
                 loading="lazy"
@@ -69,7 +69,7 @@ export default function ListenPage() {
                 className="size-7 object-contain"
               />
             </picture>
-            <span className="font-semibold text-foreground">Ayah Studio</span>
+            <span className="font-semibold text-foreground">Aayah Studio</span>
           </div>
           <p className="max-w-2xl text-xs text-muted-foreground">
             Quran data, translations and recitation audio provided by{" "}
@@ -130,7 +130,7 @@ export default function ListenPage() {
             ·
             <InstallAppButton />
           </div>
-          <p className="text-xs">© Ayah Studio</p>
+          <p className="text-xs">© Aayah Studio</p>
         </div>
       </footer>
     </div>

@@ -15,7 +15,7 @@ export function QuranShell({ children }: { children: React.ReactNode }) {
               <source srcSet="/brand/ayah-badge-dark-48.webp" type="image/webp" />
               <img
                 src="/brand/ayah-badge-dark-48.png"
-                alt="Ayah Studio"
+                alt="Aayah Studio"
                 width={28}
                 height={28}
                 loading="lazy"
@@ -23,7 +23,7 @@ export function QuranShell({ children }: { children: React.ReactNode }) {
                 className="size-7 object-contain"
               />
             </picture>
-            <span className="font-semibold text-foreground">Ayah Studio</span>
+            <span className="font-semibold text-foreground">Aayah Studio</span>
           </div>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
             <Link className="underline hover:text-foreground" href="/guide">
@@ -50,7 +50,7 @@ export function QuranShell({ children }: { children: React.ReactNode }) {
               Privacy policy
             </Link>
           </div>
-          <p className="text-xs">© Ayah Studio</p>
+          <p className="text-xs">© Aayah Studio</p>
         </div>
       </footer>
     </div>

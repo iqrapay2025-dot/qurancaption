@@ -1,4 +1,4 @@
-# Interactive Guided Tour System — Ayah Studio
+# Interactive Guided Tour System — Aayah Studio
 
 This document explains how the interactive tour system is structured, how to add new tours or steps, how to trigger tours, and how to write tests for them.
 
@@ -6,7 +6,7 @@ This document explains how the interactive tour system is structured, how to add
 
 ## 1. Overview & Architecture
 
-Ayah Studio uses **[driver.js](https://driverjs.com)** to spotlight elements with animated overlays, progress indicators, popovers, and keyboard navigation.
+Aayah Studio uses **[driver.js](https://driverjs.com)** to spotlight elements with animated overlays, progress indicators, popovers, and keyboard navigation.
 
 - **Dynamic Lazy Loading**: `driver.js` is only dynamically imported when a user starts a tour. It adds **0 KB** to initial page load.
 - **CSP Compliant**: The site stylesheet (`src/app/(frontend)/styles.css`) bundles `driver.css` and custom brand theme overrides directly, ensuring no unsafe inline style violations.

@@ -151,8 +151,8 @@ export async function ensureFontsLoaded(arSize = 48, trSize = 30): Promise<void>
     await Promise.all([
       document.fonts.load(`${arSize}px "Amiri Quran"`, "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"),
       document.fonts.load(`500 ${trSize}px "Figtree"`, "In the name of Allah"),
-      document.fonts.load(`700 24px "Figtree"`, "AYAH STUDIO"),
-      document.fonts.load(`400 20px "Figtree"`, "www.ayahstudio.com"),
+      document.fonts.load(`700 24px "Figtree"`, "AAYAH STUDIO"),
+      document.fonts.load(`400 20px "Figtree"`, "aayahstudio.vercel.app"),
     ]);
     await document.fonts.ready;
   } catch {

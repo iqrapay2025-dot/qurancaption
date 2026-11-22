@@ -298,7 +298,7 @@ export function isBookmarked(surah: number, ayah: number): boolean {
 export function exportBookmarksJson(): string {
   const lib = getLibrary();
   const exportPayload = {
-    app: "Ayah Studio",
+    app: "Aayah Studio",
     version: 1,
     exportedAt: new Date().toISOString(),
     bookmarks: lib.bookmarks,

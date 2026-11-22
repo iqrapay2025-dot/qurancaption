@@ -358,7 +358,7 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
     const currentReciter = reciters.find((r) => r.id === reciterId);
     navigator.mediaSession.metadata = new MediaMetadata({
       title: `${chapter.nameSimple} ${chapter.id}:${currentAyah}`,
-      artist: currentReciter?.name || "Ayah Studio Recitation",
+      artist: currentReciter?.name || "Aayah Studio Recitation",
       album: `Surah ${chapter.nameSimple}`,
     });
 

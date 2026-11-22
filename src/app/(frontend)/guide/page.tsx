@@ -5,22 +5,22 @@ import { GuideContent } from "@/components/GuideContent";
 import { getActiveDonateUrl } from "@/lib/donate";
 
 export const metadata: Metadata = {
-  title: "User Guide | Ayah Studio",
+  title: "User Guide | Aayah Studio",
   description:
-    "Complete guide to Ayah Studio: read with tafsir, listen to world-class reciters, memorize verses, and design stunning Quran video captions.",
+    "Complete guide to Aayah Studio: read with tafsir, listen to world-class reciters, memorize verses, and design stunning Quran video captions.",
   alternates: { canonical: "/guide" },
   openGraph: {
-    title: "Ayah Studio Guide",
+    title: "Aayah Studio Guide",
     description:
-      "Complete guide to reading the Quran, listening to reciters, and creating video captions in Ayah Studio.",
+      "Complete guide to reading the Quran, listening to reciters, and creating video captions in Aayah Studio.",
     url: "/guide",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ayah Studio Guide",
+    title: "Aayah Studio Guide",
     description:
-      "Complete guide to reading the Quran, listening to reciters, and creating video captions in Ayah Studio.",
+      "Complete guide to reading the Quran, listening to reciters, and creating video captions in Aayah Studio.",
   },
 };
 
@@ -45,7 +45,7 @@ export default function GuidePage() {
             Documentation & Help
           </span>
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-            Ayah Studio Guide
+            Aayah Studio Guide
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
             Everything you need to know about reading the Quran with classical tafsirs, streaming recitations with the background player, memorizing verses, and creating beautiful video captions.
@@ -61,7 +61,7 @@ export default function GuidePage() {
             <source srcSet="/brand/ayah-badge-dark-48.webp" type="image/webp" />
             <img
               src="/brand/ayah-badge-dark-48.png"
-              alt="Ayah Studio"
+              alt="Aayah Studio"
               width={24}
               height={24}
               loading="lazy"
@@ -69,7 +69,7 @@ export default function GuidePage() {
               className="size-6 object-contain"
             />
           </picture>
-          <span className="font-semibold text-foreground">Ayah Studio</span>
+          <span className="font-semibold text-foreground">Aayah Studio</span>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs sm:text-sm">
           <Link className="underline hover:text-foreground" href="/guide">
@@ -104,7 +104,7 @@ export default function GuidePage() {
             </>
           )}
         </div>
-        <p className="mt-4 text-xs text-muted-foreground/80">© Ayah Studio</p>
+        <p className="mt-4 text-xs text-muted-foreground/80">© Aayah Studio</p>
       </footer>
     </div>
   );

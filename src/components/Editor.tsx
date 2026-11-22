@@ -1447,7 +1447,7 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
                   rel="noreferrer"
                   className="underline text-primary hover:text-gold transition-colors"
                 >
-                  Ayah Studio Guide
+                  Aayah Studio Guide
                 </a>
                 .
               </p>

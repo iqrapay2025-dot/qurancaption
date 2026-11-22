@@ -1,8 +1,8 @@
-# Ayah Studio Performance & Mobile Optimization Guide
+# Aayah Studio Performance & Mobile Optimization Guide
 
 ## 1. Overview & Mobile-First Budgets
 
-Ayah Studio is designed to run smoothly on small, low-end mobile devices (~2–3GB RAM, slow 3G/4G connections typical in emerging markets like Nigeria).
+Aayah Studio is designed to run smoothly on small, low-end mobile devices (~2–3GB RAM, slow 3G/4G connections typical in emerging markets like Nigeria).
 
 ### Target Budgets
 - **First-load JS**: Home (`/`) and Quran (`/quran`, `/quran/[surah]`) <= 150KB gzipped first-load JS.

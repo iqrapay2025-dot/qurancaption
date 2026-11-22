@@ -1,6 +1,6 @@
 {
-  "name": "Ayah Studio",
-  "short_name": "Ayah Studio",
+  "name": "Aayah Studio",
+  "short_name": "Aayah Studio",
   "description": "Read every surah with translation, tafsir and recitation, then turn any verses into captions and videos that are already in sync with the audio.",
   "start_url": "/",
   "display": "standalone",

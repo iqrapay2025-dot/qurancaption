@@ -5,7 +5,7 @@ import { SourcesClient } from "@/components/SourcesClient";
 import { InstallAppButton } from "@/components/InstallAppButton";
 
 export const metadata: Metadata = {
-  title: "Sources & Accuracy | Ayah Studio",
+  title: "Sources & Accuracy | Aayah Studio",
   description:
     "Quran text, translations, recitation audio sources, commentary and caption alignment details.",
   alternates: { canonical: "/sources" },
@@ -26,7 +26,7 @@ export default function SourcesPage() {
               <source srcSet="/brand/ayah-badge-dark-48.webp" type="image/webp" />
               <img
                 src="/brand/ayah-badge-dark-48.png"
-                alt="Ayah Studio"
+                alt="Aayah Studio"
                 width={28}
                 height={28}
                 loading="lazy"
@@ -34,7 +34,7 @@ export default function SourcesPage() {
                 className="size-7 object-contain"
               />
             </picture>
-            <span className="font-semibold text-foreground">Ayah Studio</span>
+            <span className="font-semibold text-foreground">Aayah Studio</span>
           </div>
           <p className="max-w-2xl text-xs text-muted-foreground">
             Quran data, translations and recitation audio provided by{" "}
@@ -79,7 +79,7 @@ export default function SourcesPage() {
             ·
             <InstallAppButton />
           </div>
-          <p className="text-xs">© Ayah Studio</p>
+          <p className="text-xs">© Aayah Studio</p>
         </div>
       </footer>
     </div>

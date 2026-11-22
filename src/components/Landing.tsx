@@ -352,7 +352,7 @@ export default function Landing({
                 <source srcSet="/brand/ayah-badge-dark-48.webp" type="image/webp" />
                 <img
                   src="/brand/ayah-badge-dark-48.png"
-                  alt="Ayah Studio"
+                  alt="Aayah Studio"
                   width={36}
                   height={36}
                   loading="lazy"
@@ -389,7 +389,7 @@ export default function Landing({
               className="block text-sm hover:text-[#6fe3a0]"
               href="mailto:aayahstudiomail@gmail.com"
             >
-              Ayah Studio support (aayahstudiomail@gmail.com)
+              Aayah Studio support (aayahstudiomail@gmail.com)
             </a>
             <div className="mt-3 flex flex-wrap gap-4 text-sm">
               <a className="hover:text-[#6fe3a0]" href="/">
@@ -453,7 +453,7 @@ export default function Landing({
           </div>
         </div>
         <div className="border-t border-white/10 px-5 py-5 text-center text-xs">
-          © Ayah Studio
+          © Aayah Studio
         </div>
       </footer>
     </div>

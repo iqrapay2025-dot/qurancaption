@@ -240,7 +240,7 @@ export function DailyAyahCard() {
           });
           await navigator.share({
             files: [file],
-            title: `Ayah Studio — ${surahName} ${surahNum}:${ayahNum}`,
+            title: `Aayah Studio — ${surahName} ${surahNum}:${ayahNum}`,
             text: `${activeArabic}\n\n${trText}\n— ${surahName} ${surahNum}:${ayahNum}`,
           });
           setImageMenuOpen(false);
@@ -375,7 +375,7 @@ export function DailyAyahCard() {
       if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
         navigator
           .share({
-            title: `Ayah Studio — ${surahName} ${surahNum}:${ayahNum}`,
+            title: `Aayah Studio — ${surahName} ${surahNum}:${ayahNum}`,
             text: fullText,
             url,
           })

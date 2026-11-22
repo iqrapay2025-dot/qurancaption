@@ -1,6 +1,6 @@
 import { createAyahOgImageResponse, OG_IMAGE_SIZE } from "@/lib/ayah-og";
 
-export const alt = "Ayah Studio — Holy Quran Ayah";
+export const alt = "Aayah Studio — Holy Quran Ayah";
 export const size = OG_IMAGE_SIZE;
 export const contentType = "image/png";
 

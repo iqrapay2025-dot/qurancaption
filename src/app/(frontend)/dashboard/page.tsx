@@ -111,7 +111,7 @@ export default async function Dashboard() {
       <a href="#content" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:rounded focus:bg-white focus:p-2 focus:text-black">Skip to content</a>
       <header className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 p-4">
-          <h1 className="text-xl font-semibold">Ayah Studio · Dashboard</h1>
+          <h1 className="text-xl font-semibold">Aayah Studio · Dashboard</h1>
           <nav aria-label="Admin" className="flex gap-4 text-sm">
             <a className="underline" href="/admin">Admin panel</a>
             <a className="underline" href="/admin/collections/users">Users</a>
