@@ -324,11 +324,18 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
   }, []);
 
   const toggleMute = useCallback(() => {
-    if (isMuted) {
+    if (isMuted || volume === 0) {
       setIsMuted(false);
+      const targetVol = volume > 0 ? volume : 1;
+      if (volume === 0) {
+        setVolumeState(targetVol);
+        try {
+          localStorage.setItem(LEGACY_STORAGE_KEYS.volume, String(targetVol));
+        } catch {}
+      }
       if (audioRef.current) {
         audioRef.current.muted = false;
-        audioRef.current.volume = volume || 1;
+        audioRef.current.volume = targetVol;
       }
     } else {
       setIsMuted(true);

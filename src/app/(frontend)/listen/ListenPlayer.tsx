@@ -497,7 +497,7 @@ export function ListenPlayer() {
             <div className="flex items-center gap-1 pl-1.5 sm:pl-2 border-l border-border/60">
               <button
                 type="button"
-                aria-label={isMuted ? "Unmute" : "Mute"}
+                aria-label={isMuted || volume === 0 ? "Unmute" : "Mute"}
                 onClick={toggleMute}
                 className="grid size-7 place-items-center text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring rounded-sm touch-manipulation"
               >
