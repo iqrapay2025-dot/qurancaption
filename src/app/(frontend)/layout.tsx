@@ -1,6 +1,5 @@
 import React from "react"
 import type { Metadata } from "next"
-import Script from "next/script"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { BodyCustomCode, renderHeadCustomCode } from "@/lib/make-custom-code"
@@ -19,9 +18,6 @@ import BackToTop from "@/components/BackToTop"
 const title = SEO_TITLE
 const description = BRAND_DESCRIPTION
 const socialImage = makeSiteSettings.openGraph?.image
-const googleAnalyticsId = sanitizeHtmlAttribute(
-  makeSiteSettings.analytics?.googleAnalyticsId,
-)
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -90,6 +86,18 @@ export default function RootLayout({
   return (
     <html lang={language} suppressHydrationWarning>
       <head>
+        {/* Google tag (gtag.js / GTM-KPB88WMD) */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtm.js?id=GTM-KPB88WMD"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());`,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem("qcs-theme");if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)d.classList.add("dark");if(sessionStorage.getItem("qcs-splash"))d.dataset.splash="seen";var lm=localStorage.getItem("qcs-lite-mode");var conn=navigator.connection;var mem=navigator.deviceMemory;if(lm==="on"||(lm!=="off"&&((conn&&(conn.saveData||conn.effectiveType==="2g"||conn.effectiveType==="slow-2g"))||(typeof mem==="number"&&mem<=2))))d.classList.add("lite-mode")}catch(e){}})()`,
@@ -147,22 +155,6 @@ export default function RootLayout({
           </TourProvider>
         </GlobalAudioProvider>
         <BackToTop />
-        {googleAnalyticsId && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
-              strategy="lazyOnload"
-            />
-            <Script id="figma-google-analytics" strategy="lazyOnload">
-              {`
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', ${JSON.stringify(googleAnalyticsId)});
-`}
-            </Script>
-          </>
-        )}
         <BodyCustomCode html={customScripts?.bodyEnd} />
         <CookieSettingsBar />
         <CookieConsent />

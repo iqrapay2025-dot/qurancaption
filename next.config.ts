@@ -34,11 +34,11 @@ const siteUrl = rawSiteUrl.includes('qurancaptionstudio') ? 'https://aayahstudio
 //     Vercel Blob media.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' https://www.googletagmanager.com https://va.vercel-scripts.com 'unsafe-inline'${isProd ? '' : " 'unsafe-eval'"}`,
+  `script-src 'self' https://www.googletagmanager.com https://*.googletagmanager.com https://va.vercel-scripts.com 'unsafe-inline'${isProd ? '' : " 'unsafe-eval'"}`,
   "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://va.vercel-scripts.com https://vitals.vercel-insights.com https://download.quranicaudio.com https://everyayah.com",
+  "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.googletagmanager.com https://va.vercel-scripts.com https://vitals.vercel-insights.com https://download.quranicaudio.com https://everyayah.com",
   "media-src 'self' https: blob:",
   "worker-src 'self' blob:",
   "frame-src 'none'",
