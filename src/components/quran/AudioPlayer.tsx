@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useImperativeHandle, forwardRef, useCallba
 import { Play, Pause, SkipBack, SkipForward, AlertCircle, Loader2 } from "lucide-react";
 import type { Chapter } from "@/lib/quran/server";
 import { DEFAULT_RECITER, type AyahFile, type SurahAudio, type Reciter } from "@/lib/quran/types";
-import { findStartIndex, nextFile, prevFile } from "@/lib/quran/player";
+import { findStartIndex, nextFile, prevFile, shouldAdvanceAyah, type PlaybackScope } from "@/lib/quran/player";
 import audioCoverage from "@/lib/quran/audio-coverage.json";
 import { registerAudioPlayback, notifyAudioPlaybackStarted } from "@/lib/audio/single-audio";
 import { getOfflineSurahAudio } from "@/lib/offline/db";
@@ -14,11 +14,16 @@ const COMPLETE_RECITER_IDS = new Set(
 );
 
 export type AudioPlayerHandle = {
+  playAyah: (ayah: number, scope?: PlaybackScope) => void;
   playFromAyah: (ayah: number) => void;
+  playEntireSurah: (startAyah?: number) => void;
   stop: () => void;
   getAudioFiles: () => AyahFile[];
   getReciters: () => Reciter[];
   getReciterId: () => number;
+  getPlaybackScope: () => PlaybackScope;
+  setPlaybackScope: (scope: PlaybackScope) => void;
+  isPlaying: () => boolean;
 };
 
 type Props = {
@@ -48,12 +53,16 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
   const [currentAyah, setCurrentAyah] = useState<number>(1);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [playbackScope, setPlaybackScope] = useState<PlaybackScope>("single");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioDataRef = useRef<SurahAudio | null>(null);
   const isPlayingRef = useRef<boolean>(false);
   isPlayingRef.current = isPlaying;
+
+  const playbackScopeRef = useRef<PlaybackScope>("single");
+  playbackScopeRef.current = playbackScope;
 
   const currentAyahRef = useRef<number>(1);
   currentAyahRef.current = currentAyah;
@@ -175,9 +184,14 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
 
   // Play a specific ayah
   const playAyah = useCallback(
-    async (ayahNum: number, startPlaying: boolean = true) => {
+    async (ayahNum: number, startPlaying: boolean = true, scope?: PlaybackScope) => {
       const audio = audioRef.current;
       if (!audio) return;
+
+      if (scope) {
+        setPlaybackScope(scope);
+        playbackScopeRef.current = scope;
+      }
 
       let data = audioDataRef.current;
       if (!data || data.surah !== chapter.id || data.reciterId !== reciterId) {
@@ -219,12 +233,26 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
     [chapter.id, reciterId, fetchAudioData, onActiveAyahChange, scrollToAyah, preloadNext]
   );
 
-  // Expose imperative handle for "Play from here" and practice mode
+  // Expose imperative handle for single ayah play, entire surah play, and practice mode
   useImperativeHandle(
     ref,
     () => ({
+      playAyah: (ayah: number, scope: PlaybackScope = "single") => {
+        if (currentAyahRef.current === ayah && isPlayingRef.current) {
+          if (audioRef.current) {
+            audioRef.current.pause();
+            setIsPlaying(false);
+            onActiveAyahChange(null);
+          }
+        } else {
+          playAyah(ayah, true, scope);
+        }
+      },
       playFromAyah: (ayah: number) => {
-        playAyah(ayah, true);
+        playAyah(ayah, true, "single");
+      },
+      playEntireSurah: (startAyah: number = 1) => {
+        playAyah(startAyah, true, "continuous");
       },
       stop: () => {
         if (audioRef.current) {
@@ -236,12 +264,25 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
       getAudioFiles: () => audioDataRef.current?.files ?? [],
       getReciters: () => reciters,
       getReciterId: () => reciterId,
+      getPlaybackScope: () => playbackScopeRef.current,
+      setPlaybackScope: (scope: PlaybackScope) => {
+        setPlaybackScope(scope);
+        playbackScopeRef.current = scope;
+      },
+      isPlaying: () => isPlayingRef.current,
     }),
     [playAyah, onActiveAyahChange, reciters, reciterId]
   );
 
   // Audio event handlers
   const handleEnded = useCallback(() => {
+    // If playing in "single" ayah mode, stop immediately after this ayah finishes!
+    if (!shouldAdvanceAyah(playbackScopeRef.current)) {
+      setIsPlaying(false);
+      onActiveAyahChange(null);
+      return;
+    }
+
     const data = audioDataRef.current;
     if (!data) {
       setIsPlaying(false);
@@ -256,7 +297,7 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
       const parts = next.verseKey.split(":");
       const nextAyahNum = Number(parts[1]);
       if (nextAyahNum) {
-        playAyah(nextAyahNum, true);
+        playAyah(nextAyahNum, true, "continuous");
       }
     } else {
       // Reached end of surah
@@ -447,6 +488,34 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
               className="rounded-full p-1.5 text-foreground hover:bg-muted disabled:opacity-40 disabled:hover:bg-transparent transition-colors focus-visible:outline-2 focus-visible:outline-ring"
             >
               <SkipForward size={18} />
+            </button>
+
+            {/* Scope toggle: Single Ayah vs Entire Surah */}
+            <button
+              type="button"
+              onClick={() => {
+                const nextScope = playbackScope === "single" ? "continuous" : "single";
+                setPlaybackScope(nextScope);
+                playbackScopeRef.current = nextScope;
+              }}
+              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium border transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring ${
+                playbackScope === "continuous"
+                  ? "border-primary/40 bg-primary/10 text-primary font-semibold"
+                  : "border-border bg-muted/60 text-muted-foreground hover:text-foreground"
+              }`}
+              title={
+                playbackScope === "continuous"
+                  ? "Entire Surah: Playing verses continuously"
+                  : "Single Ayah: Playing just one ayah and stopping"
+              }
+              aria-label={`Playback mode: ${playbackScope === "continuous" ? "Entire Surah" : "Single Ayah"}. Click to toggle.`}
+            >
+              <span className="hidden sm:inline">
+                {playbackScope === "continuous" ? "Entire Surah" : "Single Ayah"}
+              </span>
+              <span className="sm:hidden text-[11px] font-mono">
+                {playbackScope === "continuous" ? "All" : "1 Ayah"}
+              </span>
             </button>
           </div>
 

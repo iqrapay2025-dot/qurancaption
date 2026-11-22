@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { ChevronLeft, ChevronRight, Settings, Video, CheckSquare, ArrowRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Video, CheckSquare, ArrowRight, Play, Pause } from "lucide-react";
 import type { Chapter, ApiVerse } from "@/lib/quran/server";
 import { DEFAULT_TR1, TRANSLITERATION_ID } from "@/lib/quran/types";
 import { adjacentSurahs, showSeparateBismillah, BISMILLAH_ARABIC } from "@/lib/quran/reader";
@@ -243,8 +243,8 @@ export function Reader({ chapter, initialVerses }: Props) {
     setPracticeOpen(true);
   }, []);
 
-  const handlePlayFromAyah = useCallback((n: number) => {
-    playerRef.current?.playFromAyah(n);
+  const handlePlayAyah = useCallback((n: number) => {
+    playerRef.current?.playAyah(n, "single");
   }, []);
 
   const handleToggleReveal = useCallback((n: number) => {
@@ -326,8 +326,34 @@ export function Reader({ chapter, initialVerses }: Props) {
             {chapter.meaning} · {chapter.versesCount} verses
           </p>
 
-          {/* Make Captions, Select Mode & Offline Download Controls */}
+          {/* Make Captions, Play Entire Surah, Select Mode & Offline Download Controls */}
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5 pt-4 border-t border-border/60">
+            <button
+              type="button"
+              onClick={() => {
+                if (playingAyah !== null && playerRef.current?.getPlaybackScope() === "continuous") {
+                  playerRef.current?.stop();
+                } else {
+                  playerRef.current?.playEntireSurah(1);
+                }
+              }}
+              className={`inline-flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                playingAyah !== null && playerRef.current?.getPlaybackScope() === "continuous"
+                  ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                  : "bg-card text-foreground border-border hover:bg-muted"
+              }`}
+              title="Play all verses of this surah continuously"
+            >
+              {playingAyah !== null && playerRef.current?.getPlaybackScope() === "continuous" ? (
+                <>
+                  <Pause size={14} /> Pause surah
+                </>
+              ) : (
+                <>
+                  <Play size={14} className="text-primary" /> Play entire surah
+                </>
+              )}
+            </button>
             <Link
               href={buildEditorLink({ surah: chapter.id })}
               className="inline-flex items-center gap-1.5 rounded-sm bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
@@ -395,6 +421,7 @@ export function Reader({ chapter, initialVerses }: Props) {
               chapterId={chapter.id}
               chapterNameSimple={chapter.nameSimple}
               isHighlighted={isHighlighted}
+              isPlaying={playingAyah === v.n}
               isBlurred={isBlurred}
               hideText={hideText}
               selectMode={selectMode}
@@ -403,7 +430,7 @@ export function Reader({ chapter, initialVerses }: Props) {
               settings={settings}
               onToggleSelect={handleToggleAyahSelection}
               onPractice={handlePractice}
-              onPlay={handlePlayFromAyah}
+              onPlay={handlePlayAyah}
               onOpenTafsir={handleOpenTafsir}
               onCopyLink={handleCopyLink}
               onToggleReveal={handleToggleReveal}

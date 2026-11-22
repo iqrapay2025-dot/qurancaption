@@ -1,5 +1,16 @@
 import type { AyahFile } from "./types";
 
+export type PlaybackScope = "single" | "continuous";
+
+/**
+ * Determines whether the audio player should advance to the next ayah or stop when an ayah finishes.
+ * - "single": stops playback after the current ayah finishes.
+ * - "continuous": advances to the next ayah in the surah.
+ */
+export function shouldAdvanceAyah(scope: PlaybackScope = "single"): boolean {
+  return scope === "continuous";
+}
+
 /**
  * Finds the index of the file corresponding to verseKey.
  * Returns null if the list is empty or the key is not found.

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { BookOpen, Link2, Check, Play, Repeat } from "lucide-react";
+import { BookOpen, Link2, Check, Play, Pause, Repeat } from "lucide-react";
 import type { ApiVerse } from "@/lib/quran/server";
 import { TRANSLITERATION_ID } from "@/lib/quran/types";
 import {
@@ -18,6 +18,7 @@ export type AyahRowProps = {
   chapterId: number;
   chapterNameSimple: string;
   isHighlighted: boolean;
+  isPlaying?: boolean;
   isBlurred: boolean;
   hideText: boolean;
   selectMode: boolean;
@@ -38,6 +39,7 @@ export const AyahRow = React.memo(function AyahRow({
   chapterId,
   chapterNameSimple,
   isHighlighted,
+  isPlaying = false,
   isBlurred,
   hideText,
   selectMode,
@@ -104,13 +106,27 @@ export const AyahRow = React.memo(function AyahRow({
             type="button"
             data-tour={v.n === 1 ? "ayah-play" : undefined}
             onClick={() => onPlay(v.n)}
-            aria-label={`Play from ayah ${v.n}`}
-            title={`Play from ayah ${v.n}`}
-            className="inline-flex min-h-[36px] sm:min-h-[32px] h-8 items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 sm:px-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring"
+            aria-label={isPlaying ? `Pause ayah ${v.n}` : `Play ayah ${v.n}`}
+            title={isPlaying ? `Pause ayah ${v.n}` : `Play ayah ${v.n}`}
+            className={`inline-flex min-h-[36px] sm:min-h-[32px] h-8 items-center gap-1.5 rounded-md border px-2 sm:px-2.5 text-xs font-medium transition-colors touch-manipulation focus-visible:outline-2 focus-visible:outline-ring ${
+              isPlaying
+                ? "border-primary bg-primary/10 text-primary font-semibold"
+                : "border-border/70 bg-card text-foreground hover:bg-muted"
+            }`}
           >
-            <Play size={13} className="text-muted-foreground" />
-            <span className="hidden sm:inline">Play from here</span>
-            <span className="sm:hidden text-[11px]">Play</span>
+            {isPlaying ? (
+              <>
+                <Pause size={13} className="text-primary" />
+                <span className="hidden sm:inline">Pause</span>
+                <span className="sm:hidden text-[11px]">Pause</span>
+              </>
+            ) : (
+              <>
+                <Play size={13} className="text-muted-foreground" />
+                <span className="hidden sm:inline">Play ayah</span>
+                <span className="sm:hidden text-[11px]">Play</span>
+              </>
+            )}
           </button>
 
           <button

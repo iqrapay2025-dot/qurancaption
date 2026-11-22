@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { findStartIndex, nextFile, prevFile } from "./player";
+import { findStartIndex, nextFile, prevFile, shouldAdvanceAyah } from "./player";
 import type { AyahFile } from "./types";
 
 describe("Quran audio player logic", () => {
@@ -76,6 +76,17 @@ describe("Quran audio player logic", () => {
 
     it("returns null for empty list", () => {
       expect(prevFile([], "1:1")).toBeNull();
+    });
+  });
+
+  describe("shouldAdvanceAyah", () => {
+    it("returns false for single ayah scope so playback stops after one verse", () => {
+      expect(shouldAdvanceAyah("single")).toBe(false);
+      expect(shouldAdvanceAyah()).toBe(false);
+    });
+
+    it("returns true for continuous scope to play entire surah", () => {
+      expect(shouldAdvanceAyah("continuous")).toBe(true);
     });
   });
 });
