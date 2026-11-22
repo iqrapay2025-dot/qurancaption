@@ -20,6 +20,7 @@ import {
   ALLOWED_SPEEDS,
   nextSurah as getNextSurah,
   prevSurah as getPrevSurah,
+  computeTrackEndTransition,
 } from "@/lib/listen/player";
 import audioCoverage from "@/lib/quran/audio-coverage.json";
 import {
@@ -246,6 +247,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
       setError(e instanceof Error ? e.message : "Failed to load audio stream.");
       setAudioUrl(null);
       setIsPlaying(false);
+      shouldAutoPlayRef.current = false;
     } finally {
       setLoading(false);
     }
@@ -265,7 +267,23 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
       setIsPlaying(true);
       setHasEverPlayed(true);
     } catch {
-      setIsPlaying(false);
+      // If play failed because audio is still buffering/loading, attach a one-time canplay listener
+      if (audio.readyState < 2) {
+        const onCanPlayOnce = async () => {
+          audio.removeEventListener("canplay", onCanPlayOnce);
+          try {
+            notifyAudioPlaybackStarted("global");
+            await audio.play();
+            setIsPlaying(true);
+            setHasEverPlayed(true);
+          } catch {
+            setIsPlaying(false);
+          }
+        };
+        audio.addEventListener("canplay", onCanPlayOnce, { once: true });
+      } else {
+        setIsPlaying(false);
+      }
     }
   }, []);
 
@@ -484,16 +502,34 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
     }
   };
 
+  const handleCanPlay = () => {
+    if (shouldAutoPlayRef.current) {
+      shouldAutoPlayRef.current = false;
+      play();
+    }
+  };
+
   const handleEnded = () => {
-    if (repeatMode === "surah") {
+    const transition = computeTrackEndTransition(surah, repeatMode);
+    if (transition.action === "replay") {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
         currentTimeRef.current = 0;
         setCurrentTime(0);
         play();
       }
+    } else if (transition.action === "advance") {
+      shouldAutoPlayRef.current = true;
+      setSurah(transition.nextSurah);
+      currentTimeRef.current = 0;
+      setCurrentTime(0);
+      try {
+        localStorage.setItem(LEGACY_STORAGE_KEYS.surah, String(transition.nextSurah));
+      } catch {}
     } else {
-      nextSurah();
+      setIsPlaying(false);
+      currentTimeRef.current = 0;
+      setCurrentTime(0);
     }
   };
 
@@ -693,6 +729,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
         data-error={error || ""}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
+        onCanPlay={handleCanPlay}
         onEnded={handleEnded}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}

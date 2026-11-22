@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   nextSurah,
   prevSurah,
+  computeTrackEndTransition,
   formatTime,
   clampSpeed,
   parseListenQuery,
@@ -34,6 +35,65 @@ describe("src/lib/listen/player", () => {
       expect(nextSurah(1, "surah")).toBe(1);
       expect(nextSurah(36, "surah")).toBe(36);
       expect(nextSurah(114, "surah")).toBe(114);
+    });
+  });
+
+  describe("computeTrackEndTransition", () => {
+    it("advances and autoplays next surah when repeatMode is off and surah < 114", () => {
+      const res = computeTrackEndTransition(1, "off");
+      expect(res).toEqual({
+        action: "advance",
+        nextSurah: 2,
+        autoplay: true,
+      });
+
+      const res2 = computeTrackEndTransition(113, "off");
+      expect(res2).toEqual({
+        action: "advance",
+        nextSurah: 114,
+        autoplay: true,
+      });
+    });
+
+    it("stops cleanly at end of Quran (surah 114) when repeatMode is off", () => {
+      const res = computeTrackEndTransition(114, "off");
+      expect(res).toEqual({
+        action: "stop",
+        nextSurah: 114,
+        autoplay: false,
+      });
+    });
+
+    it("advances and wraps to surah 1 with autoplay when repeatMode is all", () => {
+      const res = computeTrackEndTransition(114, "all");
+      expect(res).toEqual({
+        action: "advance",
+        nextSurah: 1,
+        autoplay: true,
+      });
+
+      const res2 = computeTrackEndTransition(55, "all");
+      expect(res2).toEqual({
+        action: "advance",
+        nextSurah: 56,
+        autoplay: true,
+      });
+    });
+
+    it("replays the same surah with autoplay when repeatMode is surah", () => {
+      const res = computeTrackEndTransition(1, "surah");
+      expect(res).toEqual({
+        action: "replay",
+        nextSurah: 1,
+        autoplay: true,
+      });
+
+      const res2 = computeTrackEndTransition(114, "surah");
+      expect(res2).toEqual({
+        action: "replay",
+        nextSurah: 114,
+        autoplay: true,
+      });
     });
   });
 

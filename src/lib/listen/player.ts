@@ -20,6 +20,43 @@ export function nextSurah(current: number, mode: RepeatMode = "off"): number {
   return Math.max(1, current + 1);
 }
 
+export interface TrackEndTransition {
+  action: "replay" | "advance" | "stop";
+  nextSurah: number;
+  autoplay: boolean;
+}
+
+/**
+ * Computes how audio playback should transition when a surah finishes playing:
+ * - "surah": replays the current surah immediately.
+ * - "all": advances to the next surah, wrapping from 114 to 1, and autoplays.
+ * - "off": advances and autoplays if surah < 114; stops cleanly at the end of surah 114.
+ */
+export function computeTrackEndTransition(
+  currentSurah: number,
+  repeatMode: RepeatMode = "off"
+): TrackEndTransition {
+  if (repeatMode === "surah") {
+    return {
+      action: "replay",
+      nextSurah: currentSurah,
+      autoplay: true,
+    };
+  }
+  if (currentSurah < 114 || repeatMode === "all") {
+    return {
+      action: "advance",
+      nextSurah: nextSurah(currentSurah, repeatMode),
+      autoplay: true,
+    };
+  }
+  return {
+    action: "stop",
+    nextSurah: currentSurah,
+    autoplay: false,
+  };
+}
+
 /**
  * Returns the previous surah number given current surah (1-114) and repeat mode.
  * - "surah": returns the current surah

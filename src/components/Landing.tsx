@@ -361,7 +361,7 @@ export default function Landing({
                 />
               </picture>
               <span className="font-display text-lg font-bold tracking-tight">
-                <span className="text-gold">Ayah</span> Studio
+                <span className="text-gold">Aayah</span> Studio
               </span>
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/60">

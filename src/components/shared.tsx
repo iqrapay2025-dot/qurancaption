@@ -33,7 +33,7 @@ export function Logo({ onClick, compact }: { onClick?: () => void; compact?: boo
         </picture>
       </div>
       <span className={`font-display text-lg font-bold tracking-tight whitespace-nowrap ${compact ? "hidden md:inline" : ""}`}>
-        <span className="text-gold">Ayah</span> Studio
+        <span className="text-gold">Aayah</span> Studio
       </span>
     </Wrapper>
   );
