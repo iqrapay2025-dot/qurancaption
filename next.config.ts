@@ -82,6 +82,10 @@ const nextConfig: NextConfig = {
         source: '/ayah/:surah/:ayah/opengraph-image',
         destination: '/api/og/ayah?surah=:surah&ayah=:ayah',
       },
+      {
+        source: '/verify',
+        destination: '/api/verify',
+      },
     ]
   },
   env: {

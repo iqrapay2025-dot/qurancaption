@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import { getPayloadClient } from "@/lib/payload";
 import { sendMail } from "@/lib/app/mail";
 import { siteUrl } from "@/lib/site";
+import { renderVerificationEmailHtml } from "@/lib/app/email-templates";
 
 export const VERIFICATION_EXPIRY_HOURS = 24;
 
@@ -20,7 +21,7 @@ export async function issueVerificationEmail(userId: string, email: string): Pro
   const payload = await getPayloadClient();
   // overrideAccess must be true: these fields have `create/update: () => false`
   // field access, and Payload silently drops them otherwise.
-  await payload.update({
+  const updatedUser = await payload.update({
     collection: "users",
     id: userId,
     data: { emailToken: hash, emailTokenExpires: expiresAt.toISOString() },
@@ -28,10 +29,17 @@ export async function issueVerificationEmail(userId: string, email: string): Pro
     depth: 0,
   });
 
+  const userName = (updatedUser as any)?.name ?? null;
   const link = `${siteUrl()}/api/verify?token=${encodeURIComponent(token)}`;
+  const html = renderVerificationEmailHtml({
+    verifyUrl: link,
+    name: userName,
+    expiryHours: VERIFICATION_EXPIRY_HOURS,
+  });
+
   return sendMail(
     email,
     "Verify your email address",
-    `<p>Click the link below to verify your email address:</p><p><a href="${link}">Verify Email</a></p><p>This link expires in ${VERIFICATION_EXPIRY_HOURS} hours.</p>`,
+    html,
   );
 }

@@ -4,6 +4,7 @@ import { sendMail } from "@/lib/app/mail";
 import { siteUrl } from "@/lib/site";
 import { validEmail } from "@/lib/app/validate";
 import { rateLimit } from "@/lib/app/rate-limit";
+import { renderPasswordResetEmailHtml } from "@/lib/app/email-templates";
 
 export async function POST(req: Request) {
   const bad = csrf(req); if (bad) return bad;
@@ -18,7 +19,8 @@ export async function POST(req: Request) {
     const token = await payload.forgotPassword({ collection: "users", data: { email }, disableEmail: true });
     if (token) {
       const link = `${siteUrl()}/#/reset?token=${encodeURIComponent(token)}`;
-      const sent = await sendMail(email, "Reset your Ayah Studio password", `<p>We received a request to reset your password.</p><p><a href="${link}">Choose a new password</a></p><p>This link expires in one hour. If you didn't ask for this, you can ignore this email.</p>`);
+      const html = renderPasswordResetEmailHtml({ resetUrl: link });
+      const sent = await sendMail(email, "Reset your Ayah Studio password", html);
       if (!sent) {
         console.error(`[auth] forgot-password email failed for ${email}`);
       }
