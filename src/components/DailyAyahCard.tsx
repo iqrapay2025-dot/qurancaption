@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import {
   BookOpen,
@@ -19,7 +19,12 @@ import {
   Send,
 } from "lucide-react";
 import BadgeLoader from "@/components/BadgeLoader";
-import { pickDailyKey, parseDailyKey } from "@/lib/daily-ayah";
+import {
+  pickDailyKey,
+  parseDailyKey,
+  stripTashkeel,
+  getDailyAyahArabicClass,
+} from "@/lib/daily-ayah";
 import { DEFAULT_TR1, DEFAULT_RECITER, type ApiVerse, type SurahAudio } from "@/lib/quran/types";
 import { SURAH_NAMES_SIMPLE } from "@/lib/quran/reader";
 import {
@@ -49,10 +54,48 @@ export function DailyAyahCard() {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const [shareTextCopied, setShareTextCopied] = useState(false);
+  const [showTashkeel, setShowTashkeel] = useState(true);
+  const [sizeOffset, setSizeOffset] = useState<number>(0);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const shareModalRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    try {
+      const savedTashkeel = localStorage.getItem("daily-ayah-tashkeel");
+      if (savedTashkeel !== null) {
+        setShowTashkeel(savedTashkeel === "true");
+      }
+      const savedSize = localStorage.getItem("daily-ayah-size-offset");
+      if (savedSize !== null) {
+        const parsed = parseInt(savedSize, 10);
+        if (!isNaN(parsed) && parsed >= -1 && parsed <= 1) {
+          setSizeOffset(parsed);
+        }
+      }
+    } catch {}
+  }, []);
+
+  const toggleTashkeel = () => {
+    setShowTashkeel((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("daily-ayah-tashkeel", String(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  const changeSizeOffset = (delta: number) => {
+    setSizeOffset((prev) => {
+      const next = Math.max(-1, Math.min(1, prev + delta));
+      try {
+        localStorage.setItem("daily-ayah-size-offset", String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   useEffect(() => {
     // Detect current theme
@@ -175,10 +218,11 @@ export function DailyAyahCard() {
 
     const trText =
       verse.translations[DEFAULT_TR1] || Object.values(verse.translations)[0] || "";
+    const activeArabic = displayedArabic || verse.arabic;
 
     try {
       const blob = await renderAyahImage({
-        arabic: verse.arabic,
+        arabic: activeArabic,
         translation: trText,
         reference: `— ${surahName} ${surahNum}:${ayahNum}`,
         surah: surahNum,
@@ -197,7 +241,7 @@ export function DailyAyahCard() {
           await navigator.share({
             files: [file],
             title: `Ayah Studio — ${surahName} ${surahNum}:${ayahNum}`,
-            text: `${verse.arabic}\n\n${trText}\n— ${surahName} ${surahNum}:${ayahNum}`,
+            text: `${activeArabic}\n\n${trText}\n— ${surahName} ${surahNum}:${ayahNum}`,
           });
           setImageMenuOpen(false);
           return;
@@ -259,8 +303,9 @@ export function DailyAyahCard() {
   const handleCopy = async () => {
     if (!verse) return;
     const trText = verse.translations[DEFAULT_TR1] || Object.values(verse.translations)[0] || "";
+    const activeArabic = displayedArabic || verse.arabic;
     const url = getShareUrl();
-    const textToCopy = `${verse.arabic}\n\n${trText}\n\n— ${surahName} ${surahNum}:${ayahNum}\n\n${url}`;
+    const textToCopy = `${activeArabic}\n\n${trText}\n\n— ${surahName} ${surahNum}:${ayahNum}\n\n${url}`;
 
     try {
       await navigator.clipboard.writeText(textToCopy);
@@ -285,8 +330,9 @@ export function DailyAyahCard() {
   const handleCopyFullVerse = async () => {
     if (!verse) return;
     const trText = verse.translations[DEFAULT_TR1] || Object.values(verse.translations)[0] || "";
+    const activeArabic = displayedArabic || verse.arabic;
     const url = getShareUrl();
-    const full = `${verse.arabic}\n\n${trText}\n\n— ${surahName} ${surahNum}:${ayahNum}\n\n${url}`;
+    const full = `${activeArabic}\n\n${trText}\n\n— ${surahName} ${surahNum}:${ayahNum}\n\n${url}`;
     try {
       await navigator.clipboard.writeText(full);
       setShareTextCopied(true);
@@ -297,8 +343,9 @@ export function DailyAyahCard() {
   const handleShareApp = (platform: "whatsapp" | "telegram" | "twitter" | "facebook" | "native") => {
     if (!verse) return;
     const trText = verse.translations[DEFAULT_TR1] || Object.values(verse.translations)[0] || "";
+    const activeArabic = displayedArabic || verse.arabic;
     const url = getShareUrl();
-    const fullText = `${verse.arabic}\n\n${trText}\n\n— ${surahName} ${surahNum}:${ayahNum}`;
+    const fullText = `${activeArabic}\n\n${trText}\n\n— ${surahName} ${surahNum}:${ayahNum}`;
 
     if (platform === "whatsapp") {
       window.open(
@@ -355,19 +402,61 @@ export function DailyAyahCard() {
   const translationText =
     verse.translations[DEFAULT_TR1] || Object.values(verse.translations)[0] || "";
 
+  const displayedArabic = showTashkeel ? verse.arabic : stripTashkeel(verse.arabic);
+  const arabicClasses = getDailyAyahArabicClass(verse.arabic.length, sizeOffset);
+
   return (
     <div
       data-tour="daily-ayah-card"
-      className="rounded-2xl border border-gold/40 bg-card p-5 sm:p-8 shadow-md relative transition-all"
+      className="rounded-2xl border border-gold/40 bg-card p-4 sm:p-7 md:p-8 shadow-md relative transition-all"
     >
       {/* Top Banner */}
-      <div className="flex items-center justify-between gap-2 border-b border-border pb-3 mb-5">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-border pb-3 mb-4 sm:mb-5">
         <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gold">
           <Sparkles size={14} /> Daily Ayah
         </div>
-        <span className="font-mono text-xs text-muted-foreground">
-          {surahName} {surahNum}:{ayahNum}
-        </span>
+
+        <div className="flex items-center flex-wrap gap-2 text-xs">
+          {/* Diacritics (Tashkeel) toggle */}
+          <button
+            type="button"
+            onClick={toggleTashkeel}
+            title={showTashkeel ? "Switch to simplified script (hide diacritics)" : "Show full diacritics (tashkeel)"}
+            aria-label={showTashkeel ? "Switch to simplified script" : "Show full diacritics"}
+            className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border border-border bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
+          >
+            {showTashkeel ? "Tashkeel: On" : "Tashkeel: Off"}
+          </button>
+
+          {/* Font Size A- / A+ */}
+          <div className="inline-flex items-center rounded border border-border bg-muted/50 text-[11px] font-medium text-muted-foreground overflow-hidden">
+            <button
+              type="button"
+              onClick={() => changeSizeOffset(-1)}
+              disabled={sizeOffset <= -1}
+              title="Smaller Arabic font"
+              aria-label="Smaller Arabic font"
+              className="px-2 py-0.5 hover:bg-muted hover:text-foreground disabled:opacity-30 transition-colors touch-manipulation"
+            >
+              A-
+            </button>
+            <span className="w-px h-3 bg-border" />
+            <button
+              type="button"
+              onClick={() => changeSizeOffset(1)}
+              disabled={sizeOffset >= 1}
+              title="Larger Arabic font"
+              aria-label="Larger Arabic font"
+              className="px-2 py-0.5 hover:bg-muted hover:text-foreground disabled:opacity-30 transition-colors touch-manipulation"
+            >
+              A+
+            </button>
+          </div>
+
+          <span className="font-mono text-xs text-muted-foreground">
+            {surahName} {surahNum}:{ayahNum}
+          </span>
+        </div>
       </div>
 
       {/* Hidden Audio Element */}
@@ -384,14 +473,18 @@ export function DailyAyahCard() {
         />
       )}
 
-      {/* Arabic Verse in Amiri Quran Font */}
+      {/* Arabic Verse in Quran Font with Adaptive Sizing & Generous Leading for Diacritics */}
       <p
         dir="rtl"
         lang="ar"
-        style={{ fontFamily: "'Amiri Quran', serif" }}
-        className="text-right text-2xl sm:text-3xl leading-loose text-foreground my-3"
+        style={{
+          fontFamily: "var(--font-quran, 'Amiri Quran', 'Scheherazade New', serif)",
+          textWrap: "pretty",
+          wordSpacing: "0.04em",
+        }}
+        className={`text-right ${arabicClasses} text-foreground my-3 select-text transition-all`}
       >
-        {verse.arabic}
+        {displayedArabic}
       </p>
 
       {/* Translation */}

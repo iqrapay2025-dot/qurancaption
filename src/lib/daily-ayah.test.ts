@@ -3,6 +3,8 @@ import {
   DAILY_AYAH_KEYS,
   pickDailyKey,
   parseDailyKey,
+  stripTashkeel,
+  getDailyAyahArabicClass,
 } from "./daily-ayah";
 import { SURAH_VERSE_COUNTS } from "./editor-link";
 
@@ -54,5 +56,49 @@ describe("Daily Ayah (Prompt 5)", () => {
     expect(parseDailyKey("115:1")).toBeNull();
     expect(parseDailyKey("1:8")).toBeNull(); // Al-Fatihah has only 7 ayahs
     expect(parseDailyKey("abc:12")).toBeNull();
+  });
+
+  describe("stripTashkeel", () => {
+    it("safely handles empty text", () => {
+      expect(stripTashkeel("")).toBe("");
+    });
+
+    it("removes vowel diacritics (harakat) and recitation marks while keeping letters", () => {
+      const sample = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ۚ";
+      const stripped = stripTashkeel(sample);
+      expect(stripped).toBe("بسم الله الرحمن الرحيم ");
+      expect(stripped).not.toContain("ِ"); // kasra
+      expect(stripped).not.toContain("ّ"); // shaddah
+      expect(stripped).not.toContain("ۚ"); // waqf mark
+    });
+  });
+
+  describe("getDailyAyahArabicClass", () => {
+    it("returns compact class for long verses (>180 chars)", () => {
+      const cls = getDailyAyahArabicClass(250, 0);
+      expect(cls).toContain("text-[17px]");
+      expect(cls).toContain("leading-[2.25]");
+    });
+
+    it("returns medium class for medium verses (90-180 chars)", () => {
+      const cls = getDailyAyahArabicClass(120, 0);
+      expect(cls).toContain("text-lg");
+      expect(cls).toContain("leading-[2.2]");
+    });
+
+    it("returns larger class for short verses (<90 chars)", () => {
+      const cls = getDailyAyahArabicClass(40, 0);
+      expect(cls).toContain("text-xl");
+    });
+
+    it("scales down when sizeOffset is -1", () => {
+      const cls = getDailyAyahArabicClass(250, -1);
+      expect(cls).toContain("text-base");
+    });
+
+    it("scales up when sizeOffset is +1", () => {
+      const cls = getDailyAyahArabicClass(250, 1);
+      expect(cls).toContain("text-xl");
+    });
   });
 });

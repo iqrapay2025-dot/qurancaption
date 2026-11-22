@@ -102,3 +102,47 @@ export function parseDailyKey(key: string): { surah: number; ayah: number } | nu
   if (ayah < 1 || ayah > max) return null;
   return { surah, ayah };
 }
+
+/**
+ * Strips Arabic diacritics / tashkeel and recitation stop symbols for a simplified,
+ * clean reading experience.
+ */
+export function stripTashkeel(text: string): string {
+  if (!text) return "";
+  return text.replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "");
+}
+
+/**
+ * Returns balanced, responsive typography classes based on verse length and optional user size offset (-1, 0, +1).
+ * Prevents long verses (e.g. 11:88, 2:255, 2:286) from ballooning into huge, crowded blocks of text.
+ */
+export function getDailyAyahArabicClass(textLength: number, sizeOffset: number = 0): string {
+  if (sizeOffset <= -1) {
+    if (textLength > 180) {
+      return "text-base sm:text-lg md:text-xl leading-[2.2] sm:leading-[2.3]";
+    }
+    if (textLength > 90) {
+      return "text-lg sm:text-xl md:text-2xl leading-[2.2] sm:leading-[2.3]";
+    }
+    return "text-xl sm:text-2xl md:text-3xl leading-loose";
+  }
+
+  if (sizeOffset >= 1) {
+    if (textLength > 180) {
+      return "text-xl sm:text-2xl md:text-3xl leading-[2.3] sm:leading-loose";
+    }
+    if (textLength > 90) {
+      return "text-2xl sm:text-3xl leading-loose";
+    }
+    return "text-2xl sm:text-3xl md:text-4xl leading-loose";
+  }
+
+  if (textLength > 180) {
+    return "text-[17px] sm:text-lg md:text-xl lg:text-2xl leading-[2.25] sm:leading-[2.35]";
+  }
+  if (textLength > 90) {
+    return "text-lg sm:text-xl md:text-2xl leading-[2.2] sm:leading-loose";
+  }
+  return "text-xl sm:text-2xl md:text-3xl leading-loose";
+}
+

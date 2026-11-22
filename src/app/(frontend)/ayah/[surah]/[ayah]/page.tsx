@@ -150,7 +150,18 @@ export default async function AyahSharePage({ params }: PageProps) {
               <div
                 dir="rtl"
                 lang="ar"
-                className="font-quran text-2xl sm:text-3xl lg:text-4xl leading-loose sm:leading-loose text-right text-foreground mb-6 select-text"
+                style={{
+                  fontFamily: "var(--font-quran, 'Amiri Quran', 'Scheherazade New', serif)",
+                  textWrap: "pretty",
+                  wordSpacing: "0.04em",
+                }}
+                className={`text-right text-foreground mb-6 select-text ${
+                  arabic.length > 180
+                    ? "text-xl sm:text-2xl lg:text-3xl leading-[2.25] sm:leading-[2.35]"
+                    : arabic.length > 90
+                    ? "text-2xl sm:text-3xl lg:text-4xl leading-[2.2] sm:leading-loose"
+                    : "text-2xl sm:text-3xl lg:text-4xl leading-loose"
+                }`}
               >
                 {arabic}
               </div>
