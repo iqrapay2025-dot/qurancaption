@@ -75,6 +75,14 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }]
   },
+  async rewrites() {
+    return [
+      {
+        source: '/ayah/:surah/:ayah/opengraph-image',
+        destination: '/api/og/ayah?surah=:surah&ayah=:ayah',
+      },
+    ]
+  },
   env: {
     NEXT_PUBLIC_SITE_URL: siteUrl,
   },

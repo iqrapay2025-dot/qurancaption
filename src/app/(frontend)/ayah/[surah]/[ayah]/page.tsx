@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = trimAyahDescription(translation);
   const canonical = `/ayah/${valid.surah}/${valid.ayah}`;
   const fullUrl = buildAyahShareUrl(valid.surah, valid.ayah, siteUrl());
-  const ogImageUrl = `${fullUrl}/opengraph-image`;
+  const ogImageUrl = `${siteUrl()}/api/og/ayah?surah=${valid.surah}&ayah=${valid.ayah}`;
 
   return {
     title,
@@ -55,8 +55,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       images: [
         {
           url: ogImageUrl,
+          secureUrl: ogImageUrl,
           width: 1200,
           height: 630,
+          type: "image/png",
           alt: `Surah ${valid.surahName} ${valid.surah}:${valid.ayah} — Ayah Studio`,
         },
       ],
