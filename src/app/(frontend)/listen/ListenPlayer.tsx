@@ -95,11 +95,21 @@ export function ListenPlayer() {
   const filteredReciters = useMemo(() => {
     if (!reciterSearch.trim()) return availableReciters;
     const q = reciterSearch.toLowerCase().trim();
+    const normalize = (s: string) =>
+      s
+        .toLowerCase()
+        .replace(/ss/g, "s")
+        .replace(/y/g, "i")
+        .replace(/['-]/g, "")
+        .replace(/\s+/g, " ");
+    const nq = normalize(q);
+
     return availableReciters.filter(
       (r) =>
         r.name.toLowerCase().includes(q) ||
+        normalize(r.name).includes(nq) ||
         (r.nameArabic && r.nameArabic.includes(q)) ||
-        (r.style && r.style.toLowerCase().includes(q))
+        (r.style && (r.style.toLowerCase().includes(q) || normalize(r.style).includes(nq)))
     );
   }, [availableReciters, reciterSearch]);
 

@@ -78,11 +78,21 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
   const filteredReciters = useMemo(() => {
     if (!reciterSearch.trim()) return reciters;
     const q = reciterSearch.toLowerCase().trim();
+    const normalize = (s: string) =>
+      s
+        .toLowerCase()
+        .replace(/ss/g, "s")
+        .replace(/y/g, "i")
+        .replace(/['-]/g, "")
+        .replace(/\s+/g, " ");
+    const nq = normalize(q);
+
     return reciters.filter(
       (r) =>
         r.name.toLowerCase().includes(q) ||
+        normalize(r.name).includes(nq) ||
         (r.nameArabic && r.nameArabic.includes(q)) ||
-        (r.style && r.style.toLowerCase().includes(q))
+        (r.style && (r.style.toLowerCase().includes(q) || normalize(r.style).includes(nq)))
     );
   }, [reciters, reciterSearch]);
 
