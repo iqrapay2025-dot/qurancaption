@@ -268,7 +268,8 @@ export function parseParagraphs(raw: string): string[] {
   return finalParas.map((p) => p.trim()).filter((p) => p.length > 0);
 }
 
-export const ALLOWED_TAFSIR_IDS = ["ibn_kathir", "maarif", "muyassar"] as const;
+// "maarif" is disabled for now
+export const ALLOWED_TAFSIR_IDS = ["ibn_kathir", "muyassar"] as const;
 
 export async function getTafsirs() {
   return cached("tafsirs", DAY, async () => {

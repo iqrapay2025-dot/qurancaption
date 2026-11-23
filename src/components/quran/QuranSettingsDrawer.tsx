@@ -249,12 +249,11 @@ export function QuranSettingsDrawer({
             </label>
             <select
               id="default-tafsir-select"
-              value={settings.defaultTafsir}
+              value={settings.defaultTafsir === "maarif" ? "ibn_kathir" : settings.defaultTafsir}
               onChange={(e) => onUpdate({ defaultTafsir: e.target.value })}
               className="w-full rounded-md border border-border bg-card px-3 py-2 text-foreground focus-visible:outline-2 focus-visible:outline-ring"
             >
               <option value="ibn_kathir">Tafsir Ibn Kathir</option>
-              <option value="maarif">Maarif al-Qur&apos;an</option>
               <option value="muyassar">Al-Tafsir Al-Muyassar</option>
             </select>
           </div>

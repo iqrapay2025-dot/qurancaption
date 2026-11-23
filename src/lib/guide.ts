@@ -157,7 +157,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
       },
       {
         title: "Tafsir commentaries",
-        body: "Click the Tafsir button on any verse to view verified classical commentaries, including Tafsir Ibn Kathir, Ma'arif-ul-Quran (by Mufti Muhammad Shafi), and Tafsir Al-Muyassar.",
+        body: "Click the Tafsir button on any verse to view verified classical commentaries, including Tafsir Ibn Kathir and Tafsir Al-Muyassar.",
       },
       {
         title: "Ayah audio playback",
@@ -338,7 +338,7 @@ export const GUIDE_TROUBLESHOOTING: GuideIssue[] = [
     category: "reader",
     problem: "Tafsir will not load.",
     solution:
-      "Tafsir commentaries (Ibn Kathir, Ma'arif-ul-Quran, Al-Muyassar) are fetched on demand. Make sure you are connected to the internet and click the Tafsir button again. If one tafsir does not load, try switching to another available commentary in the drawer.",
+      "Tafsir commentaries (Ibn Kathir, Al-Muyassar) are fetched on demand. Make sure you are connected to the internet and click the Tafsir button again. If one tafsir does not load, try switching to another available commentary in the drawer.",
   },
   {
     category: "reader",

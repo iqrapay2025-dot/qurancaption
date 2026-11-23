@@ -40,11 +40,18 @@ export function TafsirDrawer({
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setSelectedTafsir(saved);
+      if (saved && saved !== "maarif") setSelectedTafsir(saved);
       const savedSize = localStorage.getItem(FONT_SIZE_KEY) as FontSize | null;
       if (savedSize && FONT_SIZES.includes(savedSize)) setFontSize(savedSize);
     } catch {}
   }, []);
+
+  // Ensure disabled tafsirs fall back to ibn_kathir
+  useEffect(() => {
+    if (selectedTafsir === "maarif") {
+      setSelectedTafsir("ibn_kathir");
+    }
+  }, [selectedTafsir]);
 
   const handleTafsirChange = (id: string) => {
     setSelectedTafsir(id);
@@ -63,13 +70,13 @@ export function TafsirDrawer({
     } catch {}
   };
 
-  // Fetch catalog of tafsirs
+  // Fetch catalog of tafsirs (maarif disabled for now)
   const { data: catalogData } = useApi<{ tafsirs: TafsirInfo[] }>("/api/quran/tafsirs");
-  const tafsirs = catalogData?.tafsirs ?? [
+  const rawTafsirs = catalogData?.tafsirs ?? [
     { id: "ibn_kathir", name: "Ibn Kathir (Abridged)", language: "english" },
-    { id: "maarif", name: "Ma'arif al-Qur'an", language: "english" },
     { id: "muyassar", name: "Tafsir Muyassar", language: "arabic" },
   ];
+  const tafsirs = rawTafsirs.filter((t) => t.id !== "maarif");
 
   // Fetch commentary for current tafsir & ayah
   const tafsirUrl = isOpen

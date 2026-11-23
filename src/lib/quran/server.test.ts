@@ -86,15 +86,14 @@ describe("Tafsir backend", () => {
     })));
 
     const { tafsirs } = await getTafsirs();
-    expect(tafsirs).toHaveLength(3);
+    expect(tafsirs).toHaveLength(2);
     expect(tafsirs[0]).toEqual({
       id: "ibn_kathir",
       name: "Ibn Kathir (Abridged)",
       language: "english",
       author: "Hafiz Ibn Kathir",
     });
-    expect(tafsirs[1].id).toBe("maarif");
-    expect(tafsirs[2].id).toBe("muyassar");
+    expect(tafsirs[1].id).toBe("muyassar");
   });
 
   it("the correct ayah is returned from a mocked surah response", async () => {
