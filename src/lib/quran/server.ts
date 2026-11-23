@@ -850,12 +850,20 @@ for (const add of EVERYAYAH_ADDITIONAL_RECITERS) {
 export async function getAudio(surah: number, reciter: number) {
   assertSurah(surah);
   if (!Number.isInteger(reciter) || reciter < 1) throw new ApiError("bad_request", "Invalid reciter.", 400);
+
+  // Map MP3Quran reciter IDs to Quran.com / EveryAyah reciter IDs if passed here
+  const normalizedReciter =
+    reciter === 123 ? 1 : // Mishary Rashid Alafasy
+    reciter === 118 || reciter === 11802 ? 2 : // Mahmoud Khalil Al-Husary
+    reciter === 112 ? 3 : // Mohamed Siddiq El-Minshawi
+    reciter;
+
   return cached(`audio:${surah}:${reciter}`, DAY, async () => {
     try {
-      const d = await ummah<any>(`/quran/audio/${surah}`, { reciter });
+      const d = await ummah<any>(`/quran/audio/${surah}`, { reciter: normalizedReciter });
       const url = (u: unknown) => (typeof u === "string" && /^https:\/\//i.test(u) ? u : null);
       const surahUrl = url(d.full_surah_audio);
-      if (surahUrl && Array.isArray(d.ayah_by_ayah) && d.reciter?.id === reciter) {
+      if (surahUrl && Array.isArray(d.ayah_by_ayah) && (d.reciter?.id === normalizedReciter || d.reciter?.id === reciter)) {
         const files = (d.ayah_by_ayah as any[]).flatMap((a) => {
           const u = url(a?.audio_url);
           return u && typeof a.verse_key === "string" && a.verse_key.startsWith(`${surah}:`) ? [{ verseKey: a.verse_key as string, audioUrl: u }] : [];
@@ -866,7 +874,7 @@ export async function getAudio(surah: number, reciter: number) {
       console.warn(`[quran-audio] UmmahAPI fetch failed for surah ${surah}, reciter ${reciter}, using verified CDN fallback:`, e instanceof Error ? e.message : e);
     }
 
-    const cdn = RECITER_CDN_PATHS[reciter];
+    const cdn = RECITER_CDN_PATHS[normalizedReciter] || RECITER_CDN_PATHS[reciter];
     if (cdn) {
       const pad3 = String(surah).padStart(3, "0");
       const surahUrl = `https://download.quranicaudio.com/quran/${cdn.path}/${pad3}.mp3`;

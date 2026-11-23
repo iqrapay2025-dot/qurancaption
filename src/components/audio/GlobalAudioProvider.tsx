@@ -238,9 +238,12 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
       } catch {}
 
       // 2. Direct MP3Quran CDN stream URL if reciter server is known
-      const reciter = recitersRef.current.find((r) => r.id === reciterNum);
-      if (reciter?.server) {
-        const url = buildListenAudioUrl(reciter.server, surahNum);
+      let server = recitersRef.current.find((r) => r.id === reciterNum)?.server;
+      if (!server && reciterNum === DEFAULT_LISTEN_RECITER_ID) {
+        server = "https://server8.mp3quran.net/afs/";
+      }
+      if (server) {
+        const url = buildListenAudioUrl(server, surahNum);
         setAudioUrl(url);
         setLoading(false);
         return;

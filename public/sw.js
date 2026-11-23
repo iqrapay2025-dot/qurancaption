@@ -1,7 +1,7 @@
 // public/sw.js
 importScripts("/sw-rules.js");
 
-const CACHE_NAME = "ayah-studio-v5";
+const CACHE_NAME = "ayah-studio-v6";
 const PRECACHE_ASSETS = [
   "/offline",
   "/brand/ayah-badge-dark-48.webp",
@@ -84,16 +84,20 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
-      return fetch(req).then((response) => {
-        if (!response || response.status !== 200 || (response.type !== "basic" && response.type !== "cors")) {
+      return fetch(req)
+        .then((response) => {
+          if (!response || response.status !== 200 || (response.type !== "basic" && response.type !== "cors")) {
+            return response;
+          }
+          const cloned = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(req, cloned);
+          });
           return response;
-        }
-        const cloned = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(req, cloned);
+        })
+        .catch(() => {
+          return caches.match(req);
         });
-        return response;
-      });
     })
   );
 });
