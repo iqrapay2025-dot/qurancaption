@@ -427,15 +427,340 @@ export async function getTranslations() {
   });
 }
 
+export const EVERYAYAH_ADDITIONAL_RECITERS = [
+  {
+    id: 14,
+    name: "Mahmoud Khalil Al-Husary (Murattal)",
+    nameArabic: "محمود خليل الحصري - مرتل",
+    style: "Murattal",
+    cdnPath: "mahmood_khaleel_al-husaree",
+    everyAyah: "Husary_128kbps",
+  },
+  {
+    id: 15,
+    name: "Mahmoud Khalil Al-Husary (Mujawwad)",
+    nameArabic: "محمود خليل الحصري - مجود",
+    style: "Mujawwad",
+    cdnPath: "mahmood_khaleel_al-husaree_mujawwad",
+    everyAyah: "Husary_128kbps_Mujawwad",
+  },
+  {
+    id: 16,
+    name: "Mahmoud Khalil Al-Husary (Muallim)",
+    nameArabic: "محمود خليل الحصري - معلم",
+    style: "Muallim",
+    cdnPath: "mahmood_khaleel_al-husaree",
+    everyAyah: "Husary_Muallim_128kbps",
+  },
+  {
+    id: 17,
+    name: "Mohamed Siddiq Al-Minshawi (Murattal)",
+    nameArabic: "محمد صديق المنشاوي - مرتل",
+    style: "Murattal",
+    cdnPath: "muhammad_siddeeq_al-minshaawee",
+    everyAyah: "Minshawy_Murattal_128kbps",
+  },
+  {
+    id: 18,
+    name: "Mohamed Siddiq Al-Minshawi (Mujawwad)",
+    nameArabic: "محمد صديق المنشاوي - مجود",
+    style: "Mujawwad",
+    cdnPath: "muhammad_siddeeq_al-minshaawee_mujawwad",
+    everyAyah: "Minshawy_Mujawwad_192kbps",
+  },
+  {
+    id: 19,
+    name: "Mohamed Siddiq Al-Minshawi (Teacher)",
+    nameArabic: "محمد صديق المنشاوي - معلم",
+    style: "Teacher",
+    cdnPath: "muhammad_siddeeq_al-minshaawee",
+    everyAyah: "Minshawy_Teacher_128kbps",
+  },
+  {
+    id: 20,
+    name: "Ali Abdur-Rahman Al-Hudhaify",
+    nameArabic: "علي بن عبدالرحمن الحذيفي",
+    style: "Murattal",
+    cdnPath: "ali_alhuthaify",
+    everyAyah: "Hudhaify_128kbps",
+  },
+  {
+    id: 21,
+    name: "Muhammad Ayyoub",
+    nameArabic: "محمد أيوب",
+    style: "Murattal",
+    cdnPath: "muhammad_ayyoob",
+    everyAyah: "Muhammad_Ayyoub_128kbps",
+  },
+  {
+    id: 22,
+    name: "Muhammad Jibreel",
+    nameArabic: "محمد جبريل",
+    style: "Murattal",
+    cdnPath: "muhammad_jibreel",
+    everyAyah: "Muhammad_Jibreel_128kbps",
+  },
+  {
+    id: 23,
+    name: "Abdullah Basfar",
+    nameArabic: "عبدالله بصفر",
+    style: "Murattal",
+    cdnPath: "abdullaah_basfar",
+    everyAyah: "Abdullah_Basfar_192kbps",
+  },
+  {
+    id: 24,
+    name: "Ahmed ibn Ali Al-Ajamy",
+    nameArabic: "أحمد بن علي العجمي",
+    style: "Murattal",
+    cdnPath: "ahmed_ibn_3ali_al-3ajamy",
+    everyAyah: "ahmed_ibn_ali_al_ajamy_128kbps",
+  },
+  {
+    id: 25,
+    name: "Ali Jaber",
+    nameArabic: "علي جابر",
+    style: "Murattal",
+    cdnPath: "ali_jaaber",
+    everyAyah: "Ali_Jaber_64kbps",
+  },
+  {
+    id: 26,
+    name: "Fares Abbad",
+    nameArabic: "فارس عباد",
+    style: "Murattal",
+    cdnPath: "fares_abbad",
+    everyAyah: "Fares_Abbad_64kbps",
+  },
+  {
+    id: 27,
+    name: "Nasser Al-Qatami",
+    nameArabic: "ناصر القطامي",
+    style: "Murattal",
+    cdnPath: "nasser_alqatami",
+    everyAyah: "Nasser_Alqatami_128kbps",
+  },
+  {
+    id: 28,
+    name: "Salah Al-Budair",
+    nameArabic: "صلاح البدير",
+    style: "Murattal",
+    cdnPath: "salah_albudair",
+    everyAyah: "Salah_Al_Budair_128kbps",
+  },
+  {
+    id: 29,
+    name: "Muhsin Al-Qasim",
+    nameArabic: "عبدالمحسن القاسم",
+    style: "Murattal",
+    cdnPath: "muhsin_al_qasim",
+    everyAyah: "Muhsin_Al_Qasim_192kbps",
+  },
+  {
+    id: 30,
+    name: "Mohammad Al-Tablaway",
+    nameArabic: "محمد محمود الطبلاوي",
+    style: "Murattal",
+    cdnPath: "mohammad_altablawi",
+    everyAyah: "Mohammad_al_Tablaway_128kbps",
+  },
+  {
+    id: 31,
+    name: "Mustafa Ismail",
+    nameArabic: "مصطفى إسماعيل",
+    style: "Murattal",
+    cdnPath: "mustafa_ismail",
+    everyAyah: "Mustafa_Ismail_48kbps",
+  },
+  {
+    id: 32,
+    name: "Ibrahim Al-Akhdar",
+    nameArabic: "إبراهيم الأخضر",
+    style: "Murattal",
+    cdnPath: "ibrahim_al-akhdar",
+    everyAyah: "Ibrahim_Akhdar_64kbps",
+  },
+  {
+    id: 33,
+    name: "Abdullah Matroud",
+    nameArabic: "عبدالله مطرود",
+    style: "Murattal",
+    cdnPath: "abdullah_matrood",
+    everyAyah: "Abdullah_Matroud_128kbps",
+  },
+  {
+    id: 34,
+    name: "Salah Bukhatir",
+    nameArabic: "صلاح بوخاطر",
+    style: "Murattal",
+    cdnPath: "salah_bukhatir",
+    everyAyah: "Salaah_AbdulRahman_Bukhatir_128kbps",
+  },
+  {
+    id: 35,
+    name: "Khalid Al-Qahtani",
+    nameArabic: "خالد القحطاني",
+    style: "Murattal",
+    cdnPath: "khalid_al-qahtani",
+    everyAyah: "Khaalid_Abdullaah_al-Qahtaanee_192kbps",
+  },
+  {
+    id: 36,
+    name: "Ayman Sowaid",
+    nameArabic: "أيمن سويد",
+    style: "Murattal",
+    cdnPath: "ayman_sowaid",
+    everyAyah: "Ayman_Sowaid_64kbps",
+  },
+  {
+    id: 37,
+    name: "Mahmoud Ali Al-Banna",
+    nameArabic: "محمود علي البنا",
+    style: "Murattal",
+    cdnPath: "mahmood_ali_al-banna",
+    everyAyah: "mahmoud_ali_al_banna_32kbps",
+  },
+  {
+    id: 38,
+    name: "Khalefa Al-Tunaiji",
+    nameArabic: "خليفة الطنيجي",
+    style: "Murattal",
+    cdnPath: "khalefa_al-tunaiji",
+    everyAyah: "khalefa_al_tunaiji_64kbps",
+  },
+  {
+    id: 39,
+    name: "Ahmed Neana",
+    nameArabic: "أحمد نعينع",
+    style: "Murattal",
+    cdnPath: "ahmed_nauina",
+    everyAyah: "Ahmed_Neana_128kbps",
+  },
+  {
+    id: 40,
+    name: "Muhammad Abdul-Kareem",
+    nameArabic: "محمد عبدالكريم",
+    style: "Murattal",
+    cdnPath: "muhammad_abdulkareem",
+    everyAyah: "Muhammad_AbdulKareem_128kbps",
+  },
+  {
+    id: 41,
+    name: "Sahl Yassin",
+    nameArabic: "سهل ياسين",
+    style: "Murattal",
+    cdnPath: "sahl_yasin",
+    everyAyah: "Sahl_Yassin_128kbps",
+  },
+  {
+    id: 42,
+    name: "Yaser Salamah",
+    nameArabic: "ياسر سلامة",
+    style: "Murattal",
+    cdnPath: "yasser_salama",
+    everyAyah: "Yaser_Salamah_128kbps",
+  },
+  {
+    id: 43,
+    name: "Akram Al-Alaqimy",
+    nameArabic: "أكرم العلاقمي",
+    style: "Murattal",
+    cdnPath: "akram_alalaqimy",
+    everyAyah: "Akram_AlAlaqimy_128kbps",
+  },
+  {
+    id: 44,
+    name: "Ali Hajjaj Al-Suesy",
+    nameArabic: "علي حجاج السويسي",
+    style: "Murattal",
+    cdnPath: "ali_hajjaj_alsuesy",
+    everyAyah: "Ali_Hajjaj_AlSuesy_128kbps",
+  },
+  {
+    id: 45,
+    name: "Aziz Alili",
+    nameArabic: "عزيز عليلي",
+    style: "Murattal",
+    cdnPath: "aziz_alili",
+    everyAyah: "aziz_alili_128kbps",
+  },
+  {
+    id: 46,
+    name: "Abdul-Samad",
+    nameArabic: "عبدالصمد",
+    style: "Murattal",
+    cdnPath: "abdulsamad",
+    everyAyah: "AbdulSamad_64kbps_QuranExplorer.Com",
+  },
+  {
+    id: 47,
+    name: "Ibrahim Al-Dosary (Warsh)",
+    nameArabic: "إبراهيم الدوسري - ورش",
+    style: "Warsh",
+    cdnPath: "ibrahim_al-dosari",
+    everyAyah: "warsh/warsh_ibrahim_aldosary_128kbps",
+  },
+  {
+    id: 48,
+    name: "Yassin Al-Jazaery (Warsh)",
+    nameArabic: "ياسين الجزائري - ورش",
+    style: "Warsh",
+    cdnPath: "yassin_al-jazaery",
+    everyAyah: "warsh/warsh_yassin_al_jazaery_64kbps",
+  },
+  {
+    id: 49,
+    name: "Abdul Basit (Warsh)",
+    nameArabic: "عبدالباسط عبدالصمد - ورش",
+    style: "Warsh",
+    cdnPath: "abdul_basit_warsh",
+    everyAyah: "warsh/warsh_Abdul_Basit_128kbps",
+  },
+] as const;
+
 export async function getReciters() {
   return cached("reciters", DAY, async () => {
-    const d = await ummah<{ reciters: any[] }>("/quran/reciters");
-    need(Array.isArray(d.reciters) && d.reciters.length > 0, 0);
-    const reciters: Reciter[] = d.reciters.map((r) => {
-      need(Number.isInteger(r.id) && typeof r.name === "string", 0);
-      return { id: r.id, name: r.name, nameArabic: r.name_arabic ?? null, style: r.style ?? null };
-    });
-    return { reciters };
+    let baseReciters: Reciter[] = [];
+    try {
+      const d = await ummah<{ reciters: any[] }>("/quran/reciters");
+      if (Array.isArray(d.reciters) && d.reciters.length > 0) {
+        baseReciters = d.reciters.map((r) => ({
+          id: r.id,
+          name: r.name,
+          nameArabic: r.name_arabic ?? null,
+          style: r.style ?? null,
+        }));
+      }
+    } catch {}
+
+    // Fallback base reciters (1-11) if UmmahAPI was unreachable
+    if (baseReciters.length === 0) {
+      baseReciters = [
+        { id: 1, name: "Mishary Rashid Alafasy", nameArabic: "مشاري راشد العفاسي", style: "Murattal" },
+        { id: 2, name: "Abdul Rahman Al-Sudais", nameArabic: "عبدالرحمن السديس", style: "Murattal" },
+        { id: 3, name: "Abdul Basit Abdul Samad", nameArabic: "عبدالباسط عبدالصمد", style: "Murattal" },
+        { id: 4, name: "Abdul Basit Abdul Samad (Mujawwad)", nameArabic: "عبدالباسط عبدالصمد - مجود", style: "Mujawwad" },
+        { id: 5, name: "Maher Al Muaiqly", nameArabic: "ماهر المعيقلي", style: "Murattal" },
+        { id: 6, name: "Saad Al-Ghamdi", nameArabic: "سعد الغامدي", style: "Murattal" },
+        { id: 7, name: "Hani Ar-Rifai", nameArabic: "هاني الرفاعي", style: "Murattal" },
+        { id: 8, name: "Abu Bakr Al Shatri", nameArabic: "أبوبكر الشاطري", style: "Murattal" },
+        { id: 9, name: "Yasser Al-Dosari", nameArabic: "ياسر الدوسري", style: "Murattal" },
+        { id: 10, name: "Saud Al-Shuraim", nameArabic: "سعود الشريم", style: "Murattal" },
+        { id: 11, name: "Abdullah Al-Juhany", nameArabic: "عبدالله الجهني", style: "Murattal" },
+      ];
+    }
+
+    const existingIds = new Set(baseReciters.map((r) => r.id));
+    const additionals: Reciter[] = EVERYAYAH_ADDITIONAL_RECITERS.filter(
+      (r) => !existingIds.has(r.id)
+    ).map((r) => ({
+      id: r.id,
+      name: r.name,
+      nameArabic: r.nameArabic,
+      style: r.style,
+    }));
+
+    return { reciters: [...baseReciters, ...additionals] };
   });
 }
 
@@ -517,6 +842,10 @@ const RECITER_CDN_PATHS: Record<number, { path: string; everyAyah: string }> = {
   10: { path: "sa3ood_al-shuraym", everyAyah: "Saood_ash-Shuraym_128kbps" },
   11: { path: "abdullah_al-juhanee", everyAyah: "Abdullah_Juhany_128kbps" },
 };
+
+for (const add of EVERYAYAH_ADDITIONAL_RECITERS) {
+  RECITER_CDN_PATHS[add.id] = { path: add.cdnPath, everyAyah: add.everyAyah };
+}
 
 export async function getAudio(surah: number, reciter: number) {
   assertSurah(surah);

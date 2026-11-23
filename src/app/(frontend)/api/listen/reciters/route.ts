@@ -58,10 +58,19 @@ const FALLBACK_RECITERS: ListenReciter[] = [
   },
   {
     id: 118,
-    name: "Mahmoud Khalil Al-Hussary",
-    nameArabic: "محمود خليل الحصري",
+    name: "Mahmoud Khalil Al-Hussary (Murattal)",
+    nameArabic: "محمود خليل الحصري - مرتل",
     style: "Hafs A'n Assem - Murattal",
-    server: "https://cdn.mp3quran.net/audio/mahmoud-husary/r5/",
+    server: "https://cdn.mp3quran.net/audio/mahmoud-husary/r1/",
+    surahTotal: 114,
+    surahList: Array.from({ length: 114 }, (_, i) => i + 1),
+  },
+  {
+    id: 11802,
+    name: "Mahmoud Khalil Al-Hussary (Mujawwad)",
+    nameArabic: "محمود خليل الحصري - مجود",
+    style: "Hafs A'n Assem - Almusshaf Al Mojawwad",
+    server: "https://cdn.mp3quran.net/audio/mahmoud-husary/r2/",
     surahTotal: 114,
     surahList: Array.from({ length: 114 }, (_, i) => i + 1),
   },
@@ -167,12 +176,14 @@ export async function GET() {
       for (const r of engData.reciters) {
         if (!r.id || !r.name || !Array.isArray(r.moshaf) || r.moshaf.length === 0) continue;
 
-        // Pick preferred moshaf: Hafs (rewaya_id === 1) or complete 114, otherwise first moshaf
-        const moshaf =
-          r.moshaf.find((m: any) => m.rewaya_id === 1 && m.surah_total === 114) ||
-          r.moshaf.find((m: any) => m.surah_total === 114) ||
-          r.moshaf.find((m: any) => m.rewaya_id === 1) ||
-          r.moshaf[0];
+        // Prefer Murattal Hafs (especially for Mahmoud Khalil Al-Husary), then general complete Hafs
+        const murattalHafs = r.moshaf.find(
+          (m: any) => m.rewaya_id === 1 && m.surah_total === 114 && /murattal/i.test(m.name)
+        );
+        const hafs114 = r.moshaf.find((m: any) => m.rewaya_id === 1 && m.surah_total === 114);
+        const complete114 = r.moshaf.find((m: any) => m.surah_total === 114);
+        const hafs = r.moshaf.find((m: any) => m.rewaya_id === 1);
+        const moshaf = murattalHafs || hafs114 || complete114 || hafs || r.moshaf[0];
 
         if (!moshaf || typeof moshaf.server !== "string" || !moshaf.server.startsWith("http")) {
           continue;
@@ -186,15 +197,40 @@ export async function GET() {
                 .filter((n: number) => Number.isInteger(n) && n >= 1 && n <= 114)
             : Array.from({ length: moshaf.surah_total || 114 }, (_, i) => i + 1);
 
+        const reciterName = r.id === 118 ? "Mahmoud Khalil Al-Hussary (Murattal)" : r.name;
+
         parsed.push({
           id: r.id,
-          name: r.name,
+          name: reciterName,
           nameArabic: arMap.get(r.id) || null,
           style: moshaf.name || null,
           server: moshaf.server.endsWith("/") ? moshaf.server : `${moshaf.server}/`,
           surahTotal: moshaf.surah_total || surahList.length,
           surahList,
         });
+
+        // If reciter is Al-Husary, also add his Mujawwad recitation as a distinct option
+        if (r.id === 118) {
+          const mujawwad = r.moshaf.find((m: any) => /mojawwad|mujawwad/i.test(m.name));
+          if (mujawwad && typeof mujawwad.server === "string") {
+            const mList: number[] =
+              typeof mujawwad.surah_list === "string"
+                ? mujawwad.surah_list
+                    .split(",")
+                    .map((n: string) => Number(n.trim()))
+                    .filter((n: number) => Number.isInteger(n) && n >= 1 && n <= 114)
+                : Array.from({ length: mujawwad.surah_total || 114 }, (_, i) => i + 1);
+            parsed.push({
+              id: 11802,
+              name: "Mahmoud Khalil Al-Hussary (Mujawwad)",
+              nameArabic: arMap.get(r.id) ? `${arMap.get(r.id)} - مجود` : null,
+              style: mujawwad.name || "Hafs A'n Assem - Almusshaf Al Mojawwad",
+              server: mujawwad.server.endsWith("/") ? mujawwad.server : `${mujawwad.server}/`,
+              surahTotal: mujawwad.surah_total || mList.length,
+              surahList: mList,
+            });
+          }
+        }
       }
 
       if (parsed.length > 0) {

@@ -50,7 +50,8 @@ export const FEATURED_RECITER_IDS = [
   102, // Maher Al Meaqli
   30,  // Saad Al-Ghamdi
   51,  // Abdulbasit Abdulsamad
-  118, // Mahmoud Khalil Al-Hussary
+  118, // Mahmoud Khalil Al-Hussary (Murattal)
+  11802, // Mahmoud Khalil Al-Hussary (Mujawwad)
   112, // Mohammed Siddiq Al-Minshawi
   92,  // Yasser Al-Dosari
   4,   // Abu Bakr Al Shatri
