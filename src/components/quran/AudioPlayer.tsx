@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, useImperativeHandle, forwardRef, useCallback } from "react";
-import { Play, Pause, SkipBack, SkipForward, AlertCircle, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState, useImperativeHandle, forwardRef, useCallback, useMemo } from "react";
+import { Play, Pause, SkipBack, SkipForward, AlertCircle, Loader2, Search, ChevronDown, Check, X } from "lucide-react";
 import type { Chapter } from "@/lib/quran/server";
 import { DEFAULT_RECITER, type AyahFile, type SurahAudio, type Reciter } from "@/lib/quran/types";
 import { findStartIndex, nextFile, prevFile, shouldAdvanceAyah, type PlaybackScope } from "@/lib/quran/player";
@@ -55,6 +55,41 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [playbackScope, setPlaybackScope] = useState<PlaybackScope>("single");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [reciterMenuOpen, setReciterMenuOpen] = useState(false);
+  const [reciterSearch, setReciterSearch] = useState("");
+  const reciterDropdownRef = useRef<HTMLDivElement | null>(null);
+  const reciterSearchInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Close reciter menu on click outside
+  useEffect(() => {
+    if (!reciterMenuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        reciterDropdownRef.current &&
+        !reciterDropdownRef.current.contains(e.target as Node)
+      ) {
+        setReciterMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [reciterMenuOpen]);
+
+  const filteredReciters = useMemo(() => {
+    if (!reciterSearch.trim()) return reciters;
+    const q = reciterSearch.toLowerCase().trim();
+    return reciters.filter(
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        (r.nameArabic && r.nameArabic.includes(q)) ||
+        (r.style && r.style.toLowerCase().includes(q))
+    );
+  }, [reciters, reciterSearch]);
+
+  const currentReciter = useMemo(
+    () => reciters.find((r) => r.id === reciterId) || null,
+    [reciters, reciterId]
+  );
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioDataRef = useRef<SurahAudio | null>(null);
@@ -519,27 +554,98 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
             </button>
           </div>
 
-          {/* Right: Reciter Dropdown */}
-          <div className="flex items-center gap-2 shrink-0">
-            <label htmlFor="reciter-select" className="sr-only">
-              Choose reciter
-            </label>
-            <select
-              id="reciter-select"
-              value={reciterId}
-              onChange={(e) => handleReciterChange(Number(e.target.value))}
-              className="rounded-sm border border-border bg-card px-2 py-1 text-xs sm:text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring max-w-[130px] sm:max-w-[210px] truncate"
+          {/* Right: Searchable Reciter Selector */}
+          <div className="relative flex items-center shrink-0" ref={reciterDropdownRef}>
+            <button
+              type="button"
+              aria-haspopup="listbox"
+              aria-expanded={reciterMenuOpen}
+              aria-label="Choose reciter"
+              onClick={() => {
+                const next = !reciterMenuOpen;
+                setReciterMenuOpen(next);
+                if (next) {
+                  setTimeout(() => reciterSearchInputRef.current?.focus(), 50);
+                }
+              }}
+              className="flex items-center gap-1.5 rounded-sm border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted/50 transition-colors focus-visible:outline-2 focus-visible:outline-ring max-w-[140px] sm:max-w-[220px] truncate cursor-pointer"
             >
-              {reciters.length > 0 ? (
-                reciters.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name}
-                  </option>
-                ))
-              ) : (
-                <option value={DEFAULT_RECITER}>Mishari Rashid al-`Afasy</option>
-              )}
-            </select>
+              <span className="truncate">
+                {currentReciter?.name || "Choose reciter"}
+              </span>
+              <ChevronDown size={13} className={`shrink-0 text-muted-foreground transition-transform ${reciterMenuOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {reciterMenuOpen && (
+              <div
+                role="listbox"
+                className="absolute bottom-full right-0 z-50 mb-1.5 w-64 sm:w-72 max-h-72 rounded-md border border-border bg-card shadow-xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100"
+              >
+                {/* Search input header */}
+                <div className="p-2 border-b border-border bg-muted/30 shrink-0">
+                  <div className="relative w-full">
+                    <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                    <input
+                      ref={reciterSearchInputRef}
+                      type="text"
+                      value={reciterSearch}
+                      onChange={(e) => setReciterSearch(e.target.value)}
+                      placeholder="Search reciters..."
+                      className="w-full rounded-sm border border-border bg-card pl-8 pr-7 py-1 text-xs text-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                    />
+                    {reciterSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setReciterSearch("")}
+                        aria-label="Clear search"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Reciters list */}
+                <div className="overflow-y-auto max-h-56 p-1 divide-y divide-border/20">
+                  {filteredReciters.length > 0 ? (
+                    filteredReciters.map((r) => {
+                      const isSelected = r.id === reciterId;
+                      return (
+                        <button
+                          key={r.id}
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={() => {
+                            handleReciterChange(r.id);
+                            setReciterMenuOpen(false);
+                            setReciterSearch("");
+                          }}
+                          className={`flex items-center justify-between gap-2 w-full px-2.5 py-1.5 text-left rounded-sm transition-colors text-xs cursor-pointer ${
+                            isSelected
+                              ? "bg-primary/10 text-primary font-semibold"
+                              : "hover:bg-muted/60 text-foreground"
+                          }`}
+                        >
+                          <div className="flex flex-col min-w-0">
+                            <span className="truncate">{r.name}</span>
+                            {r.style && (
+                              <span className="text-[10px] text-muted-foreground truncate">{r.style}</span>
+                            )}
+                          </div>
+                          {isSelected && <Check size={13} className="shrink-0 text-primary ml-1" />}
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <div className="py-6 text-center text-xs text-muted-foreground">
+                      No reciters found matching &ldquo;{reciterSearch}&rdquo;
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

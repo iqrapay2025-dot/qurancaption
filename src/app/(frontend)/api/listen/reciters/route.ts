@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { type ListenReciter, sortListenReciters } from "@/lib/listen/mp3quran";
+import { EVERYAYAH_ADDITIONAL_RECITERS } from "@/lib/quran/server";
 
 const FALLBACK_RECITERS: ListenReciter[] = [
   {
@@ -233,6 +234,28 @@ export async function GET() {
         }
       }
 
+      // Merge EveryAyah reciters so they are available on /listen too
+      const existingIds = new Set(parsed.map((p) => p.id));
+      for (const ea of EVERYAYAH_ADDITIONAL_RECITERS) {
+        if (!existingIds.has(ea.id)) {
+          parsed.push({
+            id: ea.id,
+            name: ea.name,
+            nameArabic: ea.nameArabic,
+            style: ea.style ? `Hafs A'n Assem - ${ea.style}` : "Hafs A'n Assem",
+            server:
+              ea.id === 14
+                ? "https://cdn.mp3quran.net/audio/mahmoud-husary/r1/"
+                : ea.id === 15
+                ? "https://cdn.mp3quran.net/audio/mahmoud-husary/r2/"
+                : `https://download.quranicaudio.com/quran/${ea.cdnPath}/`,
+            surahTotal: 114,
+            surahList: Array.from({ length: 114 }, (_, i) => i + 1),
+          });
+          existingIds.add(ea.id);
+        }
+      }
+
       if (parsed.length > 0) {
         cachedReciters = sortListenReciters(parsed);
         cacheTime = now;
@@ -250,9 +273,31 @@ export async function GET() {
     console.warn("[api/listen/reciters] Failed to fetch upstream mp3quran, using fallback:", e);
   }
 
-  // Fallback
+  // Fallback with EveryAyah merged
+  const fallbackList = [...FALLBACK_RECITERS];
+  const fallbackIds = new Set(fallbackList.map((f) => f.id));
+  for (const ea of EVERYAYAH_ADDITIONAL_RECITERS) {
+    if (!fallbackIds.has(ea.id)) {
+      fallbackList.push({
+        id: ea.id,
+        name: ea.name,
+        nameArabic: ea.nameArabic,
+        style: ea.style ? `Hafs A'n Assem - ${ea.style}` : "Hafs A'n Assem",
+        server:
+          ea.id === 14
+            ? "https://cdn.mp3quran.net/audio/mahmoud-husary/r1/"
+            : ea.id === 15
+            ? "https://cdn.mp3quran.net/audio/mahmoud-husary/r2/"
+            : `https://download.quranicaudio.com/quran/${ea.cdnPath}/`,
+        surahTotal: 114,
+        surahList: Array.from({ length: 114 }, (_, i) => i + 1),
+      });
+      fallbackIds.add(ea.id);
+    }
+  }
+
   return NextResponse.json(
-    { reciters: sortListenReciters(FALLBACK_RECITERS) },
+    { reciters: sortListenReciters(fallbackList) },
     {
       headers: {
         "Cache-Control": "public, max-age=300",
