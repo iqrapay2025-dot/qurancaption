@@ -1,7 +1,7 @@
 // public/sw.js
 importScripts("/sw-rules.js");
 
-const CACHE_NAME = "ayah-studio-v4";
+const CACHE_NAME = "ayah-studio-v5";
 const PRECACHE_ASSETS = [
   "/offline",
   "/brand/ayah-badge-dark-48.webp",
@@ -13,6 +13,9 @@ const PRECACHE_ASSETS = [
   "/icon-512.png",
   "/icon-512-maskable.png",
   "/apple-touch-icon.png",
+  "/fonts/Figtree-Regular.woff2",
+  "/fonts/Figtree-LatinExt.woff2",
+  "/fonts/JetBrainsMono-Regular.woff2",
   "/fonts/AmiriQuran-Regular.woff2",
   "/fonts/Amiri-Regular.woff2",
   "/fonts/Amiri-Bold.woff2",
