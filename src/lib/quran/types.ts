@@ -1,6 +1,14 @@
 export type Chapter = { id: number; nameArabic: string; nameSimple: string; meaning: string; versesCount: number; available: boolean };
 export type TranslationRes = { id: string; name: string; author: string; language: string };
-export type Reciter = { id: number; name: string; nameArabic: string | null; style: string | null };
+export type Reciter = {
+  id: number;
+  name: string;
+  nameArabic: string | null;
+  style: string | null;
+  server?: string;
+  surahTotal?: number;
+  surahList?: number[];
+};
 export type ApiVerse = { key: string; n: number; arabic: string; translations: Record<string, string>; tajweed?: [string, string?][] };
 export type AyahFile = { verseKey: string; audioUrl: string };
 // UmmahAPI returns no verse timestamps: continuous audio needs manual timing; ayah files are timed by their own length.

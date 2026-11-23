@@ -72,7 +72,16 @@ export default function ListenPage() {
             <span className="font-semibold text-foreground">Aayah Studio</span>
           </div>
           <p className="max-w-2xl text-xs text-muted-foreground">
-            Quran data, translations and recitation audio provided by{" "}
+            Full-surah audio provided by{" "}
+            <a
+              href="https://mp3quran.net"
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              MP3Quran.net
+            </a>
+            . Quran chapters and metadata via{" "}
             <a
               href="https://ummahapi.com"
               target="_blank"

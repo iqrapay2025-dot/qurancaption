@@ -20,6 +20,7 @@ import {
   formatTime,
   parseListenQuery,
 } from "@/lib/listen/player";
+import { mapLegacyReciterId } from "@/lib/listen/mp3quran";
 import { useGlobalAudio } from "@/components/audio/GlobalAudioProvider";
 import BadgeLoader from "@/components/BadgeLoader";
 import { TourReplayButton } from "@/components/tour/TourReplayButton";
@@ -77,11 +78,12 @@ export function ListenPlayer() {
 
     const searchParams = new URLSearchParams(window.location.search);
     if (searchParams.has("surah") || searchParams.has("reciter")) {
-      const validReciterIds = new Set(availableReciters.map((r) => r.id));
+      const validReciterIds = availableReciters.length > 0 ? new Set(availableReciters.map((r) => r.id)) : undefined;
       const parsed = parseListenQuery(searchParams, validReciterIds);
+      const mappedReciter = mapLegacyReciterId(parsed.reciter);
       const shouldAuto = searchParams.get("autoplay") === "true";
 
-      loadSurah(parsed.surah, parsed.reciter, { autoplay: shouldAuto });
+      loadSurah(parsed.surah, mappedReciter, { autoplay: shouldAuto });
 
       const initialT = parseFloat(searchParams.get("t") || "0");
       if (!isNaN(initialT) && initialT > 0) {
@@ -176,6 +178,7 @@ export function ListenPlayer() {
               <option key={r.id} value={r.id}>
                 {r.name}
                 {r.style ? ` (${r.style})` : ""}
+                {r.surahTotal && r.surahTotal < 114 ? ` [${r.surahTotal} Surahs]` : ""}
               </option>
             ))}
           </select>
@@ -225,34 +228,45 @@ export function ListenPlayer() {
         {filteredChapters.map((chapter) => {
           const isCurrent = chapter.id === surah;
           const isRowActivePlaying = isCurrent && isPlaying;
+          const isAvailable =
+            !currentReciter?.surahList ||
+            currentReciter.surahList.length === 0 ||
+            currentReciter.surahList.includes(chapter.id);
 
           return (
             <div
               key={chapter.id}
               onClick={() => {
+                if (!isAvailable) return;
                 if (isCurrent) {
                   togglePlay();
                 } else {
                   loadSurah(chapter.id, reciterId, { autoplay: true });
                 }
               }}
-              className={`group flex items-center justify-between gap-3 rounded-lg border p-3 sm:p-4 cursor-pointer transition-all ${
-                isCurrent
-                  ? "border-primary/50 bg-primary/5 shadow-xs"
-                  : "border-border bg-card hover:border-border/80 hover:bg-muted/30"
+              className={`group flex items-center justify-between gap-3 rounded-lg border p-3 sm:p-4 transition-all ${
+                !isAvailable
+                  ? "opacity-50 border-border/60 bg-card cursor-not-allowed"
+                  : isCurrent
+                  ? "border-primary/50 bg-primary/5 shadow-xs cursor-pointer"
+                  : "border-border bg-card hover:border-border/80 hover:bg-muted/30 cursor-pointer"
               }`}
             >
               {/* Left: Play button & Surah names */}
               <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                 <button
                   type="button"
+                  disabled={!isAvailable}
                   aria-label={
-                    isRowActivePlaying
+                    !isAvailable
+                      ? `${chapter.nameSimple} not available for this reciter`
+                      : isRowActivePlaying
                       ? `Pause ${chapter.nameSimple}`
                       : `Play ${chapter.nameSimple}`
                   }
                   onClick={(e) => {
                     e.stopPropagation();
+                    if (!isAvailable) return;
                     if (isCurrent) {
                       togglePlay();
                     } else {
@@ -260,7 +274,9 @@ export function ListenPlayer() {
                     }
                   }}
                   className={`grid size-9 sm:size-10 shrink-0 place-items-center rounded-full transition-all ${
-                    isRowActivePlaying
+                    !isAvailable
+                      ? "bg-muted/50 text-muted-foreground cursor-not-allowed"
+                      : isRowActivePlaying
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "bg-muted text-foreground group-hover:bg-primary group-hover:text-primary-foreground"
                   }`}
@@ -277,9 +293,14 @@ export function ListenPlayer() {
                     <span className="font-semibold text-xs sm:text-sm text-foreground truncate">
                       {chapter.id}. {chapter.nameSimple}
                     </span>
-                    {isCurrent && (
+                    {isCurrent && isAvailable && (
                       <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
                         {isRowActivePlaying ? "Playing" : "Loaded"}
+                      </span>
+                    )}
+                    {!isAvailable && (
+                      <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+                        Not in reciter catalogue
                       </span>
                     )}
                   </div>

@@ -22,7 +22,11 @@ import {
   prevSurah as getPrevSurah,
   computeTrackEndTransition,
 } from "@/lib/listen/player";
-import audioCoverage from "@/lib/quran/audio-coverage.json";
+import {
+  mapLegacyReciterId,
+  DEFAULT_LISTEN_RECITER_ID,
+  buildListenAudioUrl,
+} from "@/lib/listen/mp3quran";
 import {
   parseSavedAudioState,
   serializeAudioState,
@@ -34,10 +38,6 @@ import {
 } from "@/lib/audio/single-audio";
 import { saveContinueListening } from "@/lib/library/storage";
 import { getOfflineSurahAudio } from "@/lib/offline/db";
-
-const COMPLETE_RECITER_IDS = new Set(
-  audioCoverage.filter((entry) => entry.complete).map((entry) => entry.reciterId)
-);
 
 const LEGACY_STORAGE_KEYS = {
   reciter: "ayah-listen-reciter",
@@ -104,10 +104,12 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
   // Chapters & reciters catalog
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [reciters, setReciters] = useState<Reciter[]>([]);
+  const recitersRef = useRef<Reciter[]>([]);
+  recitersRef.current = reciters;
 
   // Core playback state
   const [surah, setSurah] = useState<number>(1);
-  const [reciterId, setReciterId] = useState<number>(DEFAULT_RECITER);
+  const [reciterId, setReciterId] = useState<number>(DEFAULT_LISTEN_RECITER_ID);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [hasEverPlayed, setHasEverPlayed] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -126,9 +128,9 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
   const shouldAutoPlayRef = useRef<boolean>(false);
   const sleepTimerIdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Available reciters filtered by verified completeness
+  // Available reciters from MP3Quran catalog
   const availableReciters = useMemo(() => {
-    return reciters.filter((r) => COMPLETE_RECITER_IDS.has(r.id));
+    return reciters;
   }, [reciters]);
 
   const currentChapter = useMemo(() => {
@@ -136,7 +138,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
   }, [chapters, surah]);
 
   const currentReciter = useMemo(() => {
-    return availableReciters.find((r) => r.id === reciterId) || null;
+    return availableReciters.find((r) => r.id === reciterId) || availableReciters[0] || null;
   }, [availableReciters, reciterId]);
 
   // Load catalogs on mount
@@ -152,11 +154,12 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
       })
       .catch(() => {});
 
-    fetch("/api/quran/reciters")
+    fetch("/api/listen/reciters")
       .then((r) => r.json())
       .then((d) => {
         if (active && Array.isArray(d?.reciters)) {
           setReciters(d.reciters);
+          recitersRef.current = d.reciters;
         }
       })
       .catch(() => {});
@@ -173,7 +176,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
     try {
       // 1. Try unified storage key
       const raw = localStorage.getItem(GLOBAL_AUDIO_STORAGE_KEY);
-      const parsed = parseSavedAudioState(raw, COMPLETE_RECITER_IDS);
+      const parsed = parseSavedAudioState(raw);
 
       // Check legacy overrides if available
       const legacySurah = Number(localStorage.getItem(LEGACY_STORAGE_KEYS.surah));
@@ -187,10 +190,12 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
           ? legacySurah
           : parsed.surah;
 
+      const mappedLegacyReciter =
+        Number.isInteger(legacyReciter) && legacyReciter > 0 ? mapLegacyReciterId(legacyReciter) : null;
+      const parsedReciter = mapLegacyReciterId(parsed.reciterId);
+
       const finalReciter =
-        Number.isInteger(legacyReciter) && COMPLETE_RECITER_IDS.has(legacyReciter)
-          ? legacyReciter
-          : parsed.reciterId;
+        mappedLegacyReciter ?? (parsedReciter > 0 ? parsedReciter : DEFAULT_LISTEN_RECITER_ID);
 
       const finalSpeed =
         ALLOWED_SPEEDS.includes(legacySpeed as any) ? (legacySpeed as PlaybackSpeed) : parsed.speed;
@@ -232,17 +237,27 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
         }
       } catch {}
 
-      // 2. Fetch online stream
+      // 2. Direct MP3Quran CDN stream URL if reciter server is known
+      const reciter = recitersRef.current.find((r) => r.id === reciterNum);
+      if (reciter?.server) {
+        const url = buildListenAudioUrl(reciter.server, surahNum);
+        setAudioUrl(url);
+        setLoading(false);
+        return;
+      }
+
+      // 3. Fallback to /api/quran/audio if reciters catalog is still loading
       const res = await fetch(`/api/quran/audio?surah=${surahNum}&reciter=${reciterNum}`);
-      if (!res.ok) {
-        throw new Error("Recitation audio could not be loaded.");
+      if (res.ok) {
+        const data = await res.json();
+        const url = typeof data?.audioUrl === "string" ? data.audioUrl : null;
+        if (url) {
+          setAudioUrl(url);
+          setLoading(false);
+          return;
+        }
       }
-      const data = await res.json();
-      const url = typeof data?.audioUrl === "string" ? data.audioUrl : null;
-      if (!url) {
-        throw new Error("Invalid audio stream received.");
-      }
-      setAudioUrl(url);
+      throw new Error("Recitation audio could not be loaded.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load audio stream.");
       setAudioUrl(null);
@@ -255,7 +270,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     fetchAudio(surah, reciterId);
-  }, [surah, reciterId, fetchAudio]);
+  }, [surah, reciterId, reciters.length, fetchAudio]);
 
   // Audio Playback Actions
   const play = useCallback(async () => {
@@ -405,10 +420,11 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
         shouldAutoPlayRef.current = true;
       }
       setSurah(surahNum);
-      if (newReciterId && COMPLETE_RECITER_IDS.has(newReciterId)) {
-        setReciterId(newReciterId);
+      if (newReciterId && newReciterId > 0) {
+        const mapped = mapLegacyReciterId(newReciterId);
+        setReciterId(mapped);
         try {
-          localStorage.setItem(LEGACY_STORAGE_KEYS.reciter, String(newReciterId));
+          localStorage.setItem(LEGACY_STORAGE_KEYS.reciter, String(mapped));
         } catch {}
       }
       currentTimeRef.current = 0;
@@ -421,11 +437,12 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
   );
 
   const selectReciter = useCallback((newReciterId: number) => {
-    if (!COMPLETE_RECITER_IDS.has(newReciterId)) return;
+    if (!newReciterId || newReciterId <= 0) return;
+    const mapped = mapLegacyReciterId(newReciterId);
     shouldAutoPlayRef.current = isPlaying;
-    setReciterId(newReciterId);
+    setReciterId(mapped);
     try {
-      localStorage.setItem(LEGACY_STORAGE_KEYS.reciter, String(newReciterId));
+      localStorage.setItem(LEGACY_STORAGE_KEYS.reciter, String(mapped));
     } catch {}
   }, [isPlaying]);
 
