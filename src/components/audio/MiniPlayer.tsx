@@ -39,8 +39,15 @@ export function MiniPlayer() {
     stop,
   } = useGlobalAudio();
 
-  // Hide on /listen page to avoid duplicate controls
-  if (pathname === "/listen" || pathname?.startsWith("/listen/")) {
+  // Hide on /listen, /quran, and /editors pages to avoid overlapping bottom player controls
+  if (
+    pathname === "/listen" ||
+    pathname?.startsWith("/listen/") ||
+    pathname === "/quran" ||
+    pathname?.startsWith("/quran/") ||
+    pathname === "/editors" ||
+    pathname?.startsWith("/editors/")
+  ) {
     return null;
   }
 
