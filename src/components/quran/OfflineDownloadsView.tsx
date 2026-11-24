@@ -13,8 +13,7 @@ import {
 } from "lucide-react";
 import {
   listOfflineDownloads,
-  deleteOfflineSurahContent,
-  deleteOfflineSurahAudio,
+  deleteOfflineSurah,
   clearAllOfflineData,
   formatBytes,
   type OfflineDownloadSummary,
@@ -43,10 +42,7 @@ export function OfflineDownloadsView() {
 
   const handleDelete = async (surah: number, reciterId?: number) => {
     try {
-      await deleteOfflineSurahContent(surah);
-      if (reciterId) {
-        await deleteOfflineSurahAudio(surah, reciterId);
-      }
+      await deleteOfflineSurah(surah, reciterId);
       await loadDownloads();
     } catch {}
   };
@@ -176,19 +172,40 @@ export function OfflineDownloadsView() {
                 </div>
               )}
 
-              <div className="mt-4 flex items-center gap-2 border-t border-border/60 pt-3">
-                <Link
-                  href={`/quran/${item.surah}`}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-sm bg-primary py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
-                >
-                  <BookOpen size={13} /> Read &amp; Revise
-                </Link>
-                <Link
-                  href={`/listen?surah=${item.surah}`}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-sm border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-                >
-                  <Volume2 size={13} /> Listen
-                </Link>
+              {item.hasMushaf && (
+                <div className="mt-2 flex items-center gap-1.5 text-[11px] text-gold-dark dark:text-gold bg-gold/10 rounded-md px-2.5 py-1">
+                  <BookOpen size={12} className="text-gold shrink-0" />
+                  <span className="truncate font-medium">
+                    Madani Mushaf (KFGQPC) {item.mushafPages?.length ? `p. ${item.mushafPages[0]}${item.mushafPages.length > 1 ? `–${item.mushafPages[item.mushafPages.length - 1]}` : ""}` : ""}
+                  </span>
+                </div>
+              )}
+
+              <div className="mt-4 flex items-center gap-2 border-t border-border/60 pt-3 flex-wrap">
+                {item.hasText && (
+                  <Link
+                    href={`/quran/${item.surah}`}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-sm bg-primary py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+                  >
+                    <BookOpen size={13} /> Read
+                  </Link>
+                )}
+                {item.hasAudio && (
+                  <Link
+                    href={`/listen?surah=${item.surah}&reciter=${item.reciterId || 1}`}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-sm border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                  >
+                    <Volume2 size={13} /> Listen
+                  </Link>
+                )}
+                {item.hasMushaf && (
+                  <Link
+                    href={`/mushaf/${item.mushafPages?.[0] || 1}`}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-sm border border-gold/40 bg-gold/10 px-3 py-1.5 text-xs font-semibold text-gold-dark dark:text-gold hover:bg-gold/20 transition-colors"
+                  >
+                    <BookOpen size={13} className="text-gold" /> Mushaf
+                  </Link>
+                )}
               </div>
             </div>
           ))}

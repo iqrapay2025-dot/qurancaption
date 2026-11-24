@@ -15,8 +15,10 @@ import type { Chapter } from "@/lib/quran/server";
 import {
   getOfflineSurahContent,
   getOfflineSurahAudio,
+  hasOfflineFullAudio,
   deleteOfflineSurahContent,
   deleteOfflineSurahAudio,
+  deleteOfflineFullAudio,
   formatBytes,
 } from "@/lib/offline/db";
 import { downloadSurahPackage, type DownloadProgress } from "@/lib/offline/downloader";
@@ -44,16 +46,17 @@ export function OfflineSurahButton({
   // Check download status for this surah & reciter
   const checkStatus = useCallback(async () => {
     try {
-      const [content, audio] = await Promise.all([
+      const [content, audio, hasFullAudio] = await Promise.all([
         getOfflineSurahContent(chapter.id),
         getOfflineSurahAudio(chapter.id, reciterId),
+        hasOfflineFullAudio(chapter.id, reciterId),
       ]);
 
       const hasContent = !!content && content.verses.length > 0;
-      const hasAudio = !!audio && audio.files.length > 0;
+      const hasAudio = (!!audio && audio.files.length > 0) || hasFullAudio;
 
-      setIsDownloaded(hasContent && hasAudio);
-      setTotalSize(audio?.totalBytes || 0);
+      setIsDownloaded(hasContent || hasAudio);
+      setTotalSize((audio?.totalBytes || 0) + (content?.sizeBytes || 0));
     } catch {
       setIsDownloaded(false);
     }

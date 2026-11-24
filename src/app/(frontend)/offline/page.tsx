@@ -22,9 +22,7 @@ import {
 } from "lucide-react";
 import {
   listOfflineDownloads,
-  deleteOfflineSurahContent,
-  deleteOfflineSurahAudio,
-  deleteOfflineFullAudio,
+  deleteOfflineSurah,
   deleteOfflineMushafPage,
   clearAllOfflineData,
   formatBytes,
@@ -60,6 +58,7 @@ export default function OfflinePage() {
   });
 
   const [confirmClear, setConfirmClear] = useState<boolean>(false);
+  const [filterTab, setFilterTab] = useState<"all" | "surahs" | "recitations" | "mushaf">("all");
 
   // Batch download state
   const [textDownloadStatus, setTextDownloadStatus] = useState<"idle" | "downloading" | "complete" | "error">("idle");
@@ -163,11 +162,7 @@ export default function OfflinePage() {
 
   // Delete Surah
   const handleDeleteSurah = async (surah: number, reciterId?: number) => {
-    await deleteOfflineSurahContent(surah);
-    if (reciterId) {
-      await deleteOfflineSurahAudio(surah, reciterId);
-      await deleteOfflineFullAudio(surah, reciterId);
-    }
+    await deleteOfflineSurah(surah, reciterId);
     await refreshData();
   };
 
@@ -386,12 +381,17 @@ export default function OfflinePage() {
           </div>
         </div>
 
-        {/* Downloaded Surahs List */}
+        {/* Downloaded Surahs & Content List */}
         <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-foreground">
-              Downloaded Surahs &amp; Recitations ({downloads.length})
-            </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-4">
+            <div>
+              <h2 className="text-base font-bold text-foreground">
+                Downloaded Surahs &amp; Recitations ({downloads.length})
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Saved locally in browser IndexedDB for zero-data offline reading, listening, and revision.
+              </p>
+            </div>
             {downloads.length > 0 && (
               <div>
                 {confirmClear ? (
@@ -424,85 +424,211 @@ export default function OfflinePage() {
             )}
           </div>
 
+          {/* Filter Tabs */}
+          <div role="tablist" aria-label="Filter downloads" className="flex border-b border-border/60 gap-2 sm:gap-4 overflow-x-auto pb-px text-xs font-semibold">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={filterTab === "all"}
+              onClick={() => setFilterTab("all")}
+              className={`pb-2.5 border-b-2 transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+                filterTab === "all"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <span>All Downloads</span>
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                filterTab === "all" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+              }`}>
+                {downloads.length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={filterTab === "surahs"}
+              onClick={() => setFilterTab("surahs")}
+              className={`pb-2.5 border-b-2 transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+                filterTab === "surahs"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <FileText size={13} />
+              <span>Quran Surahs</span>
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                filterTab === "surahs" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+              }`}>
+                {downloads.filter((d) => d.hasText).length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={filterTab === "recitations"}
+              onClick={() => setFilterTab("recitations")}
+              className={`pb-2.5 border-b-2 transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+                filterTab === "recitations"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Volume2 size={13} />
+              <span>Recitations</span>
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                filterTab === "recitations" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+              }`}>
+                {downloads.filter((d) => d.hasAudio).length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={filterTab === "mushaf"}
+              onClick={() => setFilterTab("mushaf")}
+              className={`pb-2.5 border-b-2 transition-colors whitespace-nowrap flex items-center gap-1.5 ${
+                filterTab === "mushaf"
+                  ? "border-gold text-gold-dark dark:text-gold"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <BookOpen size={13} className={filterTab === "mushaf" ? "text-gold" : "text-muted-foreground"} />
+              <span>Madani Mushaf</span>
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+                filterTab === "mushaf"
+                  ? "bg-gold/20 text-gold-dark dark:text-gold"
+                  : "bg-muted text-muted-foreground"
+              }`}>
+                {mushafPages.length > 0 ? `${mushafPages.length} p.` : downloads.filter((d) => d.hasMushaf).length}
+              </span>
+            </button>
+          </div>
+
           {loading ? (
             <div className="py-8 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
               <Loader2 size={16} className="animate-spin text-primary" /> Loading offline records...
             </div>
-          ) : downloads.length === 0 ? (
-            <div className="py-12 text-center text-sm text-muted-foreground border border-dashed border-border rounded-xl p-6">
-              <HardDrive size={32} className="mx-auto text-muted-foreground/50 mb-2" />
-              <p className="font-semibold text-foreground">No Surahs downloaded yet</p>
-              <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-                Use the quick download packs above, or tap the download button on any Surah in the Listen or Read page.
-              </p>
-            </div>
-          ) : (
-            <div className="divide-y divide-border/60">
-              {downloads.map((d) => (
-                <div
-                  key={`${d.surah}_${d.reciterId || 0}`}
-                  className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
-                      {d.surah}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-foreground">{d.surahName}</span>
-                        {d.surahNameArabic && (
-                          <span className="font-quran text-base text-foreground/80">
-                            {d.surahNameArabic}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                        {d.hasAudio && (
-                          <span className="flex items-center gap-1 text-primary">
-                            <Volume2 size={12} /> {d.reciterName || "Reciter"}
-                          </span>
-                        )}
-                        {d.hasText && (
-                          <span className="flex items-center gap-1 text-muted-foreground">
-                            <FileText size={12} /> {d.versesCount} verses
-                          </span>
-                        )}
-                        <span>•</span>
-                        <span className="font-mono">{formatBytes(d.totalBytes)}</span>
-                      </div>
-                    </div>
-                  </div>
+          ) : (() => {
+            const filtered = downloads.filter((d) => {
+              if (filterTab === "surahs") return d.hasText;
+              if (filterTab === "recitations") return d.hasAudio;
+              if (filterTab === "mushaf") return d.hasMushaf;
+              return true;
+            });
 
-                  <div className="flex items-center gap-2 self-end sm:self-center">
-                    {d.hasAudio && (
-                      <Link
-                        href={`/listen?surah=${d.surah}&reciter=${d.reciterId || 1}`}
-                        className="p-2 rounded-lg border border-border bg-card text-foreground hover:bg-muted hover:border-primary transition-colors"
-                        title="Play offline audio"
-                      >
-                        <Play size={14} className="text-primary ml-0.5" />
-                      </Link>
-                    )}
-                    <Link
-                      href={`/quran/${d.surah}`}
-                      className="p-2 rounded-lg border border-border bg-card text-foreground hover:bg-muted hover:border-primary transition-colors"
-                      title="Read offline text"
-                    >
-                      <BookOpen size={14} />
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteSurah(d.surah, d.reciterId)}
-                      className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                      title="Delete from offline storage"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
+            if (filtered.length === 0) {
+              const emptyLabel =
+                filterTab === "surahs"
+                  ? "No Quran Surah texts downloaded yet"
+                  : filterTab === "recitations"
+                  ? "No Recitations downloaded yet"
+                  : filterTab === "mushaf"
+                  ? "No Madani Mushaf pages downloaded yet"
+                  : "No Surahs downloaded yet";
+
+              return (
+                <div className="py-12 text-center text-sm text-muted-foreground border border-dashed border-border rounded-xl p-6">
+                  <HardDrive size={32} className="mx-auto text-muted-foreground/50 mb-2" />
+                  <p className="font-semibold text-foreground">{emptyLabel}</p>
+                  <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+                    Use the quick download packs above, or tap the download button on any Surah in the Listen or Read page.
+                  </p>
                 </div>
-              ))}
-            </div>
-          )}
+              );
+            }
+
+            return (
+              <div className="divide-y divide-border/60">
+                {filtered.map((d) => (
+                  <div
+                    key={`${d.surah}_${d.reciterId || 0}`}
+                    className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                        {d.surah}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-foreground">{d.surahName}</span>
+                          {d.surahNameArabic && (
+                            <span className="font-quran text-base text-foreground/80">
+                              {d.surahNameArabic}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 flex-wrap">
+                          {d.hasAudio && (
+                            <span className="flex items-center gap-1 text-primary font-medium">
+                              <Volume2 size={12} /> {d.reciterName || "Reciter"}
+                            </span>
+                          )}
+                          {d.hasText && (
+                            <span className="flex items-center gap-1 text-muted-foreground">
+                              <FileText size={12} /> {d.versesCount} verses
+                            </span>
+                          )}
+                          {d.hasMushaf && (
+                            <span className="flex items-center gap-1 text-gold-dark dark:text-gold font-medium">
+                              <BookOpen size={12} /> KFGQPC Mushaf {d.mushafPages?.length ? `(p. ${d.mushafPages[0]}${d.mushafPages.length > 1 ? `–${d.mushafPages[d.mushafPages.length - 1]}` : ""})` : ""}
+                            </span>
+                          )}
+                          <span>•</span>
+                          <span className="font-mono">{formatBytes(d.totalBytes)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-end sm:self-center flex-wrap">
+                      {d.hasAudio && (
+                        <Link
+                          href={`/listen?surah=${d.surah}&reciter=${d.reciterId || 1}`}
+                          className="px-2.5 py-1.5 rounded-lg border border-border bg-card text-foreground hover:bg-muted hover:border-primary transition-colors flex items-center gap-1 text-xs font-semibold"
+                          title="Play offline audio"
+                        >
+                          <Play size={13} className="text-primary fill-primary" />
+                          <span>Listen</span>
+                        </Link>
+                      )}
+                      {d.hasText && (
+                        <Link
+                          href={`/quran/${d.surah}`}
+                          className="px-2.5 py-1.5 rounded-lg border border-border bg-card text-foreground hover:bg-muted hover:border-primary transition-colors flex items-center gap-1 text-xs font-semibold"
+                          title="Read offline text"
+                        >
+                          <BookOpen size={13} />
+                          <span>Read</span>
+                        </Link>
+                      )}
+                      {d.hasMushaf && (
+                        <Link
+                          href={`/mushaf/${d.mushafPages?.[0] || 1}`}
+                          className="px-2.5 py-1.5 rounded-lg border border-gold/40 bg-gold/10 text-gold-dark dark:text-gold hover:bg-gold/20 transition-colors flex items-center gap-1 text-xs font-semibold"
+                          title="Read offline in Madani Mushaf"
+                        >
+                          <BookOpen size={13} className="text-gold" />
+                          <span>Mushaf</span>
+                        </Link>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSurah(d.surah, d.reciterId)}
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                        title="Delete from offline storage"
+                        aria-label={`Delete offline download for Surah ${d.surahName}`}
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>

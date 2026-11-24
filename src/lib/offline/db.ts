@@ -1,5 +1,6 @@
 import type { Chapter, ApiVerse } from "@/lib/quran/server";
 import type { MushafPageData } from "@/lib/mushaf/types";
+import { getSurahMeta, SURAHS_META } from "@/lib/mushaf/data";
 
 export const DB_NAME = "ayah_studio_offline_v1";
 export const DB_VERSION = 2;
@@ -61,6 +62,8 @@ export interface OfflineDownloadSummary {
   versesCount: number;
   hasText: boolean;
   hasAudio: boolean;
+  hasMushaf?: boolean;
+  mushafPages?: number[];
   reciterId?: number;
   reciterName?: string;
   totalBytes: number;
@@ -156,7 +159,7 @@ export async function saveOfflineSurahContent(
  */
 export async function getOfflineSurahContent(
   surah: number
-): Promise<{ chapter: Chapter; verses: ApiVerse[] } | null> {
+): Promise<{ chapter: Chapter; verses: ApiVerse[]; sizeBytes?: number } | null> {
   try {
     const db = await openOfflineDb();
     return new Promise((resolve) => {
@@ -166,7 +169,7 @@ export async function getOfflineSurahContent(
       req.onsuccess = () => {
         const result = req.result as OfflineSurahContent | undefined;
         if (result && Array.isArray(result.verses) && result.chapter) {
-          resolve({ chapter: result.chapter, verses: result.verses });
+          resolve({ chapter: result.chapter, verses: result.verses, sizeBytes: result.sizeBytes || 0 });
         } else {
           resolve(null);
         }
@@ -291,13 +294,14 @@ export async function deleteOfflineSurahAudio(surah: number, reciterId: number):
 }
 
 /**
- * List all downloaded Surahs and summary of used storage.
+ * List all downloaded Surahs and summary of used storage across all offline stores
+ * (text content, verse audio, full listen audio, and Madani Mushaf pages).
  */
 export async function listOfflineDownloads(): Promise<OfflineDownloadSummary[]> {
   try {
     const db = await openOfflineDb();
 
-    // Fetch all content
+    // 1. Fetch all text content
     const contents: OfflineSurahContent[] = await new Promise((resolve) => {
       const tx = db.transaction(STORES.CONTENT, "readonly");
       const store = tx.objectStore(STORES.CONTENT);
@@ -306,7 +310,7 @@ export async function listOfflineDownloads(): Promise<OfflineDownloadSummary[]> 
       req.onerror = () => resolve([]);
     });
 
-    // Fetch all audio
+    // 2. Fetch all verse-by-verse audio
     const audios: OfflineSurahAudio[] = await new Promise((resolve) => {
       const tx = db.transaction(STORES.AUDIO, "readonly");
       const store = tx.objectStore(STORES.AUDIO);
@@ -315,48 +319,168 @@ export async function listOfflineDownloads(): Promise<OfflineDownloadSummary[]> 
       req.onerror = () => resolve([]);
     });
 
+    // 3. Fetch all full surah recitations (from Listen player)
+    const fullAudios: OfflineFullAudio[] = await new Promise((resolve) => {
+      const tx = db.transaction(STORES.FULL_AUDIO, "readonly");
+      const store = tx.objectStore(STORES.FULL_AUDIO);
+      const req = store.getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => resolve([]);
+    });
+
+    // 4. Fetch all Mushaf pages (KFGQPC Madani Mushaf)
+    const mushafPages: OfflineMushafPage[] = await new Promise((resolve) => {
+      const tx = db.transaction(STORES.MUSHAF, "readonly");
+      const store = tx.objectStore(STORES.MUSHAF);
+      const req = store.getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => resolve([]);
+    });
+
     const map = new Map<number, OfflineDownloadSummary>();
 
+    // Merge Text Contents
     for (const c of contents) {
+      const meta = getSurahMeta(c.surah);
       map.set(c.surah, {
         surah: c.surah,
-        surahName: c.chapter?.nameSimple || `Surah ${c.surah}`,
-        surahNameArabic: c.chapter?.nameArabic || "",
-        versesCount: c.chapter?.versesCount || c.verses?.length || 0,
+        surahName: c.chapter?.nameSimple || meta?.name_simple || `Surah ${c.surah}`,
+        surahNameArabic: c.chapter?.nameArabic || meta?.name_arabic || "",
+        versesCount: c.chapter?.versesCount || meta?.verses_count || c.verses?.length || 0,
         hasText: true,
         hasAudio: false,
+        hasMushaf: false,
         totalBytes: c.sizeBytes || 0,
         downloadedAt: c.downloadedAt,
       });
     }
 
+    // Merge Verse Audios
     for (const a of audios) {
+      const meta = getSurahMeta(a.surah);
       const existing = map.get(a.surah);
       if (existing) {
         existing.hasAudio = true;
-        existing.reciterId = a.reciterId;
-        existing.reciterName = a.reciterName;
-        existing.totalBytes += a.totalBytes;
+        existing.reciterId = existing.reciterId || a.reciterId;
+        existing.reciterName = existing.reciterName || a.reciterName;
+        existing.totalBytes += (a.totalBytes || 0);
         existing.downloadedAt = Math.max(existing.downloadedAt, a.downloadedAt);
       } else {
         map.set(a.surah, {
           surah: a.surah,
-          surahName: `Surah ${a.surah}`,
-          surahNameArabic: "",
-          versesCount: a.files?.length || 0,
+          surahName: meta?.name_simple || `Surah ${a.surah}`,
+          surahNameArabic: meta?.name_arabic || "",
+          versesCount: meta?.verses_count || a.files?.length || 0,
           hasText: false,
           hasAudio: true,
+          hasMushaf: false,
           reciterId: a.reciterId,
           reciterName: a.reciterName,
-          totalBytes: a.totalBytes,
+          totalBytes: a.totalBytes || 0,
           downloadedAt: a.downloadedAt,
         });
+      }
+    }
+
+    // Merge Full Listen Audios
+    for (const fa of fullAudios) {
+      const meta = getSurahMeta(fa.surah);
+      const existing = map.get(fa.surah);
+      if (existing) {
+        existing.hasAudio = true;
+        existing.reciterId = existing.reciterId || fa.reciterId;
+        existing.reciterName = existing.reciterName || fa.reciterName;
+        existing.totalBytes += (fa.sizeBytes || 0);
+        existing.downloadedAt = Math.max(existing.downloadedAt, fa.downloadedAt);
+      } else {
+        map.set(fa.surah, {
+          surah: fa.surah,
+          surahName: meta?.name_simple || `Surah ${fa.surah}`,
+          surahNameArabic: meta?.name_arabic || "",
+          versesCount: meta?.verses_count || 0,
+          hasText: false,
+          hasAudio: true,
+          hasMushaf: false,
+          reciterId: fa.reciterId,
+          reciterName: fa.reciterName,
+          totalBytes: fa.sizeBytes || 0,
+          downloadedAt: fa.downloadedAt,
+        });
+      }
+    }
+
+    // Merge Mushaf Pages (group by Surah)
+    for (const p of mushafPages) {
+      const surahsForPage: number[] = p.data?.surahs?.length
+        ? p.data.surahs.map((s) => s.id)
+        : SURAHS_META.filter((sm) => p.page_number >= sm.start_page && p.page_number <= sm.end_page).map((sm) => sm.id);
+
+      const targetSurahs = surahsForPage.length > 0 ? surahsForPage : [1];
+      const pageShareBytes = Math.round((p.sizeBytes || 0) / targetSurahs.length);
+
+      for (const surahId of targetSurahs) {
+        const meta = getSurahMeta(surahId);
+        const existing = map.get(surahId);
+        if (existing) {
+          existing.hasMushaf = true;
+          if (!existing.mushafPages) existing.mushafPages = [];
+          if (!existing.mushafPages.includes(p.page_number)) {
+            existing.mushafPages.push(p.page_number);
+            existing.mushafPages.sort((a, b) => a - b);
+          }
+          existing.totalBytes += pageShareBytes;
+          existing.downloadedAt = Math.max(existing.downloadedAt, p.downloadedAt);
+        } else {
+          map.set(surahId, {
+            surah: surahId,
+            surahName: meta?.name_simple || `Surah ${surahId}`,
+            surahNameArabic: meta?.name_arabic || "",
+            versesCount: meta?.verses_count || 0,
+            hasText: false,
+            hasAudio: false,
+            hasMushaf: true,
+            mushafPages: [p.page_number],
+            totalBytes: pageShareBytes,
+            downloadedAt: p.downloadedAt,
+          });
+        }
       }
     }
 
     return Array.from(map.values()).sort((a, b) => a.surah - b.surah);
   } catch {
     return [];
+  }
+}
+
+/**
+ * Delete all offline content for a Surah across text, audio, and full audio.
+ */
+export async function deleteOfflineSurah(surah: number, reciterId?: number): Promise<void> {
+  await deleteOfflineSurahContent(surah);
+  if (reciterId) {
+    await deleteOfflineSurahAudio(surah, reciterId);
+    await deleteOfflineFullAudio(surah, reciterId);
+  } else {
+    // Delete all reciter audio for this surah
+    try {
+      const db = await openOfflineDb();
+      const deleteKeysStartingWith = async (storeName: string) => {
+        const tx = db.transaction(storeName, "readwrite");
+        const store = tx.objectStore(storeName);
+        const req = store.getAllKeys();
+        req.onsuccess = () => {
+          const keys = req.result as string[];
+          for (const k of keys) {
+            if (typeof k === "string" && (k === String(surah) || k.startsWith(`${surah}_`))) {
+              store.delete(k);
+            }
+          }
+        };
+      };
+      await deleteKeysStartingWith(STORES.AUDIO);
+      await deleteKeysStartingWith(STORES.FULL_AUDIO);
+    } catch {}
   }
 }
 
