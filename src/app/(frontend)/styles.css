@@ -167,6 +167,8 @@
   --font-sans: 'Figtree', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
   --font-quran: 'Amiri Quran', 'Scheherazade New', serif;
+  --font-uthmani: 'Amiri Quran', 'Scheherazade New', serif;
+  --font-arabic: 'Amiri Quran', 'Scheherazade New', serif;
   --font-scheherazade: 'Scheherazade New', 'Amiri Quran', serif;
   --font-amiri: 'Amiri', 'Amiri Quran', serif;
 }

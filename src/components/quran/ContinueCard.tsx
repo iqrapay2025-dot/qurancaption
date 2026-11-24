@@ -72,7 +72,11 @@ export function ContinueCard({ className = "" }: { className?: string }) {
       <div className="flex flex-col sm:flex-row gap-3">
         {reading && (
           <Link
-            href={`/quran/${reading.surah}#ayah-${reading.ayah}`}
+            href={
+              reading.mode === "mushaf" && reading.page
+                ? `/mushaf/${reading.page}`
+                : `/quran/${reading.surah}#ayah-${reading.ayah}`
+            }
             className="flex-1 flex items-center justify-between gap-3 rounded-md border border-border/70 bg-card/60 p-3 hover:border-gold hover:shadow-xs transition-all group"
           >
             <div className="flex items-center gap-3 min-w-0">
@@ -80,9 +84,13 @@ export function ContinueCard({ className = "" }: { className?: string }) {
                 <BookOpen size={16} />
               </div>
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Continue reading</p>
+                <p className="text-xs text-muted-foreground">
+                  {reading.mode === "mushaf" ? "Continue Mushaf" : "Continue reading"}
+                </p>
                 <p className="font-medium text-sm text-foreground truncate">
-                  {reading.surahName ? `${reading.surahName}, ` : ""}ayah {reading.ayah}
+                  {reading.mode === "mushaf" && reading.page
+                    ? `Page ${reading.page}${reading.surahName ? ` • ${reading.surahName}` : ""}`
+                    : `${reading.surahName ? `${reading.surahName}, ` : ""}ayah ${reading.ayah}`}
                 </p>
               </div>
             </div>

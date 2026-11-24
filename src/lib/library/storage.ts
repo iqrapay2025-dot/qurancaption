@@ -14,6 +14,8 @@ export interface ContinueReading {
   surah: number;
   ayah: number;
   surahName?: string;
+  page?: number;
+  mode?: "verses" | "mushaf";
   timestamp: number;
 }
 
@@ -72,10 +74,13 @@ export function validateAndParseLibrary(raw: unknown): LibraryState {
     const s = Number(data.reading.surah);
     const a = Number(data.reading.ayah);
     if (Number.isInteger(s) && s >= 1 && s <= 114 && Number.isInteger(a) && a >= 1) {
+      const p = Number(data.reading.page);
       reading = {
         surah: s,
         ayah: a,
         surahName: typeof data.reading.surahName === "string" ? data.reading.surahName : undefined,
+        page: Number.isInteger(p) && p >= 1 && p <= 604 ? p : undefined,
+        mode: data.reading.mode === "mushaf" ? "mushaf" : "verses",
         timestamp: typeof data.reading.timestamp === "number" ? data.reading.timestamp : Date.now(),
       };
     }
@@ -184,12 +189,16 @@ export function saveContinueReading(item: {
   surah: number;
   ayah: number;
   surahName?: string;
+  page?: number;
+  mode?: "verses" | "mushaf";
 }): void {
   const current = getLibrary();
   current.reading = {
     surah: item.surah,
     ayah: item.ayah,
     surahName: item.surahName,
+    page: item.page,
+    mode: item.mode,
     timestamp: Date.now(),
   };
   saveLibrary(current);

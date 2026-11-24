@@ -3,10 +3,11 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { ChevronLeft, ChevronRight, Settings, Video, CheckSquare, ArrowRight, Play, Pause } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Video, CheckSquare, ArrowRight, Play, Pause, BookOpen, FileText } from "lucide-react";
 import type { Chapter, ApiVerse } from "@/lib/quran/server";
 import { DEFAULT_TR1, TRANSLITERATION_ID } from "@/lib/quran/types";
 import { adjacentSurahs, showSeparateBismillah, BISMILLAH_ARABIC } from "@/lib/quran/reader";
+import { getSurahMeta } from "@/lib/mushaf/data";
 import { useQuranSettings } from "@/lib/quran/useQuranSettings";
 import { AudioPlayer, type AudioPlayerHandle } from "./AudioPlayer";
 import { AyahRow } from "./AyahRow";
@@ -133,6 +134,8 @@ export function Reader({ chapter, initialVerses }: Props) {
 
   const { prev, next } = adjacentSurahs(chapter.id);
   const hasBismillah = showSeparateBismillah(chapter.id);
+  const surahMeta = getSurahMeta(chapter.id);
+  const mushafPage = surahMeta ? surahMeta.start_page : 1;
 
   // Handle URL hash scrolling and highlighting on mount or hashchange
   useEffect(() => {
@@ -189,6 +192,8 @@ export function Reader({ chapter, initialVerses }: Props) {
               surah: chapter.id,
               ayah: bestAyah,
               surahName: chapter.nameSimple,
+              page: mushafPage,
+              mode: "verses",
             });
           } else {
             if (saveTimeout) clearTimeout(saveTimeout);
@@ -198,6 +203,8 @@ export function Reader({ chapter, initialVerses }: Props) {
                 surah: chapter.id,
                 ayah: bestAyah,
                 surahName: chapter.nameSimple,
+                page: mushafPage,
+                mode: "verses",
               });
             }, 1000 - (now - lastSaveTime));
           }
@@ -279,8 +286,37 @@ export function Reader({ chapter, initialVerses }: Props) {
             <span />
           )}
 
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Link href="/quran" className="hover:text-foreground transition-colors whitespace-nowrap">
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            {/* Desktop: Verses / Mushaf Switch */}
+            <div className="hidden sm:inline-flex items-center p-0.5 rounded-lg border border-border bg-muted/60 text-xs">
+              <span
+                className="px-2 py-1 rounded-md bg-background text-foreground shadow-2xs font-semibold flex items-center gap-1"
+                title="Currently in Verse-by-verse translation view"
+              >
+                <FileText size={13} className="text-primary" />
+                <span>Verses</span>
+              </span>
+              <Link
+                href={`/mushaf/${mushafPage}`}
+                className="px-2 py-1 rounded-md text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 font-medium"
+                title="Switch to Madani Mushaf page view"
+              >
+                <BookOpen size={13} />
+                <span>Mushaf</span>
+              </Link>
+            </div>
+
+            {/* Mobile: Compact single button to switch to Mushaf view */}
+            <Link
+              href={`/mushaf/${mushafPage}`}
+              className="sm:hidden flex items-center gap-1 px-2 py-1.5 rounded-lg border border-border/80 bg-card text-xs font-medium text-foreground hover:bg-muted transition-colors"
+              title="Switch to Madani Mushaf view"
+            >
+              <BookOpen size={13} className="text-primary" />
+              <span>Mushaf</span>
+            </Link>
+
+            <Link href="/quran" className="hover:text-foreground transition-colors whitespace-nowrap hidden md:inline">
               Surah Index
             </Link>
             <TourReplayButton tourId="quran-reader" />
@@ -292,7 +328,7 @@ export function Reader({ chapter, initialVerses }: Props) {
               className="inline-flex items-center gap-1.5 rounded-sm border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors whitespace-nowrap"
             >
               <Settings size={14} />
-              <span>Settings</span>
+              <span className="hidden sm:inline">Settings</span>
             </button>
           </div>
 

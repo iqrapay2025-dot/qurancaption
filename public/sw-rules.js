@@ -32,8 +32,13 @@ function shouldCache(request) {
   // NEVER cache audio files
   if (/\.(mp3|m4a|wav|ogg|aac)(\?.*)?$/i.test(pathname) || pathname.includes("/audio")) return false;
 
-  // Cache Google Fonts stylesheets and font assets
-  if (url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com") {
+  // Cache Google Fonts & Quran QCF V2 per-page fonts
+  if (
+    url.hostname === "fonts.googleapis.com" ||
+    url.hostname === "fonts.gstatic.com" ||
+    url.hostname === "verses.quran.com" ||
+    url.hostname === "static.qurancdn.com"
+  ) {
     return true;
   }
 
