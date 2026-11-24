@@ -378,6 +378,8 @@ export function PracticeDrawer({
   };
 
   const handleAudioError = () => {
+    const audio = audioRef.current;
+    if (audio?.error?.code === 1) return; // Ignore MEDIA_ERR_ABORTED
     setErrorMsg("This audio file could not be loaded");
   };
 

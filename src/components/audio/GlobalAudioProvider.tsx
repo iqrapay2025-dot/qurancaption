@@ -127,6 +127,10 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
   const lastTimeUpdateRef = useRef<number>(0);
   const shouldAutoPlayRef = useRef<boolean>(false);
   const sleepTimerIdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isPlayingRef = useRef<boolean>(false);
+  isPlayingRef.current = isPlaying;
+  const autoRetryCountRef = useRef<number>(0);
+  const needsReloadRef = useRef<boolean>(false);
 
   // Available reciters from MP3Quran catalog
   const availableReciters = useMemo(() => {
@@ -285,28 +289,71 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
   const play = useCallback(async () => {
     const audio = audioRef.current;
     if (!audio) return;
+
+    setError(null);
+    autoRetryCountRef.current = 0;
+
+    // If socket timed out while idle, or audio element is in an error/stale state, reload cleanly
+    if (
+      needsReloadRef.current ||
+      audio.error ||
+      audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE
+    ) {
+      needsReloadRef.current = false;
+      const savedPos = currentTimeRef.current || 0;
+      try {
+        audio.load();
+        if (savedPos > 0) {
+          audio.currentTime = savedPos;
+        }
+      } catch {}
+    }
+
     try {
       notifyAudioPlaybackStarted("global");
       await audio.play();
       setIsPlaying(true);
       setHasEverPlayed(true);
-    } catch {
-      // If play failed because audio is still buffering/loading, attach a one-time canplay listener
-      if (audio.readyState < 2) {
-        const onCanPlayOnce = async () => {
-          audio.removeEventListener("canplay", onCanPlayOnce);
-          try {
-            notifyAudioPlaybackStarted("global");
-            await audio.play();
-            setIsPlaying(true);
-            setHasEverPlayed(true);
-          } catch {
-            setIsPlaying(false);
-          }
-        };
-        audio.addEventListener("canplay", onCanPlayOnce, { once: true });
-      } else {
-        setIsPlaying(false);
+      setError(null);
+    } catch (err: any) {
+      // Ignore AbortError caused by rapid clicks or navigation
+      if (err?.name === "AbortError") {
+        return;
+      }
+
+      // If playback failed due to a stale socket, attempt one transparent reload & play
+      try {
+        const savedPos = currentTimeRef.current || 0;
+        audio.load();
+        if (savedPos > 0) {
+          audio.currentTime = savedPos;
+        }
+        notifyAudioPlaybackStarted("global");
+        await audio.play();
+        setIsPlaying(true);
+        setHasEverPlayed(true);
+        setError(null);
+        return;
+      } catch {
+        // If still buffering, attach a one-time canplay listener
+        if (audio.readyState < 2) {
+          const onCanPlayOnce = async () => {
+            audio.removeEventListener("canplay", onCanPlayOnce);
+            try {
+              notifyAudioPlaybackStarted("global");
+              await audio.play();
+              setIsPlaying(true);
+              setHasEverPlayed(true);
+              setError(null);
+            } catch {
+              setIsPlaying(false);
+            }
+          };
+          audio.addEventListener("canplay", onCanPlayOnce, { once: true });
+        } else {
+          setIsPlaying(false);
+          setError("Audio playback error occurred.");
+        }
       }
     }
   }, []);
@@ -463,8 +510,19 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
   }, [pause]);
 
   const retry = useCallback(() => {
-    fetchAudio(surah, reciterId);
-  }, [surah, reciterId, fetchAudio]);
+    setError(null);
+    autoRetryCountRef.current = 0;
+    needsReloadRef.current = false;
+    const audio = audioRef.current;
+    if (audio) {
+      try {
+        audio.load();
+      } catch {}
+    }
+    fetchAudio(surah, reciterId).then(() => {
+      play();
+    });
+  }, [surah, reciterId, fetchAudio, play]);
 
   const setSleepTimer = useCallback(
     (minutes: number | null) => {
@@ -740,6 +798,49 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
     ]
   );
 
+  const handleAudioError = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio || !audioUrl) return;
+
+    const mediaErr = audio.error;
+    // 1. Ignore MEDIA_ERR_ABORTED (code 1) - e.g. normal navigation, pause, or source swap
+    if (mediaErr && mediaErr.code === 1) {
+      return;
+    }
+
+    // 2. If audio was idle/not actively playing (e.g. idle socket closed while user was on video feed):
+    // Do NOT display an error banner to the user. Simply mark that it needs a reload when play is called.
+    if (!isPlayingRef.current) {
+      needsReloadRef.current = true;
+      return;
+    }
+
+    // 3. If actively playing, attempt automatic recovery before surfacing error to user
+    if (autoRetryCountRef.current < 2) {
+      autoRetryCountRef.current += 1;
+      const savedPos = audio.currentTime || currentTimeRef.current || 0;
+      try {
+        audio.load();
+        if (savedPos > 0) {
+          audio.currentTime = savedPos;
+        }
+        audio
+          .play()
+          .then(() => {
+            setIsPlaying(true);
+            setError(null);
+            autoRetryCountRef.current = 0;
+          })
+          .catch(() => {});
+        return;
+      } catch {}
+    }
+
+    // 4. True unrecoverable error after retries
+    setError("Audio playback error occurred.");
+    setIsPlaying(false);
+  }, [audioUrl]);
+
   return (
     <GlobalAudioContext.Provider value={value}>
       {children}
@@ -759,12 +860,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
         onEnded={handleEnded}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
-        onError={() => {
-          if (audioUrl) {
-            setError("Audio playback error occurred.");
-            setIsPlaying(false);
-          }
-        }}
+        onError={handleAudioError}
       />
     </GlobalAudioContext.Provider>
   );

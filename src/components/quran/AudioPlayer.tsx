@@ -268,10 +268,21 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
           onActiveAyahChange(ayahNum);
           scrollToAyah(ayahNum);
           preloadNext(data.files, verseKey);
-        } catch {
-          setErrorMsg("Playback failed");
-          setIsPlaying(false);
-          onActiveAyahChange(null);
+        } catch (err: any) {
+          if (err?.name === "AbortError") return;
+          // Auto-recovery attempt: reload stream and retry once on stale socket/network drop
+          try {
+            audio.load();
+            await audio.play();
+            setIsPlaying(true);
+            onActiveAyahChange(ayahNum);
+            scrollToAyah(ayahNum);
+            preloadNext(data.files, verseKey);
+          } catch {
+            setErrorMsg("Playback failed");
+            setIsPlaying(false);
+            onActiveAyahChange(null);
+          }
         }
       }
     },
@@ -352,6 +363,11 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, Props>(function AudioPl
   }, [chapter.id, onActiveAyahChange, playAyah]);
 
   const handleError = useCallback(() => {
+    const audio = audioRef.current;
+    // Ignore MEDIA_ERR_ABORTED (code 1) - e.g. normal navigation, pause, or source swap
+    if (audio?.error?.code === 1) return;
+    // If not actively playing, do not show error on idle socket timeouts
+    if (!isPlayingRef.current) return;
     setErrorMsg("Audio file failed to load");
     setIsPlaying(false);
     onActiveAyahChange(null);
