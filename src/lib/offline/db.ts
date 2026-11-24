@@ -1,11 +1,14 @@
 import type { Chapter, ApiVerse } from "@/lib/quran/server";
+import type { MushafPageData } from "@/lib/mushaf/types";
 
 export const DB_NAME = "ayah_studio_offline_v1";
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 export const STORES = {
   CONTENT: "surah_content",
   AUDIO: "surah_audio",
+  MUSHAF: "mushaf_pages",
+  FULL_AUDIO: "listen_audio",
 } as const;
 
 export interface OfflineSurahContent {
@@ -31,6 +34,24 @@ export interface OfflineSurahAudio {
   fullAudioBlob?: Blob;
   downloadedAt: number;
   totalBytes: number;
+}
+
+export interface OfflineMushafPage {
+  page_number: number;
+  data: MushafPageData;
+  downloadedAt: number;
+  sizeBytes: number;
+}
+
+export interface OfflineFullAudio {
+  id: string; // `${surah}_${reciterId}`
+  surah: number;
+  reciterId: number;
+  reciterName: string;
+  blob: Blob;
+  mimeType: string;
+  downloadedAt: number;
+  sizeBytes: number;
 }
 
 export interface OfflineDownloadSummary {
@@ -65,6 +86,12 @@ export function openOfflineDb(): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains(STORES.AUDIO)) {
         db.createObjectStore(STORES.AUDIO, { keyPath: "id" });
+      }
+      if (!db.objectStoreNames.contains(STORES.MUSHAF)) {
+        db.createObjectStore(STORES.MUSHAF, { keyPath: "page_number" });
+      }
+      if (!db.objectStoreNames.contains(STORES.FULL_AUDIO)) {
+        db.createObjectStore(STORES.FULL_AUDIO, { keyPath: "id" });
       }
     };
 
@@ -334,17 +361,295 @@ export async function listOfflineDownloads(): Promise<OfflineDownloadSummary[]> 
 }
 
 /**
- * Wipe all offline downloads (text and audio).
+ * Wipe all offline downloads (text, audio, mushaf, full audio).
  */
 export async function clearAllOfflineData(): Promise<void> {
   try {
     const db = await openOfflineDb();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction([STORES.CONTENT, STORES.AUDIO], "readwrite");
+      const tx = db.transaction(
+        [STORES.CONTENT, STORES.AUDIO, STORES.MUSHAF, STORES.FULL_AUDIO],
+        "readwrite"
+      );
       tx.objectStore(STORES.CONTENT).clear();
       tx.objectStore(STORES.AUDIO).clear();
+      tx.objectStore(STORES.MUSHAF).clear();
+      tx.objectStore(STORES.FULL_AUDIO).clear();
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
     });
   } catch {}
+}
+
+/**
+ * Save Mushaf page data for offline reading.
+ */
+export async function saveOfflineMushafPage(pageData: MushafPageData): Promise<void> {
+  const db = await openOfflineDb();
+  const sizeBytes = estimateJsonSize(pageData);
+  const record: OfflineMushafPage = {
+    page_number: pageData.page_number,
+    data: pageData,
+    downloadedAt: Date.now(),
+    sizeBytes,
+  };
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORES.MUSHAF, "readwrite");
+    const store = tx.objectStore(STORES.MUSHAF);
+    const req = store.put(record);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/**
+ * Retrieve offline Mushaf page.
+ */
+export async function getOfflineMushafPage(pageNumber: number): Promise<MushafPageData | null> {
+  try {
+    const db = await openOfflineDb();
+    return new Promise((resolve) => {
+      const tx = db.transaction(STORES.MUSHAF, "readonly");
+      const store = tx.objectStore(STORES.MUSHAF);
+      const req = store.get(pageNumber);
+      req.onsuccess = () => {
+        const result = req.result as OfflineMushafPage | undefined;
+        resolve(result?.data || null);
+      };
+      req.onerror = () => resolve(null);
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Check if a Mushaf page is downloaded.
+ */
+export async function hasOfflineMushafPage(pageNumber: number): Promise<boolean> {
+  try {
+    const db = await openOfflineDb();
+    return new Promise((resolve) => {
+      const tx = db.transaction(STORES.MUSHAF, "readonly");
+      const store = tx.objectStore(STORES.MUSHAF);
+      const req = store.count(pageNumber);
+      req.onsuccess = () => resolve(req.result > 0);
+      req.onerror = () => resolve(false);
+    });
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * List all downloaded Mushaf page numbers.
+ */
+export async function listOfflineMushafPages(): Promise<number[]> {
+  try {
+    const db = await openOfflineDb();
+    return new Promise((resolve) => {
+      const tx = db.transaction(STORES.MUSHAF, "readonly");
+      const store = tx.objectStore(STORES.MUSHAF);
+      const req = store.getAllKeys();
+      req.onsuccess = () => resolve((req.result as number[]) || []);
+      req.onerror = () => resolve([]);
+    });
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Delete a downloaded Mushaf page.
+ */
+export async function deleteOfflineMushafPage(pageNumber: number): Promise<void> {
+  try {
+    const db = await openOfflineDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORES.MUSHAF, "readwrite");
+      const store = tx.objectStore(STORES.MUSHAF);
+      const req = store.delete(pageNumber);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  } catch {}
+}
+
+/**
+ * Save full Surah audio MP3 blob (used by Listen player).
+ */
+export async function saveOfflineFullAudio(
+  surah: number,
+  reciterId: number,
+  reciterName: string,
+  blob: Blob
+): Promise<void> {
+  const db = await openOfflineDb();
+  const record: OfflineFullAudio = {
+    id: `${surah}_${reciterId}`,
+    surah,
+    reciterId,
+    reciterName,
+    blob,
+    mimeType: blob.type || "audio/mpeg",
+    downloadedAt: Date.now(),
+    sizeBytes: blob.size,
+  };
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORES.FULL_AUDIO, "readwrite");
+    const store = tx.objectStore(STORES.FULL_AUDIO);
+    const req = store.put(record);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/**
+ * Retrieve full Surah audio blob as a blob URL.
+ */
+export async function getOfflineFullAudio(
+  surah: number,
+  reciterId: number
+): Promise<{ audioUrl: string; sizeBytes: number; reciterName: string } | null> {
+  try {
+    const db = await openOfflineDb();
+    return new Promise((resolve) => {
+      const tx = db.transaction(STORES.FULL_AUDIO, "readonly");
+      const store = tx.objectStore(STORES.FULL_AUDIO);
+      const req = store.get(`${surah}_${reciterId}`);
+      req.onsuccess = () => {
+        const result = req.result as OfflineFullAudio | undefined;
+        if (result && result.blob) {
+          resolve({
+            audioUrl: URL.createObjectURL(result.blob),
+            sizeBytes: result.sizeBytes,
+            reciterName: result.reciterName,
+          });
+        } else {
+          resolve(null);
+        }
+      };
+      req.onerror = () => resolve(null);
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Check if full Surah audio is downloaded.
+ */
+export async function hasOfflineFullAudio(surah: number, reciterId: number): Promise<boolean> {
+  try {
+    const db = await openOfflineDb();
+    return new Promise((resolve) => {
+      const tx = db.transaction(STORES.FULL_AUDIO, "readonly");
+      const store = tx.objectStore(STORES.FULL_AUDIO);
+      const req = store.count(`${surah}_${reciterId}`);
+      req.onsuccess = () => resolve(req.result > 0);
+      req.onerror = () => resolve(false);
+    });
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Delete full Surah audio.
+ */
+export async function deleteOfflineFullAudio(surah: number, reciterId: number): Promise<void> {
+  try {
+    const db = await openOfflineDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORES.FULL_AUDIO, "readwrite");
+      const store = tx.objectStore(STORES.FULL_AUDIO);
+      const req = store.delete(`${surah}_${reciterId}`);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  } catch {}
+}
+
+/**
+ * Detailed breakdown of device storage used by Aayah Studio offline stores.
+ */
+export async function getStorageUsageSummary(): Promise<{
+  totalBytes: number;
+  textBytes: number;
+  audioBytes: number;
+  mushafBytes: number;
+  surahsCount: number;
+  mushafPagesCount: number;
+  availableBytes?: number;
+}> {
+  try {
+    const db = await openOfflineDb();
+
+    // Sum CONTENT
+    const contents: OfflineSurahContent[] = await new Promise((r) => {
+      const tx = db.transaction(STORES.CONTENT, "readonly");
+      const req = tx.objectStore(STORES.CONTENT).getAll();
+      req.onsuccess = () => r(req.result || []);
+      req.onerror = () => r([]);
+    });
+    const textBytes = contents.reduce((acc, c) => acc + (c.sizeBytes || 0), 0);
+
+    // Sum AUDIO (ayahs)
+    const audios: OfflineSurahAudio[] = await new Promise((r) => {
+      const tx = db.transaction(STORES.AUDIO, "readonly");
+      const req = tx.objectStore(STORES.AUDIO).getAll();
+      req.onsuccess = () => r(req.result || []);
+      req.onerror = () => r([]);
+    });
+    let audioBytes = audios.reduce((acc, a) => acc + (a.totalBytes || 0), 0);
+
+    // Sum FULL_AUDIO
+    const fullAudios: OfflineFullAudio[] = await new Promise((r) => {
+      const tx = db.transaction(STORES.FULL_AUDIO, "readonly");
+      const req = tx.objectStore(STORES.FULL_AUDIO).getAll();
+      req.onsuccess = () => r(req.result || []);
+      req.onerror = () => r([]);
+    });
+    audioBytes += fullAudios.reduce((acc, fa) => acc + (fa.sizeBytes || 0), 0);
+
+    // Sum MUSHAF
+    const mushafPages: OfflineMushafPage[] = await new Promise((r) => {
+      const tx = db.transaction(STORES.MUSHAF, "readonly");
+      const req = tx.objectStore(STORES.MUSHAF).getAll();
+      req.onsuccess = () => r(req.result || []);
+      req.onerror = () => r([]);
+    });
+    const mushafBytes = mushafPages.reduce((acc, p) => acc + (p.sizeBytes || 0), 0);
+
+    let availableBytes: number | undefined;
+    if (typeof navigator !== "undefined" && navigator.storage && navigator.storage.estimate) {
+      try {
+        const est = await navigator.storage.estimate();
+        if (est.quota && est.usage) {
+          availableBytes = Math.max(0, est.quota - est.usage);
+        }
+      } catch {}
+    }
+
+    return {
+      totalBytes: textBytes + audioBytes + mushafBytes,
+      textBytes,
+      audioBytes,
+      mushafBytes,
+      surahsCount: contents.length,
+      mushafPagesCount: mushafPages.length,
+      availableBytes,
+    };
+  } catch {
+    return {
+      totalBytes: 0,
+      textBytes: 0,
+      audioBytes: 0,
+      mushafBytes: 0,
+      surahsCount: 0,
+      mushafPagesCount: 0,
+    };
+  }
 }

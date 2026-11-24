@@ -169,13 +169,13 @@ describe("practice engine", () => {
     expect(validated.hideText).toBe(false);
   });
 
-  it("enforces maximum 20 ayahs range limit", () => {
+  it("allows selecting any range up to the entire surah verse count", () => {
     const validated = validateConfig({
       fromAyah: 10,
       toAyah: 80,
     }, 286);
 
     expect(validated.fromAyah).toBe(10);
-    expect(validated.toAyah).toBe(29); // 10 + 19 = 20 ayahs total
+    expect(validated.toAyah).toBe(80); // full range allowed up to total verses
   });
 });

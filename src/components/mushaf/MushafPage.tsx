@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useRef } from "react";
-import { MushafPageData, MushafWord } from "@/lib/mushaf/types";
+import React from "react";
+import { MushafPageData, MushafWord, MushafFontType } from "@/lib/mushaf/types";
 import { MushafLineItem } from "./MushafLineItem";
 
 interface MushafPageProps {
   pageData: MushafPageData;
   fontFamily: string;
   useFallbackFont?: boolean;
+  fontType?: MushafFontType;
+  fontSizeMultiplier?: number;
+  tajweedEnabled?: boolean;
   activeAyahKey?: string | null;
   selectedAyahKey?: string | null;
   onSelectWord: (word: MushafWord) => void;
@@ -19,6 +22,9 @@ export const MushafPage = React.memo(function MushafPage({
   pageData,
   fontFamily,
   useFallbackFont = false,
+  fontType = "kfgqpc",
+  fontSizeMultiplier = 1,
+  tajweedEnabled = false,
   activeAyahKey,
   selectedAyahKey,
   onSelectWord,
@@ -45,9 +51,13 @@ export const MushafPage = React.memo(function MushafPage({
 
       {/* Mushaf Lines */}
       <div
-        className={`w-full flex flex-col justify-between flex-1 py-1 sm:py-2 px-1 sm:px-2 text-[clamp(12px,3.8vw,26px)] sm:text-[24px] md:text-[28px] ${
+        className={`w-full flex flex-col justify-between flex-1 py-1 sm:py-2 px-1 sm:px-2 ${
           isPage1Or2 ? "justify-center gap-2 sm:gap-4 my-auto" : ""
         }`}
+        style={{
+          fontSize: `calc(clamp(12px, 3.8vw, 26px) * ${fontSizeMultiplier})`,
+          lineHeight: `${1.7 * Math.max(0.9, fontSizeMultiplier)}`,
+        }}
       >
         {pageData.lines.map((line) => (
           <MushafLineItem
@@ -56,6 +66,9 @@ export const MushafPage = React.memo(function MushafPage({
             pageNumber={pageData.page_number}
             fontFamily={fontFamily}
             useFallbackFont={useFallbackFont}
+            fontType={fontType}
+            fontSizeMultiplier={fontSizeMultiplier}
+            tajweedEnabled={tajweedEnabled}
             activeAyahKey={activeAyahKey}
             selectedAyahKey={selectedAyahKey}
             onSelectWord={onSelectWord}

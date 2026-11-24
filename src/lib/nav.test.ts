@@ -7,11 +7,11 @@ describe("NAV_ITEMS", () => {
     expect(labels).toEqual(["Home", "Quran", "Learn", "Pricing"]);
   });
 
-  it("Quran dropdown has the expected children: Read Quran, Listen to Quran, Bookmarks", () => {
+  it("Quran dropdown has the expected children: Read Quran, Mushaf View, Listen to Quran, Offline Downloads, Bookmarks", () => {
     const quranItem = NAV_ITEMS.find((item) => item.label === "Quran");
     expect(quranItem).toBeDefined();
     expect(quranItem?.children).toBeDefined();
-    expect(quranItem?.children?.length).toBe(3);
+    expect(quranItem?.children?.length).toBe(5);
 
     expect(quranItem?.children?.[0]).toEqual({
       label: "Read Quran",
@@ -21,13 +21,27 @@ describe("NAV_ITEMS", () => {
     });
 
     expect(quranItem?.children?.[1]).toEqual({
+      label: "Mushaf View",
+      description: "Page-by-page Madani Mushaf reading",
+      href: "/mushaf",
+      icon: "BookOpen",
+    });
+
+    expect(quranItem?.children?.[2]).toEqual({
       label: "Listen to Quran",
       description: "Full recitations by surah",
       href: "/listen",
       icon: "Headphones",
     });
 
-    expect(quranItem?.children?.[2]).toEqual({
+    expect(quranItem?.children?.[3]).toEqual({
+      label: "Offline Downloads",
+      description: "Read and listen offline with zero data",
+      href: "/offline",
+      icon: "HardDrive",
+    });
+
+    expect(quranItem?.children?.[4]).toEqual({
       label: "Bookmarks",
       description: "Your saved ayahs",
       href: "/quran/bookmarks",

@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { MushafPageData, MushafWord } from "@/lib/mushaf/types";
+import { MushafPageData, MushafWord, MushafFontType } from "@/lib/mushaf/types";
 import { getSurahMeta } from "@/lib/mushaf/data";
 import { useMushafFont } from "./useMushafFont";
 import { MushafHeader } from "./MushafHeader";
@@ -13,6 +13,11 @@ import { AyahBottomSheet } from "./AyahBottomSheet";
 import { Reciter, DEFAULT_RECITER } from "@/lib/quran/types";
 import { saveContinueReading } from "@/lib/library/storage";
 import { registerAudioPlayback, notifyAudioPlaybackStarted } from "@/lib/audio/single-audio";
+import {
+  getOfflineMushafPage,
+  saveOfflineMushafPage,
+  getOfflineSurahAudio,
+} from "@/lib/offline/db";
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 
 const TafsirDrawer = dynamic(
@@ -32,8 +37,55 @@ export function MushafView({ initialPageData, initialPageNumber }: MushafViewPro
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Font settings & scaling
+  const [fontSizeMultiplier, setFontSizeMultiplier] = useState<number>(1);
+  const [fontType, setFontType] = useState<MushafFontType>("kfgqpc");
+  const [tajweedEnabled, setTajweedEnabled] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      const savedSize = localStorage.getItem("qcs-mushaf-font-size");
+      if (savedSize) {
+        const val = parseFloat(savedSize);
+        if (!isNaN(val) && val >= 0.7 && val <= 1.6) {
+          setFontSizeMultiplier(val);
+        }
+      }
+      const savedType = localStorage.getItem("qcs-mushaf-font-type");
+      if (savedType === "kfgqpc" || savedType === "amiri" || savedType === "uthmanic") {
+        setFontType(savedType as MushafFontType);
+      }
+      const savedTajweed = localStorage.getItem("qcs-mushaf-tajweed");
+      if (savedTajweed === "true") {
+        setTajweedEnabled(true);
+      }
+    } catch {}
+  }, []);
+
+  const handleFontSizeChange = (multiplier: number) => {
+    const clamped = Math.max(0.7, Math.min(1.6, multiplier));
+    setFontSizeMultiplier(clamped);
+    try {
+      localStorage.setItem("qcs-mushaf-font-size", String(clamped));
+    } catch {}
+  };
+
+  const handleFontTypeChange = (type: MushafFontType) => {
+    setFontType(type);
+    try {
+      localStorage.setItem("qcs-mushaf-font-type", type);
+    } catch {}
+  };
+
+  const handleTajweedChange = (enabled: boolean) => {
+    setTajweedEnabled(enabled);
+    try {
+      localStorage.setItem("qcs-mushaf-tajweed", String(enabled));
+    } catch {}
+  };
+
   // Font loading
-  const { isLoaded: fontLoaded, error: fontError, fontFamily } = useMushafFont(currentPage);
+  const { isLoaded: fontLoaded, error: fontError, fontFamily } = useMushafFont(currentPage, fontType);
 
   // Selection & Bottom Sheet
   const [selectedWord, setSelectedWord] = useState<MushafWord | null>(null);
@@ -60,9 +112,6 @@ export function MushafView({ initialPageData, initialPageNumber }: MushafViewPro
   const [activeAyahKey, setActiveAyahKey] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Font scaling
-  const [fontSizeMultiplier, setFontSizeMultiplier] = useState<number>(1);
 
   // Load Reciters list
   useEffect(() => {
@@ -127,12 +176,28 @@ export function MushafView({ initialPageData, initialPageNumber }: MushafViewPro
       window.history.pushState(null, "", `/mushaf/${p}`);
 
       try {
+        // 1. Try offline IndexedDB cache first
+        const offline = await getOfflineMushafPage(p);
+        if (offline && offline.lines && offline.lines.length > 0) {
+          setPageData(offline);
+          setLoading(false);
+          return;
+        }
+
+        // 2. Fetch from network
         const res = await fetch(`/api/quran/mushaf?page=${p}`);
         if (!res.ok) throw new Error("Failed to load page");
         const data = await res.json();
         setPageData(data);
+        saveOfflineMushafPage(data).catch(() => {});
       } catch (err: any) {
-        setError(err.message || "Failed to load page");
+        // Fallback to offline if fetch failed
+        const offline = await getOfflineMushafPage(p).catch(() => null);
+        if (offline && offline.lines && offline.lines.length > 0) {
+          setPageData(offline);
+        } else {
+          setError(err.message || "Failed to load page");
+        }
       } finally {
         setLoading(false);
       }
@@ -207,21 +272,36 @@ export function MushafView({ initialPageData, initialPageNumber }: MushafViewPro
     const ayah = parseInt(aStr, 10);
 
     try {
-      const res = await fetch(`/api/quran/audio?surah=${surah}&reciter=${reciterId}`);
-      if (!res.ok) throw new Error("Failed to load audio");
-      const audioData = await res.json();
-      const files: { verseKey: string; audioUrl: string }[] = audioData.files || [];
-      const match = files.find((f) => f.verseKey === verseKey);
+      let audioUrlToPlay: string | null = null;
 
-      if (!match || !match.audioUrl) {
-        throw new Error("Ayah audio file not found");
+      // 1. Try offline stored verse audio
+      try {
+        const offlineAudio = await getOfflineSurahAudio(surah, reciterId);
+        const matchOffline = offlineAudio?.files?.find((f) => f.verseKey === verseKey);
+        if (matchOffline?.audioUrl) {
+          audioUrlToPlay = matchOffline.audioUrl;
+        }
+      } catch {}
+
+      // 2. Fetch from network if not cached offline
+      if (!audioUrlToPlay) {
+        const res = await fetch(`/api/quran/audio?surah=${surah}&reciter=${reciterId}`);
+        if (!res.ok) throw new Error("Failed to load audio");
+        const audioData = await res.json();
+        const files: { verseKey: string; audioUrl: string }[] = audioData.files || [];
+        const match = files.find((f) => f.verseKey === verseKey);
+
+        if (!match || !match.audioUrl) {
+          throw new Error("Ayah audio file not found");
+        }
+        audioUrlToPlay = match.audioUrl;
       }
 
       if (!audioRef.current) {
         audioRef.current = new Audio();
       }
 
-      audioRef.current.src = match.audioUrl;
+      audioRef.current.src = audioUrlToPlay;
       setActiveAyahKey(verseKey);
       setIsPlaying(true);
 
@@ -249,6 +329,29 @@ export function MushafView({ initialPageData, initialPageNumber }: MushafViewPro
     setTafsirAyah(ayah);
   };
 
+  // Calculate full Ayah Arabic text & translation for the currently selected word's ayah
+  const fullAyahWords = useMemo(() => {
+    if (!selectedWord) return [];
+    const allWords: MushafWord[] = pageData.lines.flatMap((l) => l.words || []);
+    return allWords.filter((w: MushafWord) => w.verse_key === selectedWord.verse_key);
+  }, [selectedWord, pageData]);
+
+  const fullAyahArabic = useMemo(() => {
+    if (!fullAyahWords.length) return "";
+    return fullAyahWords
+      .filter((w: MushafWord) => w.char_type_name !== "end")
+      .map((w: MushafWord) => w.text_uthmani || w.text_qpc_hafs || "")
+      .join(" ");
+  }, [fullAyahWords]);
+
+  const fullAyahTranslation = useMemo(() => {
+    if (!fullAyahWords.length) return "";
+    return fullAyahWords
+      .filter((w: MushafWord) => w.char_type_name !== "end" && !!w.translation?.text)
+      .map((w: MushafWord) => w.translation?.text)
+      .join(" ");
+  }, [fullAyahWords]);
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col justify-between selection:bg-gold/30">
       {/* Header */}
@@ -261,7 +364,11 @@ export function MushafView({ initialPageData, initialPageNumber }: MushafViewPro
         selectedReciterId={reciterId}
         onSelectReciter={handleSelectReciter}
         fontSizeMultiplier={fontSizeMultiplier}
-        onFontSizeChange={setFontSizeMultiplier}
+        onFontSizeChange={handleFontSizeChange}
+        fontType={fontType}
+        onFontTypeChange={handleFontTypeChange}
+        tajweedEnabled={tajweedEnabled}
+        onTajweedChange={handleTajweedChange}
       />
 
       {/* Main Content Area */}
@@ -289,6 +396,9 @@ export function MushafView({ initialPageData, initialPageNumber }: MushafViewPro
             pageData={pageData}
             fontFamily={fontFamily}
             useFallbackFont={fontError || !fontLoaded}
+            fontType={fontType}
+            fontSizeMultiplier={fontSizeMultiplier}
+            tajweedEnabled={tajweedEnabled}
             activeAyahKey={activeAyahKey}
             selectedAyahKey={selectedWord?.verse_key}
             onSelectWord={handleSelectWord}
@@ -307,10 +417,11 @@ export function MushafView({ initialPageData, initialPageNumber }: MushafViewPro
           open={sheetOpen}
           onClose={() => setSheetOpen(false)}
           verseKey={selectedWord.verse_key}
-          textArabic={selectedWord.text_uthmani || selectedWord.text_qpc_hafs}
-          translation={selectedWord.translation?.text}
-          isPlaying={isPlaying && activeAyahKey === selectedWord.verse_key}
-          onPlay={handlePlayAyah}
+          selectedWord={selectedWord}
+          fullAyahArabic={fullAyahArabic}
+          fullAyahTranslation={fullAyahTranslation}
+          isPlayingAyah={isPlaying && activeAyahKey === selectedWord.verse_key}
+          onPlayAyah={handlePlayAyah}
           onOpenTafsir={handleOpenTafsir}
         />
       )}

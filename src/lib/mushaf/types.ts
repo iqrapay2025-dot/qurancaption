@@ -1,3 +1,9 @@
+export interface WordTajweedSeg {
+  text: string;
+  rule?: string;
+  color?: string;
+}
+
 export interface MushafWord {
   id: number;
   position: number;
@@ -8,10 +14,16 @@ export interface MushafWord {
   text_qpc_hafs?: string;
   text_uthmani?: string;
   char_type_name: "word" | "end" | string;
+  audio_url?: string;
   translation?: {
     text: string;
     language_name?: string;
   };
+  transliteration?: {
+    text: string;
+    language_name?: string;
+  };
+  tajweed?: WordTajweedSeg[];
 }
 
 export interface MushafLine {
@@ -21,6 +33,7 @@ export interface MushafLine {
   surah_number?: number;
   surah_name_arabic?: string;
   surah_name_english?: string;
+  surah_name_simple?: string;
   ayah_count?: number;
   revelation_place?: string;
 }
@@ -57,3 +70,5 @@ export interface JuzMeta {
   start_page: number;
   name_arabic?: string;
 }
+
+export type MushafFontType = "kfgqpc" | "amiri" | "uthmanic";

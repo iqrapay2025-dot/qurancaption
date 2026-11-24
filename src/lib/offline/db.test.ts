@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatBytes, estimateJsonSize } from "./db";
+import { formatBytes, estimateJsonSize, STORES, DB_VERSION } from "./db";
 
 describe("Offline DB & Storage Helpers", () => {
   it("formats byte values accurately into B, KB, MB, GB", () => {
@@ -19,5 +19,13 @@ describe("Offline DB & Storage Helpers", () => {
     const size = estimateJsonSize(data);
     expect(size).toBeGreaterThan(10);
     expect(size).toBeLessThan(100);
+  });
+
+  it("defines expected stores and database version", () => {
+    expect(DB_VERSION).toBe(2);
+    expect(STORES.CONTENT).toBe("surah_content");
+    expect(STORES.AUDIO).toBe("surah_audio");
+    expect(STORES.MUSHAF).toBe("mushaf_pages");
+    expect(STORES.FULL_AUDIO).toBe("listen_audio");
   });
 });

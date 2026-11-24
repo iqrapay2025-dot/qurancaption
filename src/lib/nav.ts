@@ -19,10 +19,22 @@ export const QURAN_CHILDREN: NavChild[] = [
     icon: "BookOpen",
   },
   {
+    label: "Mushaf View",
+    description: "Page-by-page Madani Mushaf reading",
+    href: "/mushaf",
+    icon: "BookOpen",
+  },
+  {
     label: "Listen to Quran",
     description: "Full recitations by surah",
     href: "/listen",
     icon: "Headphones",
+  },
+  {
+    label: "Offline Downloads",
+    description: "Read and listen offline with zero data",
+    href: "/offline",
+    icon: "HardDrive",
   },
   {
     label: "Bookmarks",
@@ -64,13 +76,17 @@ export function isActive(pathname: string | null | undefined, target: string): b
     return cleanPath === "/" || cleanPath === "/home";
   }
 
-  // "Quran" dropdown parent active for /quran, /quran/[surah], and /listen
+  // "Quran" dropdown parent active for /quran, /quran/[surah], /listen, /mushaf, and /offline
   if (cleanTarget === "Quran" || cleanTarget === "quran" || cleanTarget === "/quran") {
     return (
       cleanPath === "/quran" ||
       cleanPath.startsWith("/quran/") ||
       cleanPath === "/listen" ||
-      cleanPath.startsWith("/listen/")
+      cleanPath.startsWith("/listen/") ||
+      cleanPath === "/mushaf" ||
+      cleanPath.startsWith("/mushaf/") ||
+      cleanPath === "/offline" ||
+      cleanPath.startsWith("/offline/")
     );
   }
 

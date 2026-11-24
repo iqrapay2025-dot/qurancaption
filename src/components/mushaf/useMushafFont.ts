@@ -1,15 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { MushafFontType } from "@/lib/mushaf/types";
 
 const loadedFonts = new Set<number>();
 
-export function useMushafFont(page: number) {
+export function useMushafFont(page: number, fontType: MushafFontType = "kfgqpc") {
   const [isLoaded, setIsLoaded] = useState<boolean>(() => loadedFonts.has(page));
   const [error, setError] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (fontType !== "kfgqpc") {
+      setIsLoaded(true);
+      return;
+    }
 
     if (loadedFonts.has(page)) {
       setIsLoaded(true);
@@ -99,9 +104,25 @@ export function useMushafFont(page: number) {
     }
   }, [page]);
 
+  if (fontType === "amiri") {
+    return {
+      isLoaded: true,
+      error: false,
+      fontFamily: "'Amiri Quran', 'Amiri', serif",
+    };
+  }
+
+  if (fontType === "uthmanic") {
+    return {
+      isLoaded: true,
+      error: false,
+      fontFamily: "'UthmanicHafs', 'Amiri Quran', serif",
+    };
+  }
+
   return {
     isLoaded,
     error,
-    fontFamily: isLoaded && !error ? `'p${page}-v2', 'Amiri Quran', 'Scheherazade New', serif` : `'Amiri Quran', 'Scheherazade New', serif`,
+    fontFamily: isLoaded && !error ? `'p${page}-v2', 'UthmanicHafs', 'Amiri Quran', serif` : `'UthmanicHafs', 'Amiri Quran', serif`,
   };
 }

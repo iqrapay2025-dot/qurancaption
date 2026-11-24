@@ -12,10 +12,17 @@ import {
   X,
   ChevronDown,
   Check,
+  HardDrive,
+  Sun,
+  Moon,
+  Sparkles,
 } from "lucide-react";
 import { SURAHS_META, JUZS_META } from "@/lib/mushaf/data";
-import { MushafPageSurahSummary } from "@/lib/mushaf/types";
+import { MushafPageSurahSummary, MushafFontType } from "@/lib/mushaf/types";
 import { Reciter, DEFAULT_RECITER } from "@/lib/quran/types";
+import { filterReciters } from "@/lib/search/reciter-search";
+import { useTheme, ThemeToggle } from "@/components/shared";
+import { TAJWEED_GROUPS } from "@/lib/quran/tajweed";
 
 interface MushafHeaderProps {
   pageNumber: number;
@@ -27,6 +34,10 @@ interface MushafHeaderProps {
   onSelectReciter: (id: number) => void;
   fontSizeMultiplier: number;
   onFontSizeChange: (multiplier: number) => void;
+  fontType: MushafFontType;
+  onFontTypeChange: (fontType: MushafFontType) => void;
+  tajweedEnabled?: boolean;
+  onTajweedChange?: (enabled: boolean) => void;
 }
 
 export function MushafHeader({
@@ -39,8 +50,14 @@ export function MushafHeader({
   onSelectReciter,
   fontSizeMultiplier,
   onFontSizeChange,
+  fontType,
+  onFontTypeChange,
+  tajweedEnabled = false,
+  onTajweedChange,
 }: MushafHeaderProps) {
+  const { dark, toggle: toggleTheme } = useTheme();
   const [jumpOpen, setJumpOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"surah" | "juz" | "page">("surah");
   const [searchQuery, setSearchQuery] = useState("");
   const [inputPage, setInputPage] = useState(String(pageNumber));
@@ -81,14 +98,7 @@ export function MushafHeader({
   }, [searchQuery]);
 
   const filteredReciters = useMemo(() => {
-    if (!reciterSearch.trim()) return reciters;
-    const q = reciterSearch.toLowerCase().trim();
-    return reciters.filter(
-      (r) =>
-        r.name.toLowerCase().includes(q) ||
-        (r.nameArabic && r.nameArabic.includes(q)) ||
-        (r.style && r.style.toLowerCase().includes(q))
-    );
+    return filterReciters(reciters, reciterSearch);
   }, [reciters, reciterSearch]);
 
   const currentReciter = reciters.find((r) => r.id === selectedReciterId);
@@ -105,9 +115,9 @@ export function MushafHeader({
   return (
     <>
       <header className="sticky top-0 z-30 w-full border-b border-border/80 bg-background/95 backdrop-blur-md">
-        <div className="max-w-4xl mx-auto px-2 sm:px-4 h-14 flex items-center justify-between gap-1 sm:gap-3">
+        <div className="max-w-4xl mx-auto px-2 sm:px-4 h-14 grid grid-cols-[auto_1fr_auto] items-center gap-1.5 sm:gap-3">
           {/* Left: Back button */}
-          <div className="flex items-center shrink-0">
+          <div className="flex items-center justify-self-start shrink-0">
             <Link
               href={`/quran/${primarySurah.id}`}
               className="p-1.5 sm:p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors"
@@ -119,16 +129,16 @@ export function MushafHeader({
           </div>
 
           {/* Center: Surah & Page Navigation Trigger (Centered & Responsive) */}
-          <div className="flex-1 min-w-0 flex items-center justify-center px-1">
+          <div className="justify-self-center min-w-0 max-w-full flex items-center justify-center px-0.5">
             <button
               type="button"
               onClick={() => setJumpOpen(true)}
-              className="max-w-full inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-border/70 bg-card/70 hover:border-gold hover:bg-gold/5 transition-all text-center"
+              className="max-w-full inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-border/70 bg-card/70 hover:border-gold hover:bg-gold/5 transition-all text-center"
               title="Jump to Surah, Juz, or Page"
             >
               <div className="min-w-0 flex flex-col items-center">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-xs font-bold text-foreground truncate max-w-[95px] xs:max-w-[140px] sm:max-w-[200px]">
+                <div className="flex items-center gap-1 min-w-0">
+                  <span className="text-xs font-bold text-foreground truncate max-w-[72px] xs:max-w-[140px] sm:max-w-[200px]">
                     {primarySurah.name_simple}
                   </span>
                   <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-primary/10 text-primary shrink-0 whitespace-nowrap">
@@ -144,7 +154,7 @@ export function MushafHeader({
           </div>
 
           {/* Right: Toggle Switch & Reciter Selector */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 justify-self-end shrink-0">
             {/* Desktop: Segmented switch */}
             <div className="hidden sm:inline-flex items-center p-0.5 rounded-lg border border-border bg-muted/60 text-xs">
               <Link
@@ -167,12 +177,24 @@ export function MushafHeader({
             {/* Mobile: Compact button to switch to Verses view */}
             <Link
               href={`/quran/${primarySurah.id}`}
-              className="sm:hidden flex items-center gap-1 px-2 py-1.5 rounded-lg border border-border/80 bg-card text-xs font-medium text-foreground hover:bg-muted transition-colors"
+              className="sm:hidden flex items-center gap-1 px-1.5 py-1 rounded-lg border border-border/80 bg-card text-xs font-medium text-foreground hover:bg-muted transition-colors"
               title="Switch to Verse-by-verse reader"
             >
-              <FileText size={14} className="text-primary" />
-              <span className="text-[11px]">Verses</span>
+              <FileText size={13} className="text-primary" />
+              <span className="text-[10px]">Verses</span>
             </Link>
+
+            {/* Font & Display Settings Button */}
+            <button
+              type="button"
+              onClick={() => setSettingsOpen(true)}
+              className="p-1.5 sm:p-2 rounded-lg border border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center gap-1 shrink-0"
+              title="Adjust Font Size & Script"
+              aria-label="Font settings"
+            >
+              <SlidersHorizontal size={16} className="text-primary" />
+              <span className="hidden lg:inline text-xs font-medium">Font</span>
+            </button>
 
             {/* Reciter Selector dropdown */}
             <div className="relative shrink-0" ref={reciterDropdownRef}>
@@ -236,6 +258,19 @@ export function MushafHeader({
                 </div>
               )}
             </div>
+
+            {/* Offline Downloads link */}
+            <Link
+              href="/offline"
+              className="hidden sm:inline-flex p-2 rounded-lg border border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+              title="Offline Downloads & Storage"
+              aria-label="Offline downloads and storage"
+            >
+              <HardDrive size={16} />
+            </Link>
+
+            {/* Dark / Light Mode Toggle */}
+            <ThemeToggle dark={dark} toggle={toggleTheme} />
           </div>
         </div>
       </header>
@@ -396,6 +431,276 @@ export function MushafHeader({
                   </button>
                 </form>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Font & Display Settings Modal */}
+      {settingsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+          <div className="absolute inset-0" onClick={() => setSettingsOpen(false)} />
+          <div className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-2xl animate-scale-in space-y-4 sm:space-y-5 max-h-[88vh] overflow-y-auto my-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal size={18} className="text-primary" />
+                <h3 className="font-bold text-base text-foreground">Mushaf Font &amp; Display</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSettingsOpen(false)}
+                className="p-1.5 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors"
+                title="Close settings"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Font Size Adjuster */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs font-semibold text-foreground">
+                <span>Arabic Font Size</span>
+                <span className="font-mono text-primary font-bold">
+                  {Math.round(fontSizeMultiplier * 100)}%
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <button
+                  type="button"
+                  onClick={() => onFontSizeChange(Math.max(0.7, Math.round((fontSizeMultiplier - 0.1) * 10) / 10))}
+                  disabled={fontSizeMultiplier <= 0.7}
+                  className="px-2.5 sm:px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-xs font-bold disabled:opacity-40 transition-colors shrink-0"
+                  title="Decrease font size"
+                >
+                  A-
+                </button>
+                <input
+                  type="range"
+                  min="0.7"
+                  max="1.6"
+                  step="0.05"
+                  value={fontSizeMultiplier}
+                  onChange={(e) => onFontSizeChange(parseFloat(e.target.value))}
+                  className="flex-1 min-w-[60px] accent-primary h-2 rounded-lg bg-muted cursor-pointer"
+                />
+                <button
+                  type="button"
+                  onClick={() => onFontSizeChange(Math.min(1.6, Math.round((fontSizeMultiplier + 0.1) * 10) / 10))}
+                  disabled={fontSizeMultiplier >= 1.6}
+                  className="px-2.5 sm:px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-xs font-bold disabled:opacity-40 transition-colors shrink-0"
+                  title="Increase font size"
+                >
+                  A+
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onFontSizeChange(1)}
+                  className="px-2 sm:px-2.5 py-1.5 rounded-lg border border-border/70 hover:bg-muted text-[11px] text-muted-foreground transition-colors shrink-0"
+                  title="Reset to 100%"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            {/* Font Type / Script Selector */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-foreground block">
+                Arabic Font / Script Type
+              </label>
+              <div className="space-y-2">
+                {/* 1. KFGQPC Uthman Taha */}
+                <button
+                  type="button"
+                  onClick={() => onFontTypeChange("kfgqpc")}
+                  className={`w-full p-3 rounded-xl border text-left transition-all flex flex-col gap-1 cursor-pointer ${
+                    fontType === "kfgqpc"
+                      ? "border-primary bg-primary/10 ring-1 ring-primary/40 shadow-xs"
+                      : "border-border bg-card hover:bg-muted/60"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground">
+                      KFGQPC Uthman Taha Script
+                    </span>
+                    {fontType === "kfgqpc" && <Check size={16} className="text-primary" />}
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">
+                    King Fahd Complex Madani Mushaf page-accurate calligraphy
+                  </span>
+                  <div className="mt-1 text-right" dir="rtl">
+                    <span className="font-uthmani text-base text-foreground/90">
+                      بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+                    </span>
+                  </div>
+                </button>
+
+                {/* 2. Amiri Quran */}
+                <button
+                  type="button"
+                  onClick={() => onFontTypeChange("amiri")}
+                  className={`w-full p-3 rounded-xl border text-left transition-all flex flex-col gap-1 cursor-pointer ${
+                    fontType === "amiri"
+                      ? "border-primary bg-primary/10 ring-1 ring-primary/40 shadow-xs"
+                      : "border-border bg-card hover:bg-muted/60"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground">
+                      Amiri Font (Amiri Quran)
+                    </span>
+                    {fontType === "amiri" && <Check size={16} className="text-primary" />}
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">
+                    Classical Arabic Naskh typeface designed for Quranic text
+                  </span>
+                  <div className="mt-1 text-right" dir="rtl">
+                    <span style={{ fontFamily: "'Amiri Quran', 'Amiri', serif" }} className="text-lg text-foreground/90">
+                      بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+                    </span>
+                  </div>
+                </button>
+
+                {/* 3. Uthmanic Hafs */}
+                <button
+                  type="button"
+                  onClick={() => onFontTypeChange("uthmanic")}
+                  className={`w-full p-3 rounded-xl border text-left transition-all flex flex-col gap-1 cursor-pointer ${
+                    fontType === "uthmanic"
+                      ? "border-primary bg-primary/10 ring-1 ring-primary/40 shadow-xs"
+                      : "border-border bg-card hover:bg-muted/60"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-foreground">
+                      Uthmanic Hafs Script
+                    </span>
+                    {fontType === "uthmanic" && <Check size={16} className="text-primary" />}
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">
+                    Digital Uthmanic Hafs font by Quran Foundation
+                  </span>
+                  <div className="mt-1 text-right" dir="rtl">
+                    <span style={{ fontFamily: "'UthmanicHafs', serif" }} className="text-lg text-foreground/90">
+                      بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+                    </span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Tajweed Colors Setting */}
+            {onTajweedChange && (
+              <div className="space-y-2.5 pt-2 border-t border-border/60">
+                <div className="flex items-center justify-between">
+                  <div className="pr-3">
+                    <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      <Sparkles size={14} className="text-gold" />
+                      <span>Tajweed Colors</span>
+                    </span>
+                    <span className="text-[11px] text-muted-foreground block mt-0.5">
+                      Highlight recitation rules (ghunnah, ikhfa, idgham, qalqalah, madd)
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={tajweedEnabled}
+                    onClick={() => onTajweedChange(!tajweedEnabled)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      tajweedEnabled ? "bg-primary" : "bg-muted-foreground/30"
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block size-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        tajweedEnabled ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Tajweed Color Legend */}
+                {tajweedEnabled && (
+                  <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 animate-fade-in">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">
+                      Tajweed Rules Color Legend
+                    </span>
+                    <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                      {TAJWEED_GROUPS.map((g) => (
+                        <div key={g.id} className="flex items-center gap-1.5 min-w-0">
+                          <span
+                            className="size-2.5 rounded-full shrink-0 shadow-2xs"
+                            style={{ backgroundColor: g.color }}
+                          />
+                          <span className="text-foreground/90 font-medium truncate">
+                            {g.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Appearance / Theme Mode */}
+            <div className="space-y-2 pt-2 border-t border-border/60">
+              <label className="text-xs font-semibold text-foreground block">
+                Appearance Mode
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (dark) toggleTheme();
+                  }}
+                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${
+                    !dark
+                      ? "border-primary bg-primary/10 text-primary ring-1 ring-primary/40 shadow-xs"
+                      : "border-border bg-card text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  <Sun size={15} />
+                  <span>Light Mode</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!dark) toggleTheme();
+                  }}
+                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl border text-xs font-semibold transition-all ${
+                    dark
+                      ? "border-primary bg-primary/10 text-primary ring-1 ring-primary/40 shadow-xs"
+                      : "border-border bg-card text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  <Moon size={15} />
+                  <span>Dark Mode</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Live Preview Box */}
+            <div className="p-3 rounded-xl border border-border/80 bg-muted/40 text-center space-y-1">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground block">
+                Live Preview
+              </span>
+              <p
+                dir="rtl"
+                style={{
+                  fontSize: `${20 * fontSizeMultiplier}px`,
+                  fontFamily:
+                    fontType === "amiri"
+                      ? "'Amiri Quran', 'Amiri', serif"
+                      : fontType === "uthmanic"
+                      ? "'UthmanicHafs', serif"
+                      : "'UthmanicHafs', 'Amiri Quran', serif",
+                }}
+                className="text-foreground transition-all duration-150 leading-relaxed"
+              >
+                بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+              </p>
             </div>
           </div>
         </div>

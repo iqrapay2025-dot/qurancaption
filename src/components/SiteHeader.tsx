@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, BookOpen, Headphones, Compass, Bookmark, HelpCircle, UserRound } from "lucide-react";
+import { Menu, X, ChevronDown, BookOpen, Headphones, Compass, Bookmark, HelpCircle, UserRound, HardDrive } from "lucide-react";
 import { Logo, ThemeToggle, useTheme } from "./shared";
 import AccountMenu from "./AccountMenu";
 import type { AppUser } from "@/lib/app/client";
@@ -35,6 +35,8 @@ function renderNavIcon(icon?: string) {
       return <Compass size={16} aria-hidden="true" />;
     case "Bookmark":
       return <Bookmark size={16} aria-hidden="true" />;
+    case "HardDrive":
+      return <HardDrive size={16} aria-hidden="true" />;
     default:
       return <HelpCircle size={16} aria-hidden="true" />;
   }

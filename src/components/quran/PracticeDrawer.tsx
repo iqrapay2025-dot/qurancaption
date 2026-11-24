@@ -138,6 +138,18 @@ export function PracticeDrawer({
   const [customEach, setCustomEach] = useState("");
   const [isOfflineReady, setIsOfflineReady] = useState(false);
 
+  // String states for numeric inputs to allow clean deletion/erasing
+  const [fromInput, setFromInput] = useState(String(config.fromAyah));
+  const [toInput, setToInput] = useState(String(config.toAyah));
+
+  useEffect(() => {
+    setFromInput(String(config.fromAyah));
+  }, [config.fromAyah]);
+
+  useEffect(() => {
+    setToInput(String(config.toAyah));
+  }, [config.toAyah]);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const cachedFilesRef = useRef<AyahFile[]>([]);
   const pauseTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -691,21 +703,60 @@ export function PracticeDrawer({
         <div className="mt-5 space-y-5 text-xs sm:text-sm">
           {/* 1. Range Selection */}
           <div className="space-y-1.5">
-            <label className="font-semibold text-foreground block">
-              Ayah Range (max 20 ayahs)
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="font-semibold text-foreground block">
+                Ayah Range (1 to {chapter.versesCount})
+              </label>
+              {chapter.versesCount > 1 && (
+                <button
+                  type="button"
+                  disabled={isRunning}
+                  onClick={() => {
+                    setConfig((prev) => ({
+                      ...prev,
+                      fromAyah: 1,
+                      toAyah: chapter.versesCount,
+                    }));
+                  }}
+                  className="text-[11px] font-medium text-primary hover:underline cursor-pointer disabled:opacity-50"
+                >
+                  Entire Surah (1–{chapter.versesCount})
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <span className="text-[11px] text-muted-foreground block mb-1">From ayah</span>
                 <input
-                  type="number"
-                  min={1}
-                  max={chapter.versesCount}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   disabled={isRunning}
-                  value={config.fromAyah}
+                  value={fromInput}
+                  placeholder={`1-${chapter.versesCount}`}
                   onChange={(e) => {
-                    const from = Number(e.target.value);
-                    setConfig((prev) => validateConfig({ ...prev, fromAyah: from }, chapter.versesCount));
+                    const val = e.target.value.replace(/[^0-9]/g, "");
+                    setFromInput(val);
+                    if (val !== "") {
+                      const from = Number(val);
+                      if (from >= 1 && from <= chapter.versesCount) {
+                        setConfig((prev) => ({
+                          ...prev,
+                          fromAyah: from,
+                          toAyah: Math.max(from, prev.toAyah),
+                        }));
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    const num = parseInt(fromInput, 10);
+                    const safe = isNaN(num) || num < 1 ? 1 : Math.min(num, chapter.versesCount);
+                    setFromInput(String(safe));
+                    setConfig((prev) => ({
+                      ...prev,
+                      fromAyah: safe,
+                      toAyah: Math.max(safe, prev.toAyah),
+                    }));
                   }}
                   className="w-full rounded-sm border border-border bg-card px-3 py-1.5 text-xs sm:text-sm font-medium focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-60"
                 />
@@ -714,14 +765,27 @@ export function PracticeDrawer({
               <div>
                 <span className="text-[11px] text-muted-foreground block mb-1">To ayah</span>
                 <input
-                  type="number"
-                  min={config.fromAyah}
-                  max={Math.min(config.fromAyah + 19, chapter.versesCount)}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   disabled={isRunning}
-                  value={config.toAyah}
+                  value={toInput}
+                  placeholder={`${config.fromAyah}-${chapter.versesCount}`}
                   onChange={(e) => {
-                    const to = Number(e.target.value);
-                    setConfig((prev) => validateConfig({ ...prev, toAyah: to }, chapter.versesCount));
+                    const val = e.target.value.replace(/[^0-9]/g, "");
+                    setToInput(val);
+                    if (val !== "") {
+                      const to = Number(val);
+                      if (to >= config.fromAyah && to <= chapter.versesCount) {
+                        setConfig((prev) => ({ ...prev, toAyah: to }));
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    const num = parseInt(toInput, 10);
+                    const safe = isNaN(num) || num < config.fromAyah ? config.fromAyah : Math.min(num, chapter.versesCount);
+                    setToInput(String(safe));
+                    setConfig((prev) => ({ ...prev, toAyah: safe }));
                   }}
                   className="w-full rounded-sm border border-border bg-card px-3 py-1.5 text-xs sm:text-sm font-medium focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-60"
                 />

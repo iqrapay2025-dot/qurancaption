@@ -37,7 +37,7 @@ import {
   notifyAudioPlaybackStarted,
 } from "@/lib/audio/single-audio";
 import { saveContinueListening } from "@/lib/library/storage";
-import { getOfflineSurahAudio } from "@/lib/offline/db";
+import { getOfflineSurahAudio, getOfflineFullAudio } from "@/lib/offline/db";
 
 const LEGACY_STORAGE_KEYS = {
   reciter: "ayah-listen-reciter",
@@ -227,8 +227,14 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
     setLoading(true);
     setError(null);
     try {
-      // 1. Check offline storage first
+      // 1. Check offline storage first (both full audio and package stores)
       try {
+        const fullOffline = await getOfflineFullAudio(surahNum, reciterNum);
+        if (fullOffline?.audioUrl) {
+          setAudioUrl(fullOffline.audioUrl);
+          setLoading(false);
+          return;
+        }
         const offline = await getOfflineSurahAudio(surahNum, reciterNum);
         if (offline?.fullAudioUrl) {
           setAudioUrl(offline.fullAudioUrl);

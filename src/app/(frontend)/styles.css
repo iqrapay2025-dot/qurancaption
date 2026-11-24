@@ -45,6 +45,16 @@
 }
 
 @font-face {
+  font-family: 'UthmanicHafs';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: local('UthmanicHafs'),
+       url('/fonts/UthmanicHafs.woff2') format('woff2'),
+       url('https://static.qurancdn.com/fonts/quran/hafs/uthmanic_hafs/UthmanicHafs1Ver18.woff2') format('woff2');
+}
+
+@font-face {
   font-family: 'Amiri Quran';
   font-style: normal;
   font-weight: 400;
@@ -53,6 +63,16 @@
        url('/fonts/AmiriQuran-Regular.woff2') format('woff2'),
        url('/fonts/Amiri-Regular.woff2') format('woff2'),
        url('/fonts/Amiri-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'UthmanicHafs';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: local('UthmanicHafs'),
+       url('/fonts/UthmanicHafs.woff2') format('woff2'),
+       url('https://static.qurancdn.com/fonts/quran/hafs/uthmanic_hafs/UthmanicHafs1Ver18.woff2') format('woff2');
 }
 
 @font-face {
@@ -166,11 +186,19 @@
   --font-display: 'Figtree', system-ui, sans-serif;
   --font-sans: 'Figtree', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-  --font-quran: 'Amiri Quran', 'Scheherazade New', serif;
-  --font-uthmani: 'Amiri Quran', 'Scheherazade New', serif;
-  --font-arabic: 'Amiri Quran', 'Scheherazade New', serif;
+  --font-quran: 'UthmanicHafs', 'Amiri Quran', 'Scheherazade New', serif;
+  --font-uthmani: 'UthmanicHafs', 'Amiri Quran', 'Scheherazade New', serif;
+  --font-arabic: 'UthmanicHafs', 'Amiri Quran', 'Scheherazade New', serif;
   --font-scheherazade: 'Scheherazade New', 'Amiri Quran', serif;
   --font-amiri: 'Amiri', 'Amiri Quran', serif;
+}
+
+.font-uthmani {
+  font-family: 'UthmanicHafs', 'Amiri Quran', 'Scheherazade New', serif !important;
+}
+
+.font-quran {
+  font-family: 'UthmanicHafs', 'Amiri Quran', 'Scheherazade New', serif !important;
 }
 
 @layer base {

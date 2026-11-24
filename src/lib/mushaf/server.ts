@@ -1,5 +1,6 @@
 import { MushafPageData, MushafLine, MushafWord } from "./types";
 import { SURAHS_META, getJuzByPage, getSurahMeta } from "./data";
+import { parseVerseTajweed } from "./tajweed-parser";
 import fs from "fs";
 import path from "path";
 
@@ -44,7 +45,12 @@ interface RawWord {
   text_qpc_hafs?: string;
   text_uthmani?: string;
   char_type_name: string;
+  audio_url?: string;
   translation?: {
+    text: string;
+    language_name?: string;
+  };
+  transliteration?: {
     text: string;
     language_name?: string;
   };
@@ -64,32 +70,45 @@ interface RawApiResponse {
 export async function fetchMushafPage(pageNumber: number): Promise<MushafPageData> {
   const page = Math.min(604, Math.max(1, Math.floor(pageNumber)));
 
-  // Check memory cache
+  // Check memory cache (only if it has enriched audio/tajweed fields)
   if (memoryCache.has(page)) {
-    return memoryCache.get(page)!;
+    const mem = memoryCache.get(page)!;
+    const hasEnriched = mem.lines.some((l) => l.words && l.words.some((w) => w.audio_url));
+    if (hasEnriched) return mem;
   }
 
-  // Check disk cache
+  // Check disk cache (only if it has enriched audio/tajweed fields)
   const cached = getDiskCache(page);
   if (cached) {
-    memoryCache.set(page, cached);
-    return cached;
+    const hasEnriched = cached.lines.some((l) => l.words && l.words.some((w) => w.audio_url));
+    if (hasEnriched) {
+      memoryCache.set(page, cached);
+      return cached;
+    }
   }
 
-  const url = `https://api.quran.com/api/v4/verses/by_page/${page}?words=true&word_fields=code_v2,text_qpc_hafs,text_uthmani&mushaf=1`;
+  const url = `https://api.quran.com/api/v4/verses/by_page/${page}?words=true&word_fields=code_v2,text_qpc_hafs,text_uthmani,audio_url&mushaf=1`;
+  const tajweedUrl = `https://api.quran.com/api/v4/quran/verses/uthmani_tajweed?page_number=${page}`;
 
   let response: Response | null = null;
+  let tajweedResponse: Response | null = null;
   let lastError: Error | null = null;
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      response = await fetch(url, {
-        headers: {
-          Accept: "application/json",
-        },
-        next: { revalidate: 86400 * 30 }, // Cache on server for 30 days
-      });
-      if (response.ok) {
+      const [res, tajRes] = await Promise.all([
+        fetch(url, {
+          headers: { Accept: "application/json" },
+          next: { revalidate: 86400 * 30 },
+        }),
+        fetch(tajweedUrl, {
+          headers: { Accept: "application/json" },
+          next: { revalidate: 86400 * 30 },
+        }).catch(() => null),
+      ]);
+      if (res.ok) {
+        response = res;
+        tajweedResponse = tajRes;
         break;
       }
     } catch (err: any) {
@@ -108,6 +127,23 @@ export async function fetchMushafPage(pageNumber: number): Promise<MushafPageDat
 
   const data: RawApiResponse = await response.json();
   const verses = data.verses || [];
+
+  // Parse tajweed if available
+  const verseTajweedMap = new Map<string, Array<Array<{ text: string; rule?: string; color?: string }>>>();
+  if (tajweedResponse && tajweedResponse.ok) {
+    try {
+      const tajData = await tajweedResponse.json();
+      if (Array.isArray(tajData.verses)) {
+        for (const tv of tajData.verses) {
+          if (typeof tv.verse_key === "string" && typeof tv.text_uthmani_tajweed === "string") {
+            verseTajweedMap.set(tv.verse_key, parseVerseTajweed(tv.text_uthmani_tajweed));
+          }
+        }
+      }
+    } catch {
+      // Non-fatal if tajweed parse fails
+    }
+  }
 
   // Total lines on page: 8 for pages 1 & 2; 15 for pages 3-604
   const totalLines = page === 1 || page === 2 ? 8 : 15;
@@ -132,11 +168,24 @@ export async function fetchMushafPage(pageNumber: number): Promise<MushafPageDat
       }
     }
 
+    const verseTajweed = verseTajweedMap.get(v.verse_key);
+
     (v.words || []).forEach((w) => {
       const lineNum = w.line_number;
       if (!wordsByLine.has(lineNum)) {
         wordsByLine.set(lineNum, []);
       }
+
+      const [sStr, aStr] = v.verse_key.split(":");
+      const sPad = sStr.padStart(3, "0");
+      const aPad = aStr.padStart(3, "0");
+      const pPad = String(w.position).padStart(3, "0");
+      const audioUrl = w.audio_url || `wbw/${sPad}_${aPad}_${pPad}.mp3`;
+
+      const wordTajweed = verseTajweed && w.char_type_name === "word" && verseTajweed[w.position - 1]
+        ? verseTajweed[w.position - 1]
+        : undefined;
+
       wordsByLine.get(lineNum)!.push({
         id: w.id,
         position: w.position,
@@ -147,7 +196,10 @@ export async function fetchMushafPage(pageNumber: number): Promise<MushafPageDat
         text_qpc_hafs: w.text_qpc_hafs,
         text_uthmani: w.text_uthmani,
         char_type_name: w.char_type_name,
+        audio_url: audioUrl,
         translation: w.translation,
+        transliteration: w.transliteration,
+        tajweed: wordTajweed,
       });
     });
   });
@@ -185,6 +237,7 @@ export async function fetchMushafPage(pageNumber: number): Promise<MushafPageDat
         surah_number: surahId,
         surah_name_arabic: meta?.name_arabic,
         surah_name_english: meta?.name_english,
+        surah_name_simple: meta?.name_simple,
         ayah_count: meta?.verses_count,
         revelation_place: meta?.revelation_place,
       });

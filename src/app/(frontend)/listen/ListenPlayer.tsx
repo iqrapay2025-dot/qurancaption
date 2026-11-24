@@ -22,10 +22,12 @@ import {
   formatTime,
   parseListenQuery,
 } from "@/lib/listen/player";
-import { mapLegacyReciterId } from "@/lib/listen/mp3quran";
+import { mapLegacyReciterId, buildListenAudioUrl } from "@/lib/listen/mp3quran";
 import { useGlobalAudio } from "@/components/audio/GlobalAudioProvider";
 import BadgeLoader from "@/components/BadgeLoader";
 import { TourReplayButton } from "@/components/tour/TourReplayButton";
+import { OfflineAudioButton } from "@/components/offline/OfflineAudioButton";
+import { filterReciters } from "@/lib/search/reciter-search";
 
 export const STORAGE_KEYS = {
   reciter: "ayah-listen-reciter",
@@ -53,6 +55,7 @@ export function ListenPlayer() {
     currentReciter,
     chapters,
     availableReciters,
+    audioUrl,
     togglePlay,
     seek,
     nextSurah,
@@ -91,26 +94,9 @@ export function ListenPlayer() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [reciterMenuOpen]);
 
-  // Filter reciters by search
+  // Filter reciters by search using phonetic & transliteration matching
   const filteredReciters = useMemo(() => {
-    if (!reciterSearch.trim()) return availableReciters;
-    const q = reciterSearch.toLowerCase().trim();
-    const normalize = (s: string) =>
-      s
-        .toLowerCase()
-        .replace(/ss/g, "s")
-        .replace(/y/g, "i")
-        .replace(/['-]/g, "")
-        .replace(/\s+/g, " ");
-    const nq = normalize(q);
-
-    return availableReciters.filter(
-      (r) =>
-        r.name.toLowerCase().includes(q) ||
-        normalize(r.name).includes(nq) ||
-        (r.nameArabic && r.nameArabic.includes(q)) ||
-        (r.style && (r.style.toLowerCase().includes(q) || normalize(r.style).includes(nq)))
-    );
+    return filterReciters(availableReciters, reciterSearch);
   }, [availableReciters, reciterSearch]);
 
   // Initialize from URL query params once on mount
@@ -449,6 +435,16 @@ export function ListenPlayer() {
                   {chapter.nameArabic}
                 </span>
 
+                {currentReciter?.server && isAvailable && (
+                  <OfflineAudioButton
+                    surah={chapter.id}
+                    reciterId={reciterId}
+                    reciterName={currentReciter.name}
+                    audioUrl={buildListenAudioUrl(currentReciter.server, chapter.id)}
+                    variant="icon"
+                  />
+                )}
+
                 <Link
                   href={`/quran/${chapter.id}`}
                   onClick={(e) => e.stopPropagation()}
@@ -570,8 +566,16 @@ export function ListenPlayer() {
             </div>
           )}
 
-          {/* Right side controls: Speed, Repeat, Sleep Timer, Volume */}
-          <div data-tour="listen-extra-controls" className="flex items-center justify-center md:justify-end gap-1.5 sm:gap-2 w-full md:w-64 shrink-0">
+          {/* Right side controls: Offline Download, Speed, Repeat, Sleep Timer, Volume */}
+          <div data-tour="listen-extra-controls" className="flex items-center justify-center md:justify-end gap-1.5 sm:gap-2 w-full md:w-auto shrink-0">
+            {/* Offline download button */}
+            <OfflineAudioButton
+              surah={surah}
+              reciterId={reciterId}
+              reciterName={currentReciter?.name || "Reciter"}
+              audioUrl={audioUrl}
+            />
+
             {/* Speed button */}
             <button
               type="button"

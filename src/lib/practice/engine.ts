@@ -30,7 +30,8 @@ export const DEFAULT_CONFIG: PracticeConfig = {
 };
 
 /**
- * Validates and sanitizes config with safe fallbacks and max 20 ayahs range limit.
+ * Validates and sanitizes config with safe fallbacks.
+ * Allows choosing any ayah range up to the entire Surah.
  */
 export function validateConfig(raw?: Partial<PracticeConfig> | null, totalAyahs = 286): PracticeConfig {
   const safeTotal = Math.max(1, totalAyahs);
@@ -40,7 +41,6 @@ export function validateConfig(raw?: Partial<PracticeConfig> | null, totalAyahs 
 
   let to = Number(raw?.toAyah);
   if (!Number.isInteger(to) || to < from) to = from;
-  if (to > from + 19) to = from + 19; // max 20 ayahs
   if (to > safeTotal) to = safeTotal;
 
   let repeatEach: RepeatCount = 3;

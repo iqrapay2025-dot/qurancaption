@@ -73,6 +73,7 @@ export const metadata: Metadata = {
 import { GlobalAudioProvider } from "@/components/audio/GlobalAudioProvider";
 import { MiniPlayer } from "@/components/audio/MiniPlayer";
 import { TourProvider } from "@/components/tour/TourProvider";
+import { OfflineBanner } from "@/components/offline/OfflineBanner";
 
 export default function RootLayout({
   children,
@@ -155,6 +156,7 @@ gtag('js', new Date());`,
         )}
         <GlobalAudioProvider>
           <TourProvider>
+            <OfflineBanner />
             <div id="root" tabIndex={-1}>
               {children}
             </div>

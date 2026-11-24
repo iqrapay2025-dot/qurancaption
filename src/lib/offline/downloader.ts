@@ -177,3 +177,141 @@ export async function downloadSurahPackage(params: {
     throw err;
   }
 }
+
+/**
+ * Downloads full Surah audio (MP3 stream) directly into IndexedDB for the Listen page.
+ */
+export async function downloadFullSurahAudio(params: {
+  surah: number;
+  reciterId: number;
+  reciterName: string;
+  audioUrl: string;
+  onProgress?: (percent: number) => void;
+  signal?: AbortSignal;
+}): Promise<void> {
+  const { surah, reciterId, reciterName, audioUrl, onProgress, signal } = params;
+
+  onProgress?.(5);
+  const res = await fetch(audioUrl, { signal });
+  if (!res.ok) {
+    throw new Error(`Failed to download audio file (${res.status})`);
+  }
+
+  const contentLength = Number(res.headers.get("content-length"));
+  let blob: Blob;
+
+  if (contentLength && res.body) {
+    const reader = res.body.getReader();
+    const chunks: BlobPart[] = [];
+    let received = 0;
+
+    while (true) {
+      if (signal?.aborted) throw new Error("Download aborted");
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value) {
+        chunks.push(value);
+        received += value.length;
+        const pct = Math.min(95, Math.round((received / contentLength) * 90) + 5);
+        onProgress?.(pct);
+      }
+    }
+    blob = new Blob(chunks, { type: "audio/mpeg" });
+  } else {
+    onProgress?.(50);
+    blob = await res.blob();
+  }
+
+  const { saveOfflineFullAudio } = await import("./db");
+  await saveOfflineFullAudio(surah, reciterId, reciterName, blob);
+  onProgress?.(100);
+}
+
+/**
+ * Downloads a single Mushaf page (JSON + Font) for offline reading.
+ */
+export async function downloadMushafPage(pageNumber: number, signal?: AbortSignal): Promise<void> {
+  const res = await fetch(`/api/quran/mushaf?page=${pageNumber}`, { signal });
+  if (!res.ok) throw new Error(`Failed to download Mushaf page ${pageNumber}`);
+  const data = await res.json();
+
+  const { saveOfflineMushafPage } = await import("./db");
+  await saveOfflineMushafPage(data);
+
+  // Pre-cache page font into CacheStorage if supported
+  if (typeof window !== "undefined" && "caches" in window) {
+    try {
+      const cache = await window.caches.open("ayah-studio-v1");
+      const fontUrl = `https://verses.quran.com/fonts/quran/hafs/v2/woff2/p${pageNumber}.woff2`;
+      const fontRes = await fetch(fontUrl, { signal });
+      if (fontRes.ok) {
+        await cache.put(fontUrl, fontRes);
+      }
+    } catch {}
+  }
+}
+
+/**
+ * Downloads a range of Mushaf pages (e.g. a Surah or a Juz).
+ */
+export async function downloadMushafRange(
+  startPage: number,
+  endPage: number,
+  onProgress?: (done: number, total: number) => void,
+  signal?: AbortSignal
+): Promise<void> {
+  const start = Math.max(1, startPage);
+  const end = Math.min(604, endPage);
+  const total = end - start + 1;
+  let done = 0;
+
+  const BATCH_SIZE = 4;
+  for (let i = start; i <= end; i += BATCH_SIZE) {
+    if (signal?.aborted) throw new Error("Download aborted");
+    const batch = [];
+    for (let j = i; j < Math.min(end + 1, i + BATCH_SIZE); j++) {
+      batch.push(downloadMushafPage(j, signal).then(() => {
+        done++;
+        onProgress?.(done, total);
+      }));
+    }
+    await Promise.all(batch);
+  }
+}
+
+/**
+ * Downloads all 114 Surahs' texts (Arabic + translation) in parallel batches (~4.5MB total).
+ */
+export async function downloadCompleteQuranText(
+  onProgress?: (done: number, total: number) => void,
+  signal?: AbortSignal
+): Promise<void> {
+  const chaptersRes = await fetch("/api/quran/chapters", { signal });
+  if (!chaptersRes.ok) throw new Error("Failed to load chapters list");
+  const chaptersData = await chaptersRes.json();
+  const chapters: Chapter[] = chaptersData.chapters || [];
+
+  const { saveOfflineSurahContent } = await import("./db");
+  let done = 0;
+  const total = chapters.length;
+
+  const BATCH_SIZE = 5;
+  for (let i = 0; i < chapters.length; i += BATCH_SIZE) {
+    if (signal?.aborted) throw new Error("Download aborted");
+    const batch = chapters.slice(i, i + BATCH_SIZE);
+    await Promise.all(
+      batch.map(async (c) => {
+        try {
+          const res = await fetch(`/api/quran/verses?surah=${c.id}&translations=${DEFAULT_TR1}`, { signal });
+          if (res.ok) {
+            const data = await res.json();
+            const verses = Array.isArray(data?.verses) ? data.verses : [];
+            await saveOfflineSurahContent(c.id, c, verses);
+          }
+        } catch {}
+        done++;
+        onProgress?.(done, total);
+      })
+    );
+  }
+}

@@ -10,6 +10,7 @@ import {
   BookText,
   Headphones,
   Sliders,
+  HardDrive,
 } from "lucide-react";
 import Link from "next/link";
 import { PRO_PRICE_NGN, FLUTTERWAVE_PRICE_USD } from "../lib/app/plans";
@@ -73,6 +74,11 @@ const readFeatures = [
     icon: Sliders,
     title: "Personalise",
     body: "Set font size, script style, translation and reciter. Your settings are saved in this browser.",
+  },
+  {
+    icon: HardDrive,
+    title: "Offline Ready",
+    body: "Download full Surahs, recitations, and Mushaf pages to read and listen anytime with zero data.",
   },
 ];
 
@@ -400,6 +406,9 @@ export default function Landing({
               </a>
               <a className="hover:text-[#6fe3a0]" href="/listen">
                 Listen
+              </a>
+              <a className="hover:text-[#6fe3a0]" href="/offline">
+                Offline Downloads
               </a>
               <a className="hover:text-[#6fe3a0]" href="/sources">
                 Sources
