@@ -47,12 +47,13 @@ describe("Guided Tours - Tour Definitions", () => {
     expect(TOURS.welcome).toBeDefined();
     expect(TOURS["quran-reader"]).toBeDefined();
     expect(TOURS.mushaf).toBeDefined();
+    expect(TOURS.planner).toBeDefined();
     expect(TOURS.listen).toBeDefined();
     expect(TOURS.adhkar).toBeDefined();
     expect(TOURS.editor).toBeDefined();
     expect(TOURS.bookmarks).toBeDefined();
 
-    expect(TOUR_LIST.length).toBe(7);
+    expect(TOUR_LIST.length).toBe(8);
   });
 
   it("ensures every tour step has a unique id, title, and body", () => {
@@ -105,6 +106,10 @@ describe("Guided Tours - Tour Definitions", () => {
     // mushaf: 4-6 steps
     expect(TOURS.mushaf.steps.length).toBeGreaterThanOrEqual(4);
     expect(TOURS.mushaf.steps.length).toBeLessThanOrEqual(6);
+
+    // planner: 5-7 steps
+    expect(TOURS.planner.steps.length).toBeGreaterThanOrEqual(5);
+    expect(TOURS.planner.steps.length).toBeLessThanOrEqual(7);
 
     // editor: exactly 8 steps matching GUIDE_STEPS
     expect(TOURS.editor.steps.length).toBe(8);

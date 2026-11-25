@@ -8,7 +8,7 @@ import {
   ChevronRight,
   Search,
   SlidersHorizontal,
-  Sparkles,
+  Clock,
   Sunrise,
   Sunset,
   Moon,
@@ -50,9 +50,9 @@ function renderCategoryIcon(iconName: string) {
       return <Moon size={20} className="text-purple-400" />;
     case "Sun":
       return <Sun size={20} className="text-amber-400" />;
-    case "Sparkles":
+    case "Clock":
     default:
-      return <Sparkles size={20} className="text-emerald-500" />;
+      return <Clock size={20} className="text-emerald-500" />;
   }
 }
 

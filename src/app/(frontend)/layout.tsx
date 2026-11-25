@@ -1,5 +1,5 @@
 import React from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { BodyCustomCode, renderHeadCustomCode } from "@/lib/make-custom-code"
@@ -15,6 +15,11 @@ import CookieSettingsBar from "@/components/CookieSettingsBar"
 import SplashLoader from "@/components/SplashLoader"
 import BackToTop from "@/components/BackToTop"
 import { PlannerReminderToast } from "@/components/planner/PlannerReminderToast"
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+}
 
 const title = SEO_TITLE
 const description = BRAND_DESCRIPTION

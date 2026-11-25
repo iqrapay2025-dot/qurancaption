@@ -8,7 +8,6 @@ import {
   Check,
   Calendar,
   Clock,
-  Sparkles,
   BookOpen,
   Layers,
   ChevronRight,
@@ -700,7 +699,7 @@ export function PlannerSetup() {
           {/* Plan Summary Card */}
           <div className="p-5 rounded-2xl border border-emerald-600/30 bg-emerald-500/5 dark:bg-emerald-950/20 space-y-3">
             <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
-              <Sparkles size={16} /> Plan Overview
+              <Calendar size={16} /> Plan Overview
             </div>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div>

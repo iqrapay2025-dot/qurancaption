@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BookOpen, Headphones, Video, Sparkles, ArrowRight, Share2 } from "lucide-react";
+import { BookOpen, Headphones, Video, Compass, ArrowRight, Share2 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { validateAyahParams, trimAyahDescription, buildAyahShareUrl } from "@/lib/ayah-share";
 import { getVerses } from "@/lib/quran/server";
@@ -127,7 +127,7 @@ export default async function AyahSharePage({ params }: PageProps) {
         <article className="rounded-2xl border border-gold/40 bg-card p-6 sm:p-10 shadow-lg relative">
           <div className="flex items-center justify-between border-b border-border pb-3 mb-6">
             <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gold">
-              <Sparkles size={14} /> Surah {valid.surahName}
+              <BookOpen size={14} /> Surah {valid.surahName}
             </div>
             <span className="font-mono text-xs text-muted-foreground">
               Ayah {valid.ayah} of {valid.totalAyahs}
@@ -211,7 +211,7 @@ export default async function AyahSharePage({ params }: PageProps) {
           className="mt-10 rounded-xl border border-border bg-card/60 p-6 sm:p-8"
         >
           <div className="flex items-center gap-2 text-primary font-semibold text-sm mb-2">
-            <Sparkles size={16} />
+            <Compass size={16} />
             <h2 id="about-ayah-studio" className="font-semibold text-base sm:text-lg text-foreground">
               About Aayah Studio
             </h2>

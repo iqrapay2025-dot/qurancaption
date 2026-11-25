@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Sparkles, X } from "lucide-react";
+import { Check, Crown, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { appFetch, type Upgrade } from "../lib/app/client";
 import { FREE_LIMITS, FREE_MONTHLY_VERSES, FREE_MONTHLY_PROJECT_CREATIONS, PRO_PRICE_NGN } from "../lib/app/plans";
@@ -41,7 +41,7 @@ export default function UpgradeDialog({ upgrade, signedIn, onClose, onPlans }: {
     <div className="fixed inset-0 z-60 grid place-items-center bg-black/55 p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div role="dialog" aria-modal="true" aria-labelledby="upg-title" className="relative w-full max-w-md rounded-md border border-border bg-card p-7 shadow-2xl">
         <button onClick={onClose} aria-label="Close" className="absolute top-3 right-3 grid size-8 place-items-center rounded-sm hover:bg-secondary"><X size={16} /></button>
-        <div className="grid size-11 place-items-center rounded-full bg-secondary text-primary"><Sparkles size={20} /></div>
+        <div className="grid size-11 place-items-center rounded-full bg-secondary text-primary"><Crown size={20} /></div>
         <h2 id="upg-title" className="mt-4 font-display text-2xl font-bold">{c.title}</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{upgrade.message ?? c.body}</p>
         <ul className="mt-5 space-y-2 text-sm">

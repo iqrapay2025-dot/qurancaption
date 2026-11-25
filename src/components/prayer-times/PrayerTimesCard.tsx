@@ -38,19 +38,19 @@ export function PrayerTimesCard({
   return (
     <section
       aria-label="Daily Prayer Times"
-      className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs relative overflow-hidden"
+      className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-xs relative overflow-hidden"
     >
       {/* Top Header & Subtitle */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border/60">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-border/60">
         <div>
-          <div className="flex items-center gap-2">
-            <div className="size-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="size-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <Clock size={16} />
             </div>
             <h2 className="text-base sm:text-lg font-bold text-foreground">
               Today&apos;s Prayer Times
             </h2>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary">
+            <span className="text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary">
               Next: {nextInfo.nextPrayer} in {nextInfo.formattedCountdown}
             </span>
           </div>

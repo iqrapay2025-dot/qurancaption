@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Sparkles,
+  Compass,
   BookOpen,
   Headphones,
   Calendar,
@@ -35,11 +35,13 @@ import { DuaHandsIcon } from "./icons/DuaHandsIcon";
 function getSectionIcon(id: GuideSectionId) {
   switch (id) {
     case "welcome":
-      return <Sparkles className="size-5 text-gold shrink-0" aria-hidden="true" />;
+      return <Compass className="size-5 text-gold shrink-0" aria-hidden="true" />;
     case "read":
       return <BookOpen className="size-5 text-gold shrink-0" aria-hidden="true" />;
     case "mushaf":
       return <BookOpen className="size-5 text-primary shrink-0" aria-hidden="true" />;
+    case "planner":
+      return <Calendar className="size-5 text-primary shrink-0" aria-hidden="true" />;
     case "listen":
       return <Headphones className="size-5 text-gold shrink-0" aria-hidden="true" />;
     case "adhkar":
@@ -91,7 +93,7 @@ function TourAction({
       }}
       className="inline-flex min-h-[44px] items-center gap-2 rounded-sm bg-primary px-4 py-2 text-xs sm:text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity focus-visible:outline-2 focus-visible:outline-ring"
     >
-      <Sparkles size={15} className="text-gold shrink-0" aria-hidden="true" />
+      <Compass size={15} className="text-gold shrink-0" aria-hidden="true" />
       <span>{label}</span>
     </Link>
   );
@@ -326,7 +328,7 @@ export function GuideContent({ compact = false }: { compact?: boolean }) {
         <div className="rounded-sm border border-gold/40 bg-gold/10 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Sparkles size={18} className="text-gold" aria-hidden="true" />
+              <Compass size={18} className="text-gold" aria-hidden="true" />
               <h2 className="text-base sm:text-lg font-bold text-foreground">
                 Interactive Guided Tours
               </h2>

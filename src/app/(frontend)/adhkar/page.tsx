@@ -8,7 +8,6 @@ import {
   Sunset,
   Moon,
   Sun,
-  Sparkles,
   BookOpen,
   Search,
   SlidersHorizontal,
@@ -74,9 +73,9 @@ function renderCategoryIcon(iconName: string) {
       return <Moon size={22} className="text-purple-400" />;
     case "Sun":
       return <Sun size={22} className="text-amber-400" />;
-    case "Sparkles":
+    case "Clock":
     default:
-      return <Sparkles size={22} className="text-emerald-500" />;
+      return <Clock size={22} className="text-emerald-500" />;
   }
 }
 
@@ -184,23 +183,23 @@ export default function AdhkarHubPage() {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <SiteHeader />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8">
         {/* Top Header & Hero with Du'a Supplication Image */}
-        <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-card via-card to-primary/[0.04] p-5 sm:p-7 shadow-xs">
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_260px] gap-6 items-center">
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
-                  <Sparkles size={12} />
+        <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-card via-card to-primary/[0.04] p-4 sm:p-6 lg:p-7 shadow-xs">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_260px] gap-5 sm:gap-6 items-center">
+            <div className="space-y-2.5 sm:space-y-3">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold bg-primary/10 text-primary">
+                  <BookOpen size={12} />
                   <span>Hisn al-Muslim & Authentic Sunnah</span>
                 </span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-medium bg-muted text-muted-foreground">
                   <Clock size={11} />
                   <span>Daily Remembrance</span>
                 </span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">
+              <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">
                 Daily Adhkar & Supplications
               </h1>
 
@@ -210,17 +209,17 @@ export default function AdhkarHubPage() {
               </p>
 
               {/* Action Controls: Streak, Offline, Settings */}
-              <div className="flex flex-wrap items-center gap-2.5 pt-1">
+              <div className="flex flex-wrap items-center gap-2 pt-1">
                 {/* Streak Counter Chip */}
                 <div
                   data-tour="adhkar-streak"
-                  className={`flex items-center gap-1.5 rounded-xl border px-3.5 py-2 shadow-xs transition-colors ${
+                  className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 sm:px-3.5 sm:py-2 shadow-xs transition-colors ${
                     streakData.currentStreak > 0
                       ? "border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold"
                       : "border-border bg-card text-muted-foreground"
                   }`}
                 >
-                  <Flame size={18} className={streakData.currentStreak > 0 ? "fill-amber-500" : ""} />
+                  <Flame size={16} className={streakData.currentStreak > 0 ? "fill-amber-500" : ""} />
                   <div className="text-left">
                     <div className="text-xs font-bold leading-none">
                       {streakData.currentStreak} Day{streakData.currentStreak === 1 ? "" : "s"}
@@ -234,13 +233,13 @@ export default function AdhkarHubPage() {
                   type="button"
                   onClick={handleDownloadAllOffline}
                   title={isOfflineCached ? "All Adhkar saved for offline reading" : "Download all Adhkar offline"}
-                  className={`flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-semibold shadow-xs transition-colors ${
+                  className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold shadow-xs transition-colors ${
                     isOfflineCached
                       ? "border-primary/40 bg-primary/10 text-primary"
                       : "border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
-                  <Download size={15} />
+                  <Download size={14} />
                   <span>
                     {isOfflineCached ? "Downloaded" : "Save Offline"}
                   </span>
@@ -259,7 +258,7 @@ export default function AdhkarHubPage() {
             </div>
 
             {/* Right Hero Image (Silhouette of Du'a through Arabesque Screen) */}
-            <div className="relative h-48 sm:h-56 md:h-full min-h-[200px] w-full rounded-xl overflow-hidden border border-border/80 shadow-xs shrink-0 group">
+            <div className="relative h-44 sm:h-52 md:h-full min-h-[180px] w-full rounded-xl overflow-hidden border border-border/80 shadow-xs shrink-0 group">
               <Image
                 src="/images/adhkar-hero.jpg"
                 alt="Supplication and Du'a"
@@ -268,7 +267,7 @@ export default function AdhkarHubPage() {
                 sizes="(max-width: 768px) 100vw, 260px"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
               <div className="absolute bottom-3 left-3 right-3 text-left">
                 <span className="text-xs font-bold text-white/95 drop-shadow-xs block font-quran" dir="rtl">
                   وَٱذْكُر رَّبَّكَ فِي نَفْسِكَ
@@ -290,7 +289,7 @@ export default function AdhkarHubPage() {
 
         {/* Prayer Times Card (Milestone 4) */}
         {prayerTimings && (
-          <div data-tour="adhkar-prayer-times">
+          <div data-tour="adhkar-prayer-times" className="w-full">
             <PrayerTimesCard
               timings={prayerTimings}
               settings={prayerSettings}
@@ -302,7 +301,7 @@ export default function AdhkarHubPage() {
 
         {/* Today's Schedule & Tracking Dashboard (Milestone 5) */}
         {prayerTimings && (
-          <div data-tour="adhkar-today-dashboard">
+          <div data-tour="adhkar-today-dashboard" className="w-full">
             <TodayDashboard
               timings={prayerTimings}
               onRefreshStreak={() => {
@@ -313,29 +312,55 @@ export default function AdhkarHubPage() {
           </div>
         )}
 
-        {/* Time-Based Smart Suggestion Banner */}
+        {/* Time-Based Smart Suggestion Banner with Makkah Mosque Image & Premium Gradient */}
         {suggestedMeta && (
-          <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-primary/[0.04] to-card p-5 sm:p-6 shadow-xs">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-start sm:items-center gap-3.5">
-                <div className="size-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
-                  {renderCategoryIcon(suggestedMeta.icon)}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
-                      Suggested for this hour
+          <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 shadow-md group">
+            {/* Background Image: Holy Mosque Architecture (Saudi Arabia Makkah) */}
+            <Image
+              src="/images/makkah-grand-mosque.jpg"
+              alt="Holy Mosque of Makkah at Night"
+              fill
+              className="object-cover object-center transform transition-transform duration-700 group-hover:scale-105"
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              priority
+            />
+            {/* Dark Professional Gradient Overlays for High Contrast & Readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/85 to-black/70 sm:from-black/90 sm:via-black/80 sm:to-black/60" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/30 sm:hidden" />
+            <div className="absolute inset-0 bg-emerald-950/20 mix-blend-color" />
+
+            {/* Foreground Content */}
+            <div className="relative z-10 p-4 sm:p-6 md:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 sm:gap-4 min-w-0">
+                <div className="flex items-center gap-3">
+                  <div className="size-11 sm:size-13 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-emerald-300 flex items-center justify-center shrink-0 shadow-inner">
+                    {renderCategoryIcon(suggestedMeta.icon)}
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-emerald-500/25 text-emerald-300 border border-emerald-500/40 backdrop-blur-xs w-fit whitespace-nowrap">
+                      <Clock size={11} className="text-emerald-300 shrink-0" />
+                      <span>Suggested for this hour</span>
                     </span>
-                    <span className="size-1 rounded-full bg-primary" />
-                    <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-                      <Clock size={11} />
+                    <span className="text-[11px] text-zinc-300/90 font-medium">
                       {suggested.reason}
                     </span>
                   </div>
-                  <h2 className="text-base sm:text-lg font-bold text-foreground mt-0.5">
-                    {suggestedMeta.title}
-                  </h2>
-                  <p className="text-xs text-muted-foreground line-clamp-1">
+                </div>
+
+                <div className="space-y-1 pt-1 sm:pt-0">
+                  <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3">
+                    <h2 className="text-base sm:text-xl font-extrabold text-white tracking-tight drop-shadow-xs">
+                      {suggestedMeta.title}
+                    </h2>
+                    <span
+                      dir="rtl"
+                      lang="ar"
+                      className="font-quran text-base sm:text-lg text-emerald-200/90 font-semibold drop-shadow-xs"
+                    >
+                      {suggestedMeta.titleArabic}
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-zinc-200/90 max-w-xl leading-relaxed">
                     {suggestedMeta.description}
                   </p>
                 </div>
@@ -343,10 +368,10 @@ export default function AdhkarHubPage() {
 
               <Link
                 href={`/adhkar/${suggestedMeta.slug}`}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs sm:text-sm font-bold text-primary-foreground hover:opacity-95 transition-opacity shadow-xs shrink-0"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold text-xs sm:text-sm px-5 py-3 shadow-lg shadow-emerald-950/40 hover:shadow-emerald-900/60 transition-all active:scale-[0.98] shrink-0 w-full sm:w-auto text-center"
               >
                 <span>Open {suggestedMeta.title}</span>
-                <ArrowRight size={15} />
+                <ArrowRight size={16} />
               </Link>
             </div>
           </div>
@@ -360,10 +385,10 @@ export default function AdhkarHubPage() {
           />
           <input
             type="search"
-            placeholder="Search all 106 Adhkar (Arabic, transliteration, English, hadith ref)..."
+            placeholder="Search all 106 Adhkar (Arabic, English, topics)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-2xl border border-border bg-card pl-11 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-2 focus:outline-primary transition-all shadow-xs"
+            className="w-full rounded-2xl border border-border bg-card pl-11 pr-4 py-3 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-2 focus:outline-primary transition-all shadow-xs"
           />
         </div>
 

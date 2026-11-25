@@ -9,7 +9,6 @@ import {
   Calendar,
   BookOpen,
   ArrowRight,
-  Sparkles,
   ChevronLeft,
   ChevronRight,
   TrendingUp,

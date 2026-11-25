@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FastForward, Clock, RotateCcw, AlertTriangle, Play, Sparkles } from "lucide-react";
+import { FastForward, Clock, RotateCcw, AlertTriangle, Play } from "lucide-react";
 
 interface DevTimeTravelToolProps {
   onSimulateTime?: (simulatedHour: number, simulatedMinute: number) => void;
@@ -14,6 +14,11 @@ export function DevTimeTravelTool({
   onResetTime,
   onTriggerTestReminder,
 }: DevTimeTravelToolProps) {
+  // Only render in development when explicitly enabled
+  if (process.env.NEXT_PUBLIC_ENABLE_DEV_TOOLS !== "true") {
+    return null;
+  }
+
   const [isOpen, setIsOpen] = useState(false);
   const [hour, setHour] = useState(5);
   const [minute, setMinute] = useState(25);

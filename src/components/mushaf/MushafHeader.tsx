@@ -15,7 +15,7 @@ import {
   HardDrive,
   Sun,
   Moon,
-  Sparkles,
+  Palette,
 } from "lucide-react";
 import { SURAHS_META, JUZS_META } from "@/lib/mushaf/data";
 import { MushafPageSurahSummary, MushafFontType } from "@/lib/mushaf/types";
@@ -116,60 +116,54 @@ export function MushafHeader({
   return (
     <>
       <header className="sticky top-0 z-30 w-full border-b border-border/80 bg-background/95 backdrop-blur-md">
-        <div className="max-w-4xl mx-auto px-2 sm:px-4 h-14 grid grid-cols-[auto_1fr_auto] items-center gap-1.5 sm:gap-3">
-          {/* Left: Back button */}
-          <div className="flex items-center justify-self-start shrink-0">
+        <div className="max-w-5xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
+          {/* Left: Back button + Jump to Surah / Page Trigger */}
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             <Link
               href={`/quran/${primarySurah.id}`}
-              className="p-1.5 sm:p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors"
+              className="size-9 rounded-xl border border-border/80 bg-card hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center shrink-0 transition-colors shadow-2xs"
               title="Back to Quran Surah list"
               aria-label="Back to Surah list"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={18} />
             </Link>
-          </div>
 
-          {/* Center: Surah & Page Navigation Trigger (Centered & Responsive) */}
-          <div className="justify-self-center min-w-0 max-w-full flex items-center justify-center px-0.5">
             <button
               type="button"
               data-tour="mushaf-nav"
               onClick={() => setJumpOpen(true)}
-              className="max-w-full inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-border/70 bg-card/70 hover:border-gold hover:bg-gold/5 transition-all text-center"
+              className="h-9 px-2.5 sm:px-3 rounded-xl border border-border/80 bg-card hover:bg-muted/70 hover:border-primary/40 transition-all flex items-center gap-1.5 min-w-0 shadow-2xs group"
               title="Jump to Surah, Juz, or Page"
             >
-              <div className="min-w-0 flex flex-col items-center">
-                <div className="flex items-center gap-1 min-w-0">
-                  <span className="text-xs font-bold text-foreground truncate max-w-[72px] xs:max-w-[140px] sm:max-w-[200px]">
-                    {primarySurah.name_simple}
-                  </span>
-                  <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-primary/10 text-primary shrink-0 whitespace-nowrap">
-                    Juz {juzNumber}
-                  </span>
-                </div>
-                <span className="text-[10px] text-muted-foreground truncate">
-                  Page {pageNumber} of 604
-                </span>
-              </div>
-              <ChevronDown size={13} className="text-muted-foreground shrink-0" />
+              <span className="text-xs sm:text-sm font-bold text-foreground truncate max-w-[85px] xs:max-w-[120px] sm:max-w-[180px]">
+                {primarySurah.name_simple}
+              </span>
+              <span className="text-[10px] sm:text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary shrink-0 whitespace-nowrap">
+                P. {pageNumber}
+              </span>
+              <span className="hidden sm:inline-block text-[11px] text-muted-foreground shrink-0 whitespace-nowrap">
+                · Juz {juzNumber}
+              </span>
+              <ChevronDown size={13} className="text-muted-foreground group-hover:text-foreground shrink-0 transition-colors" />
             </button>
           </div>
 
-          {/* Right: Toggle Switch & Reciter Selector */}
-          <div className="flex items-center gap-1 sm:gap-2 justify-self-end shrink-0">
-            <TodayPlanChip className="hidden lg:inline-flex" />
-            {/* Desktop: Segmented switch */}
-            <div className="hidden sm:inline-flex items-center p-0.5 rounded-lg border border-border bg-muted/60 text-xs">
+          {/* Right: Actions Cluster */}
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            <TodayPlanChip className="hidden xl:inline-flex" />
+
+            {/* Desktop: Segmented switch (Verses / Mushaf) */}
+            <div className="hidden md:inline-flex items-center p-0.5 rounded-xl border border-border/80 bg-muted/60 text-xs h-9">
               <Link
                 href={`/quran/${primarySurah.id}`}
-                className="px-2.5 py-1 rounded-md text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 font-medium"
+                className="px-2.5 py-1 rounded-lg text-muted-foreground hover:text-foreground transition-all flex items-center gap-1 font-medium"
                 title="Switch to Verse-by-verse translation reader"
               >
                 <FileText size={13} />
                 <span>Verses</span>
               </Link>
               <span
-                className="px-2.5 py-1 rounded-md bg-background text-foreground shadow-2xs font-semibold flex items-center gap-1"
+                className="px-2.5 py-1 rounded-lg bg-background text-foreground shadow-2xs font-semibold flex items-center gap-1"
                 title="Currently in Mushaf page view"
               >
                 <BookOpen size={13} className="text-primary" />
@@ -177,14 +171,14 @@ export function MushafHeader({
               </span>
             </div>
 
-            {/* Mobile: Compact button to switch to Verses view */}
+            {/* Mobile: Compact icon button to switch to Verses view */}
             <Link
               href={`/quran/${primarySurah.id}`}
-              className="sm:hidden flex items-center gap-1 px-1.5 py-1 rounded-lg border border-border/80 bg-card text-xs font-medium text-foreground hover:bg-muted transition-colors"
+              className="md:hidden size-9 rounded-xl border border-border/80 bg-card hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors shadow-2xs shrink-0"
               title="Switch to Verse-by-verse reader"
+              aria-label="Switch to Verse-by-verse reader"
             >
-              <FileText size={13} className="text-primary" />
-              <span className="text-[10px]">Verses</span>
+              <FileText size={16} className="text-primary" />
             </Link>
 
             {/* Font & Display Settings Button */}
@@ -192,12 +186,11 @@ export function MushafHeader({
               type="button"
               data-tour="mushaf-display-settings"
               onClick={() => setSettingsOpen(true)}
-              className="p-1.5 sm:p-2 rounded-lg border border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center gap-1 shrink-0"
+              className="size-9 rounded-xl border border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center justify-center shadow-2xs shrink-0"
               title="Adjust Font Size & Script"
               aria-label="Font settings"
             >
               <SlidersHorizontal size={16} className="text-primary" />
-              <span className="hidden lg:inline text-xs font-medium">Font</span>
             </button>
 
             {/* Reciter Selector dropdown */}
@@ -205,12 +198,12 @@ export function MushafHeader({
               <button
                 type="button"
                 onClick={() => setReciterMenuOpen(!reciterMenuOpen)}
-                className="p-1.5 sm:p-2 rounded-lg border border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center gap-1"
+                className="h-9 px-2 sm:px-2.5 rounded-xl border border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center gap-1.5 shadow-2xs"
                 title="Select Reciter"
                 aria-label="Select audio reciter"
               >
-                <Headphones size={16} className="text-primary" />
-                <span className="hidden md:inline text-xs max-w-[90px] truncate text-foreground font-medium">
+                <Headphones size={16} className="text-primary shrink-0" />
+                <span className="hidden lg:inline text-xs max-w-[80px] truncate text-foreground font-medium">
                   {currentReciter?.name.split(" ")[0] || "Reciter"}
                 </span>
               </button>
@@ -266,7 +259,7 @@ export function MushafHeader({
             {/* Offline Downloads link */}
             <Link
               href="/offline"
-              className="hidden sm:inline-flex p-2 rounded-lg border border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+              className="hidden lg:inline-flex size-9 rounded-xl border border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors items-center justify-center shadow-2xs shrink-0"
               title="Offline Downloads & Storage"
               aria-label="Offline downloads and storage"
             >
@@ -600,7 +593,7 @@ export function MushafHeader({
                 <div className="flex items-center justify-between">
                   <div className="pr-3">
                     <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                      <Sparkles size={14} className="text-gold" />
+                      <Palette size={14} className="text-gold" />
                       <span>Tajweed Colors</span>
                     </span>
                     <span className="text-[11px] text-muted-foreground block mt-0.5">

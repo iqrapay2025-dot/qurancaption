@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, BookOpen, Headphones, Compass, Bookmark, HelpCircle, UserRound, HardDrive, Sparkles, Sunrise, Sunset, Clock, Moon, Hand, Calendar } from "lucide-react";
+import { Menu, X, ChevronDown, BookOpen, Headphones, Compass, Bookmark, HelpCircle, UserRound, HardDrive, Sunrise, Sunset, Clock, Moon, Hand, Calendar } from "lucide-react";
 import { DuaHandsIcon } from "./icons/DuaHandsIcon";
 import { Logo, ThemeToggle, useTheme } from "./shared";
 import AccountMenu from "./AccountMenu";
@@ -41,8 +41,6 @@ function renderNavIcon(icon?: string) {
       return <Calendar size={16} aria-hidden="true" />;
     case "HardDrive":
       return <HardDrive size={16} aria-hidden="true" />;
-    case "Sparkles":
-      return <Sparkles size={16} aria-hidden="true" />;
     case "Hand":
     case "DuaHands":
       return <DuaHandsIcon size={16} />;
@@ -314,6 +312,13 @@ export function SiteHeader({
                                 Mushaf View
                               </Link>
                               <Link
+                                href="/guide#planner"
+                                onClick={() => setOpenDropdown(null)}
+                                className="rounded px-1.5 py-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                              >
+                                Hifz Planner
+                              </Link>
+                              <Link
                                 href="/guide#listen"
                                 onClick={() => setOpenDropdown(null)}
                                 className="rounded px-1.5 py-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
@@ -552,6 +557,13 @@ export function SiteHeader({
                                 className="rounded px-2 py-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"
                               >
                                 Mushaf View
+                              </Link>
+                              <Link
+                                href="/guide#planner"
+                                onClick={closeMobileMenu}
+                                className="rounded px-2 py-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              >
+                                Hifz Planner
                               </Link>
                               <Link
                                 href="/guide#listen"

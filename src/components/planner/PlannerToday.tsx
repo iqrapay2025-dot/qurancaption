@@ -9,7 +9,6 @@ import {
   BookOpen,
   Headphones,
   RotateCcw,
-  Sparkles,
   AlertTriangle,
   Play,
   Pause,
@@ -199,6 +198,7 @@ export function PlannerToday() {
 
           <Link
             href="/planner/progress"
+            data-tour="planner-progress-link"
             className="p-2 text-muted-foreground hover:text-foreground rounded-lg border border-border bg-card hover:bg-muted transition-colors"
             title="View 604-Page Progress Grid"
           >
@@ -207,6 +207,7 @@ export function PlannerToday() {
 
           <Link
             href="/planner/settings"
+            data-tour="planner-settings-link"
             className="p-2 text-muted-foreground hover:text-foreground rounded-lg border border-border bg-card hover:bg-muted transition-colors"
             title="Planner Settings & Backup"
           >
@@ -288,7 +289,7 @@ export function PlannerToday() {
       {/* Three Main Tasks Grid */}
       <div className="space-y-4">
         {/* TASK 1: SABAQ (New Lesson) */}
-        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
+        <div data-tour="planner-sabaq" className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
           <div className="bg-emerald-500/10 dark:bg-emerald-950/20 px-5 py-3 border-b border-emerald-500/20 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
@@ -352,7 +353,7 @@ export function PlannerToday() {
         </div>
 
         {/* TASK 2: SABQI (Recent Revision) */}
-        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
+        <div data-tour="planner-sabqi" className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
           <div className="bg-sky-500/10 dark:bg-sky-950/20 px-5 py-3 border-b border-sky-500/20 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-sky-600" />
@@ -431,7 +432,7 @@ export function PlannerToday() {
         </div>
 
         {/* TASK 3: MANZIL (Old Revision Cycle) */}
-        <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
+        <div data-tour="planner-manzil" className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
           <div className="bg-purple-500/10 dark:bg-purple-950/20 px-5 py-3 border-b border-purple-500/20 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-purple-600" />

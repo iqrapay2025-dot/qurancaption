@@ -2,6 +2,7 @@ export type TourId =
   | "welcome"
   | "quran-reader"
   | "mushaf"
+  | "planner"
   | "listen"
   | "adhkar"
   | "editor"

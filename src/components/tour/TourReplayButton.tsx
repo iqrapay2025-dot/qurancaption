@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { Compass } from "lucide-react";
 import { useTour } from "./TourProvider";
 import type { TourId } from "@/lib/tours/types";
 
@@ -28,7 +28,7 @@ export function TourReplayButton({
         title="Start interactive guide tour"
         className={`grid size-8 place-items-center rounded-sm border border-border text-foreground hover:bg-muted transition-colors focus-visible:outline-2 focus-visible:outline-ring ${className}`}
       >
-        <Sparkles size={14} className="text-gold" />
+        <Compass size={14} className="text-gold" />
       </button>
     );
   }
@@ -41,7 +41,7 @@ export function TourReplayButton({
       title="Start interactive guide tour"
       className={`inline-flex items-center gap-1.5 rounded-sm border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted hover:border-gold/50 transition-colors focus-visible:outline-2 focus-visible:outline-ring ${className}`}
     >
-      <Sparkles size={13} className="text-gold shrink-0" />
+      <Compass size={13} className="text-gold shrink-0" />
       <span>{label}</span>
     </button>
   );

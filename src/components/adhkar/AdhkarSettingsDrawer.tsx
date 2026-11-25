@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Type, Vibrate, Eye, ExternalLink, Sparkles, Bell, Moon } from "lucide-react";
+import { X, Type, Vibrate, Eye, ExternalLink, SlidersHorizontal, Bell, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { ThemeSelector, type ThemeMode } from "@/components/shared";
 import type { AdhkarPreferences, ArabicFontChoice } from "@/lib/adhkar/storage";
@@ -76,7 +76,7 @@ export function AdhkarSettingsDrawer({
         <div className="flex items-center justify-between pb-4 border-b border-border">
           <div className="flex items-center gap-2">
             <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-              <Sparkles size={18} />
+              <SlidersHorizontal size={18} />
             </div>
             <div>
               <h2 id="adhkar-settings-title" className="text-base font-bold text-foreground">

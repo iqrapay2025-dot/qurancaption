@@ -1,5 +1,5 @@
 "use client";
-import { Loader2, Pause, Play, Plus, Trash2, Hand, Waves, ZoomIn, ZoomOut, Sparkles } from "lucide-react";
+import { Loader2, Pause, Play, Plus, Trash2, Hand, Waves, ZoomIn, ZoomOut, Clock } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fmt } from "../data";
 import { computeBounds, detectPauses, type Mark, type OwnAudio } from "../lib/ownAudio";
@@ -271,7 +271,7 @@ export default function OwnTiming({ own, keys, weights, arabic, now, playing, on
           {detecting ? <Loader2 size={13} className="animate-spin" /> : <Waves size={13} />}Detect pauses
         </button>
         <button type="button" onClick={runAutoTime} disabled={autoBusy} title="Automatically time every verse from this recitation" className={btn}>
-          {autoBusy ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+          {autoBusy ? <Loader2 size={13} className="animate-spin" /> : <Clock size={13} />}
           {autoBusy ? "Timing…" : "Auto-time"}
         </button>
         {autoTimeUsage?.limit != null && (

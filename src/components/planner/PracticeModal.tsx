@@ -11,7 +11,6 @@ import {
   Download,
   Check,
   Volume2,
-  Sparkles,
 } from "lucide-react";
 import { PlannerUnit } from "@/lib/planner/types";
 import { saveOfflineMushafPage, hasOfflineMushafPage, getOfflineMushafPage } from "@/lib/offline/db";

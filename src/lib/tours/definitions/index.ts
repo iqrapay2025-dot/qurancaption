@@ -2,6 +2,7 @@ import type { TourDefinition, TourId } from "../types";
 import { welcomeTour } from "./welcome";
 import { quranReaderTour } from "./quran";
 import { mushafTour } from "./mushaf";
+import { plannerTour } from "./planner";
 import { listenTour } from "./listen";
 import { adhkarTour } from "./adhkar";
 import { editorTour } from "./editor";
@@ -11,6 +12,7 @@ export const TOURS: Record<TourId, TourDefinition> = {
   welcome: welcomeTour,
   "quran-reader": quranReaderTour,
   mushaf: mushafTour,
+  planner: plannerTour,
   listen: listenTour,
   adhkar: adhkarTour,
   editor: editorTour,
@@ -21,6 +23,7 @@ export const TOUR_LIST: TourDefinition[] = [
   welcomeTour,
   quranReaderTour,
   mushafTour,
+  plannerTour,
   listenTour,
   adhkarTour,
   editorTour,

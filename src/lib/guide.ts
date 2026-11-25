@@ -5,6 +5,7 @@ export type GuideSectionId =
   | "welcome"
   | "read"
   | "mushaf"
+  | "planner"
   | "listen"
   | "adhkar"
   | "daily-ayah"
@@ -201,7 +202,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
       },
       {
         title: "Tajweed rule color coding",
-        body: "Enable Tajweed colors in the font settings to visually distinguish recitation rules (ghunnah, ikhfa, idgham, qalqalah, madd) directly on the Arabic text.",
+        body: "Enable Tajweed colors in the font settings to visually distinguish recitation rules (ghunnah, ikhfa, idgham, qalqalah, madd) directly on the Arabic text without layout shifts.",
       },
       {
         title: "Dynamic proportional Basmala scaling",
@@ -210,6 +211,44 @@ export const GUIDE_SECTIONS: GuideSection[] = [
       {
         title: "Dedicated dark mode & reciter switching",
         body: "Toggle between Light and Dark mode seamlessly from within the Mushaf header for comfortable night reading, and select your preferred reciter for audio playback.",
+      },
+    ],
+  },
+  {
+    id: "planner",
+    title: "Hifz & Muraja'ah Planner",
+    navTitle: "Memorization Planner",
+    summary:
+      "A systematic Quran memorization and spaced-repetition revision platform based on the traditional Sabaq, Sabqi, and Manzil method with customizable daily paces.",
+    tourId: "planner",
+    tourRoute: "/planner",
+    tourLabel: "Take Planner tour",
+    pageHref: "/planner",
+    pageLabel: "Open Planner",
+    subsections: [
+      {
+        title: "The Three Daily Tasks (Sabaq, Sabqi, Manzil)",
+        body: "Sabaq is today's new lesson portion. Sabqi revises the last 3–7 days of newly memorized lessons. Manzil rotates through your entire cumulative memorization over a 15, 30, or 60-day cycle.",
+      },
+      {
+        title: "Customizable daily lesson sizes & estimated times",
+        body: "Choose standard lesson presets (3, 5, 7, 10, or 15 lines/day) or write any custom line count. The planner automatically estimates the daily memorization duration based on Quranic retention rates (~2.2–3.4 min/line).",
+      },
+      {
+        title: "Spaced repetition & rating system",
+        body: "After reciting each portion, rate it as Strong, Okay, or Weak. Weak portions reset to 1-day intervals, while Strong portions space out up to 60 days.",
+      },
+      {
+        title: "Practice mode & text masking",
+        body: "Practice your new lesson with repeating audio (3x, 5x, 10x, 20x), speed adjustments, and hide Arabic text to test yourself line by line.",
+      },
+      {
+        title: "604-Page Mushaf progress grid",
+        body: "Track your progress on an interactive 604-page Madani Mushaf grid color-coded by status (New, Learning, Memorized, Weak), with Juz filtering and completion pace estimations.",
+      },
+      {
+        title: "Missed days backlog & backups",
+        body: "Never lose unrevised lessons. Overdue tasks enter a Backlog that you can spread over 3, 5, or 7 days. Back up your plan anytime with JSON export and import.",
       },
     ],
   },

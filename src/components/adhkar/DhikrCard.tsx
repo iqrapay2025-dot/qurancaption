@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, RotateCcw, Share2, BookOpen, ChevronDown, ExternalLink, Sparkles } from "lucide-react";
+import { Check, RotateCcw, Share2, BookOpen, ChevronDown, ExternalLink, Heart } from "lucide-react";
 import type { AdhkarItem } from "@/lib/adhkar/types";
 import type { AdhkarPreferences } from "@/lib/adhkar/storage";
 import { decrementDhikr, resetDhikr } from "@/lib/adhkar/storage";
@@ -124,7 +124,7 @@ export function DhikrCard({ item, remaining, onCountChange, prefs }: DhikrCardPr
                 className="flex items-center justify-between w-full py-1 text-xs font-medium text-primary hover:opacity-80 transition-opacity"
               >
                 <span className="flex items-center gap-1.5">
-                  <Sparkles size={13} />
+                  <Heart size={13} />
                   <span>Virtue & Reward</span>
                 </span>
                 <ChevronDown

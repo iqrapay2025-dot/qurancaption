@@ -62,7 +62,7 @@ export const ADHKAR_CATEGORIES: AdhkarCategoryMeta[] = [
     title: "After Salah",
     titleArabic: "أَذْكَارُ بَعْدَ الصَّلَاةِ",
     description: "Tasbih and supplications following the five daily obligatory prayers.",
-    icon: "Sparkles",
+    icon: "Clock",
     color: "emerald",
     suggestedTime: "Post Obligatory Prayers",
   },

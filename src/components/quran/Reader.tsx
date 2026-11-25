@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { ChevronLeft, ChevronRight, Settings, Video, CheckSquare, ArrowRight, Play, Pause, BookOpen, FileText, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Video, CheckSquare, ArrowRight, Play, Pause, BookOpen, FileText } from "lucide-react";
 import { DuaHandsIcon } from "@/components/icons/DuaHandsIcon";
 import type { Chapter, ApiVerse } from "@/lib/quran/server";
 import { DEFAULT_TR1, TRANSLITERATION_ID } from "@/lib/quran/types";

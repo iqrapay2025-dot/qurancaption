@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getActiveDonateUrl } from "@/lib/donate";
-import { Heart, Server, BookOpen, Sparkles } from "lucide-react";
+import { Heart, Server, BookOpen, Layers } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Support Aayah Studio",
@@ -59,7 +59,7 @@ export default function DonatePage() {
                 </li>
                 <li className="rounded-sm border border-border bg-card p-4">
                   <div className="flex items-center gap-2 text-primary font-semibold text-sm">
-                    <Sparkles size={16} />
+                    <Layers size={16} />
                     <span>New Features</span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground leading-relaxed">

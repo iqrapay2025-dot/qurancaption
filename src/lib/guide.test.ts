@@ -11,11 +11,12 @@ import {
 } from "./guide";
 
 describe("GUIDE_SECTIONS structure and integrity", () => {
-  it("contains all expected 11 guide sections in logical sequence", () => {
+  it("contains all expected 12 guide sections in logical sequence", () => {
     const expectedIds = [
       "welcome",
       "read",
       "mushaf",
+      "planner",
       "listen",
       "adhkar",
       "daily-ayah",
@@ -53,6 +54,7 @@ describe("GUIDE_SECTIONS structure and integrity", () => {
           "welcome",
           "quran-reader",
           "mushaf",
+          "planner",
           "listen",
           "adhkar",
           "editor",

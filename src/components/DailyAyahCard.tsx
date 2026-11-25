@@ -10,7 +10,6 @@ import {
   Copy,
   Share2,
   Check,
-  Sparkles,
   Download,
   Loader2,
   X,
@@ -433,7 +432,7 @@ export function DailyAyahCard() {
           {/* Top Banner */}
           <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-border pb-3 mb-3">
             <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gold">
-              <Sparkles size={14} /> Daily Ayah
+              <BookOpen size={14} /> Daily Ayah
             </div>
 
             <div className="flex items-center flex-wrap gap-2 text-xs">
