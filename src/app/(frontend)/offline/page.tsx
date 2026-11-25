@@ -586,7 +586,7 @@ export default function OfflinePage() {
                     <div className="flex items-center gap-2 self-end sm:self-center flex-wrap">
                       {d.hasAudio && (
                         <Link
-                          href={`/listen?surah=${d.surah}&reciter=${d.reciterId || 1}`}
+                          href={`/listen?surah=${d.surah}&reciter=${d.reciterId || 123}&autoplay=true`}
                           className="px-2.5 py-1.5 rounded-lg border border-border bg-card text-foreground hover:bg-muted hover:border-primary transition-colors flex items-center gap-1 text-xs font-semibold"
                           title="Play offline audio"
                         >

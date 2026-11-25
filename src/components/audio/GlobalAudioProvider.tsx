@@ -38,6 +38,52 @@ import {
 } from "@/lib/audio/single-audio";
 import { saveContinueListening } from "@/lib/library/storage";
 import { getOfflineSurahAudio, getOfflineFullAudio } from "@/lib/offline/db";
+import { SURAHS_META } from "@/lib/mushaf/data";
+
+const FALLBACK_LISTEN_RECITERS: Reciter[] = [
+  {
+    id: 123,
+    name: "Mishary Alafasi",
+    nameArabic: "مشاري العفاسي",
+    style: "Hafs A'n Assem - Murattal",
+    server: "https://server8.mp3quran.net/afs/",
+  },
+  {
+    id: 54,
+    name: "Abdulrahman Alsudaes",
+    nameArabic: "عبدالرحمن السديس",
+    style: "Hafs A'n Assem - Murattal",
+    server: "https://server11.mp3quran.net/sds/",
+  },
+  {
+    id: 51,
+    name: "Abdulbasit Abdulsamad",
+    nameArabic: "عبدالباسط عبدالصمد",
+    style: "Hafs A'n Assem - Murattal",
+    server: "https://server7.mp3quran.net/basit/",
+  },
+  {
+    id: 102,
+    name: "Maher Al Meaqli",
+    nameArabic: "ماهر المعيقلي",
+    style: "Hafs A'n Assem - Murattal",
+    server: "https://server12.mp3quran.net/maher/",
+  },
+  {
+    id: 30,
+    name: "Saad Al-Ghamdi",
+    nameArabic: "سعد الغامدي",
+    style: "Hafs A'n Assem - Murattal",
+    server: "https://server7.mp3quran.net/ghamdi/",
+  },
+  {
+    id: 118,
+    name: "Mahmoud Khalil Al-Hussary",
+    nameArabic: "محمود خليل الحصري",
+    style: "Hafs A'n Assem - Murattal",
+    server: "https://server13.mp3quran.net/husr/",
+  },
+];
 
 const LEGACY_STORAGE_KEYS = {
   reciter: "ayah-listen-reciter",
@@ -152,21 +198,55 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
     fetch("/api/quran/chapters")
       .then((r) => r.json())
       .then((d) => {
-        if (active && Array.isArray(d?.chapters)) {
+        if (active && Array.isArray(d?.chapters) && d.chapters.length > 0) {
           setChapters(d.chapters);
+        } else if (active) {
+          setChapters(
+            SURAHS_META.map((s) => ({
+              id: s.id,
+              nameSimple: s.name_simple,
+              nameArabic: s.name_arabic,
+              meaning: s.name_english,
+              versesCount: s.verses_count,
+              available: true,
+            }))
+          );
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback to static Surah metadata if offline
+        if (active) {
+          setChapters(
+            SURAHS_META.map((s) => ({
+              id: s.id,
+              nameSimple: s.name_simple,
+              nameArabic: s.name_arabic,
+              meaning: s.name_english,
+              versesCount: s.verses_count,
+              available: true,
+            }))
+          );
+        }
+      });
 
     fetch("/api/listen/reciters")
       .then((r) => r.json())
       .then((d) => {
-        if (active && Array.isArray(d?.reciters)) {
+        if (active && Array.isArray(d?.reciters) && d.reciters.length > 0) {
           setReciters(d.reciters);
           recitersRef.current = d.reciters;
+        } else if (active) {
+          setReciters(FALLBACK_LISTEN_RECITERS);
+          recitersRef.current = FALLBACK_LISTEN_RECITERS;
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback to top offline reciters if offline
+        if (active) {
+          setReciters(FALLBACK_LISTEN_RECITERS);
+          recitersRef.current = FALLBACK_LISTEN_RECITERS;
+        }
+      });
 
     return () => {
       active = false;
@@ -236,16 +316,33 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
         const fullOffline = await getOfflineFullAudio(surahNum, reciterNum);
         if (fullOffline?.audioUrl) {
           setAudioUrl(fullOffline.audioUrl);
+          if (fullOffline.reciterId && fullOffline.reciterId !== reciterNum) {
+            setReciterId(fullOffline.reciterId);
+          }
           setLoading(false);
           return;
         }
         const offline = await getOfflineSurahAudio(surahNum, reciterNum);
         if (offline?.fullAudioUrl) {
           setAudioUrl(offline.fullAudioUrl);
+          if (offline.reciterId && offline.reciterId !== reciterNum) {
+            setReciterId(offline.reciterId);
+          }
           setLoading(false);
           return;
         }
       } catch {}
+
+      // If offline and not saved locally, show clean informative message instead of remote CDN error
+      const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
+      if (isOffline) {
+        setError(`Surah ${surahNum} is not downloaded for offline listening. Connect to the internet or open a downloaded Surah.`);
+        setAudioUrl(null);
+        setIsPlaying(false);
+        shouldAutoPlayRef.current = false;
+        setLoading(false);
+        return;
+      }
 
       // 2. Direct MP3Quran CDN stream URL if reciter server is known
       let server = recitersRef.current.find((r) => r.id === reciterNum)?.server;
@@ -293,11 +390,15 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
     setError(null);
     autoRetryCountRef.current = 0;
 
-    // If socket timed out while idle, or audio element is in an error/stale state, reload cleanly
+    const isBlobUrl = typeof audio.src === "string" && audio.src.startsWith("blob:");
+
+    // If socket timed out while idle, or audio element is in an error/stale state on a remote stream, reload cleanly.
+    // For blob: URLs, do not call audio.load() as that tears down the decoded blob buffer.
     if (
-      needsReloadRef.current ||
-      audio.error ||
-      audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE
+      !isBlobUrl &&
+      (needsReloadRef.current ||
+        audio.error ||
+        audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE)
     ) {
       needsReloadRef.current = false;
       const savedPos = currentTimeRef.current || 0;
@@ -307,6 +408,21 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
           audio.currentTime = savedPos;
         }
       } catch {}
+    }
+
+    // For local blob URLs: ensure browser has parsed headers before play() to prevent race conditions
+    if (isBlobUrl && audio.readyState === 0) {
+      await new Promise<void>((resolve) => {
+        const timer = setTimeout(resolve, 80);
+        const onRdy = () => {
+          clearTimeout(timer);
+          audio.removeEventListener("loadedmetadata", onRdy);
+          audio.removeEventListener("canplay", onRdy);
+          resolve();
+        };
+        audio.addEventListener("loadedmetadata", onRdy, { once: true });
+        audio.addEventListener("canplay", onRdy, { once: true });
+      });
     }
 
     try {
@@ -321,39 +437,41 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
         return;
       }
 
-      // If playback failed due to a stale socket, attempt one transparent reload & play
-      try {
-        const savedPos = currentTimeRef.current || 0;
-        audio.load();
-        if (savedPos > 0) {
-          audio.currentTime = savedPos;
-        }
-        notifyAudioPlaybackStarted("global");
-        await audio.play();
-        setIsPlaying(true);
-        setHasEverPlayed(true);
-        setError(null);
-        return;
-      } catch {
-        // If still buffering, attach a one-time canplay listener
-        if (audio.readyState < 2) {
-          const onCanPlayOnce = async () => {
-            audio.removeEventListener("canplay", onCanPlayOnce);
-            try {
-              notifyAudioPlaybackStarted("global");
-              await audio.play();
-              setIsPlaying(true);
-              setHasEverPlayed(true);
-              setError(null);
-            } catch {
-              setIsPlaying(false);
-            }
-          };
-          audio.addEventListener("canplay", onCanPlayOnce, { once: true });
-        } else {
-          setIsPlaying(false);
-          setError("Audio playback error occurred.");
-        }
+      // If playback failed due to a stale socket on remote streams, attempt one transparent reload & play
+      if (!isBlobUrl) {
+        try {
+          const savedPos = currentTimeRef.current || 0;
+          audio.load();
+          if (savedPos > 0) {
+            audio.currentTime = savedPos;
+          }
+          notifyAudioPlaybackStarted("global");
+          await audio.play();
+          setIsPlaying(true);
+          setHasEverPlayed(true);
+          setError(null);
+          return;
+        } catch {}
+      }
+
+      // If still buffering, attach a one-time canplay listener
+      if (audio.readyState < 2) {
+        const onCanPlayOnce = async () => {
+          audio.removeEventListener("canplay", onCanPlayOnce);
+          try {
+            notifyAudioPlaybackStarted("global");
+            await audio.play();
+            setIsPlaying(true);
+            setHasEverPlayed(true);
+            setError(null);
+          } catch {
+            setIsPlaying(false);
+          }
+        };
+        audio.addEventListener("canplay", onCanPlayOnce, { once: true });
+      } else {
+        setIsPlaying(false);
+        setError("Audio playback error occurred.");
       }
     }
   }, []);
