@@ -22,10 +22,11 @@ describe("Offline DB & Storage Helpers", () => {
   });
 
   it("defines expected stores and database version", () => {
-    expect(DB_VERSION).toBe(2);
+    expect(DB_VERSION).toBe(3);
     expect(STORES.CONTENT).toBe("surah_content");
     expect(STORES.AUDIO).toBe("surah_audio");
     expect(STORES.MUSHAF).toBe("mushaf_pages");
     expect(STORES.FULL_AUDIO).toBe("listen_audio");
+    expect(STORES.ADHKAR).toBe("adhkar_content");
   });
 });

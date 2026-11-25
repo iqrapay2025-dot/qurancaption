@@ -4,13 +4,14 @@ import { getSurahMeta, SURAHS_META } from "@/lib/mushaf/data";
 import { mapLegacyReciterId } from "@/lib/listen/mp3quran";
 
 export const DB_NAME = "ayah_studio_offline_v1";
-export const DB_VERSION = 2;
+export const DB_VERSION = 3;
 
 export const STORES = {
   CONTENT: "surah_content",
   AUDIO: "surah_audio",
   MUSHAF: "mushaf_pages",
   FULL_AUDIO: "listen_audio",
+  ADHKAR: "adhkar_content",
 } as const;
 
 export interface OfflineSurahContent {
@@ -96,6 +97,9 @@ export function openOfflineDb(): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains(STORES.FULL_AUDIO)) {
         db.createObjectStore(STORES.FULL_AUDIO, { keyPath: "id" });
+      }
+      if (!db.objectStoreNames.contains(STORES.ADHKAR)) {
+        db.createObjectStore(STORES.ADHKAR, { keyPath: "id" });
       }
     };
 
@@ -894,4 +898,85 @@ export async function getStorageUsageSummary(): Promise<{
       mushafPagesCount: 0,
     };
   }
+}
+
+/**
+ * Save all adhkar data locally into IndexedDB for offline use.
+ */
+export async function saveOfflineAdhkar(adhkarItems: any[]): Promise<number> {
+  const db = await openOfflineDb();
+  return new Promise((resolve, reject) => {
+    try {
+      const tx = db.transaction(STORES.ADHKAR, "readwrite");
+      const store = tx.objectStore(STORES.ADHKAR);
+      const jsonStr = JSON.stringify(adhkarItems);
+      const sizeBytes = new Blob([jsonStr]).size;
+      const record = {
+        id: "all_adhkar",
+        items: adhkarItems,
+        downloadedAt: Date.now(),
+        sizeBytes,
+        count: adhkarItems.length,
+      };
+      const req = store.put(record);
+      req.onsuccess = () => resolve(sizeBytes);
+      req.onerror = () => reject(req.error || new Error("Failed to save adhkar"));
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+/**
+ * Check if Adhkar data is cached offline in IndexedDB.
+ */
+export async function isAdhkarOffline(): Promise<boolean> {
+  try {
+    const db = await openOfflineDb();
+    return new Promise((resolve) => {
+      const tx = db.transaction(STORES.ADHKAR, "readonly");
+      const store = tx.objectStore(STORES.ADHKAR);
+      const req = store.get("all_adhkar");
+      req.onsuccess = () => resolve(!!req.result);
+      req.onerror = () => resolve(false);
+    });
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Get offline cached Adhkar items.
+ */
+export async function getOfflineAdhkar(): Promise<any[] | null> {
+  try {
+    const db = await openOfflineDb();
+    return new Promise((resolve) => {
+      const tx = db.transaction(STORES.ADHKAR, "readonly");
+      const store = tx.objectStore(STORES.ADHKAR);
+      const req = store.get("all_adhkar");
+      req.onsuccess = () => resolve(req.result ? req.result.items : null);
+      req.onerror = () => resolve(null);
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Remove cached Adhkar from IndexedDB.
+ */
+export async function deleteOfflineAdhkar(): Promise<void> {
+  const db = await openOfflineDb();
+  return new Promise((resolve, reject) => {
+    try {
+      const tx = db.transaction(STORES.ADHKAR, "readwrite");
+      const store = tx.objectStore(STORES.ADHKAR);
+      const req = store.delete("all_adhkar");
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    } catch (e) {
+      reject(e);
+    }
+  });
 }

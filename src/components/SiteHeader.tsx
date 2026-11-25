@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, BookOpen, Headphones, Compass, Bookmark, HelpCircle, UserRound, HardDrive } from "lucide-react";
+import { Menu, X, ChevronDown, BookOpen, Headphones, Compass, Bookmark, HelpCircle, UserRound, HardDrive, Sparkles, Sunrise, Sunset, Clock, Moon, Hand, Calendar } from "lucide-react";
+import { DuaHandsIcon } from "./icons/DuaHandsIcon";
 import { Logo, ThemeToggle, useTheme } from "./shared";
 import AccountMenu from "./AccountMenu";
 import type { AppUser } from "@/lib/app/client";
@@ -11,6 +12,7 @@ import { NAV_ITEMS, isActive } from "@/lib/nav";
 import { getActiveDonateUrl } from "@/lib/donate";
 import { ToursMenu } from "./tour/ToursMenu";
 import { InstallAppButton } from "./InstallAppButton";
+import { PrayerTimesHeaderChip } from "./prayer-times/PrayerTimesHeaderChip";
 
 type SiteHeaderProps = {
   onStart?: () => void;
@@ -35,8 +37,23 @@ function renderNavIcon(icon?: string) {
       return <Compass size={16} aria-hidden="true" />;
     case "Bookmark":
       return <Bookmark size={16} aria-hidden="true" />;
+    case "Calendar":
+      return <Calendar size={16} aria-hidden="true" />;
     case "HardDrive":
       return <HardDrive size={16} aria-hidden="true" />;
+    case "Sparkles":
+      return <Sparkles size={16} aria-hidden="true" />;
+    case "Hand":
+    case "DuaHands":
+      return <DuaHandsIcon size={16} />;
+    case "Sunrise":
+      return <Sunrise size={16} aria-hidden="true" />;
+    case "Sunset":
+      return <Sunset size={16} aria-hidden="true" />;
+    case "Clock":
+      return <Clock size={16} aria-hidden="true" />;
+    case "Moon":
+      return <Moon size={16} aria-hidden="true" />;
     default:
       return <HelpCircle size={16} aria-hidden="true" />;
   }
@@ -194,7 +211,7 @@ export function SiteHeader({
         <nav
           ref={navContainerRef}
           aria-label="Main navigation"
-          className="hidden items-center justify-center gap-3 md:gap-4 lg:gap-8 text-xs lg:text-sm font-medium md:flex"
+          className="hidden items-center justify-center gap-5 xl:gap-8 text-sm font-medium lg:flex"
         >
           {NAV_ITEMS.map((item) => {
             if (item.children) {
@@ -212,7 +229,7 @@ export function SiteHeader({
                       triggerRefs.current[item.label] = el;
                     }}
                     type="button"
-                    data-tour={item.label === "Quran" ? "nav-quran" : item.label === "Learn" ? "nav-learn" : undefined}
+                    data-tour={item.label === "Quran" ? "nav-quran" : item.label === "Adhkar" ? "nav-adhkar" : item.label === "Learn" ? "nav-learn" : undefined}
                     aria-haspopup="menu"
                     aria-expanded={isOpen}
                     onClick={() =>
@@ -290,11 +307,25 @@ export function SiteHeader({
                                 Read Quran
                               </Link>
                               <Link
+                                href="/guide#mushaf"
+                                onClick={() => setOpenDropdown(null)}
+                                className="rounded px-1.5 py-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                              >
+                                Mushaf View
+                              </Link>
+                              <Link
                                 href="/guide#listen"
                                 onClick={() => setOpenDropdown(null)}
                                 className="rounded px-1.5 py-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                               >
                                 Listen Guide
+                              </Link>
+                              <Link
+                                href="/guide#adhkar"
+                                onClick={() => setOpenDropdown(null)}
+                                className="rounded px-1.5 py-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                              >
+                                Daily Adhkar
                               </Link>
                               <Link
                                 href="/guide#editor"
@@ -360,20 +391,23 @@ export function SiteHeader({
           {hasDonateUrl && (
             <Link
               href="/donate"
-              className="hidden sm:inline-flex items-center justify-center whitespace-nowrap shrink-0 rounded-sm bg-primary text-primary-foreground px-2.5 lg:px-3 py-1 lg:py-1.5 text-xs lg:text-sm font-semibold shadow-xs hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring transition-opacity"
+              className="hidden xl:inline-flex items-center justify-center whitespace-nowrap shrink-0 rounded-sm bg-primary text-primary-foreground px-3 py-1.5 text-xs lg:text-sm font-semibold shadow-xs hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring transition-opacity"
             >
               Donate
             </Link>
           )}
 
-          {!isQuranOrListen && (
-            <div className="hidden md:block shrink-0">
-              <ToursMenu buttonVariant="icon" />
-            </div>
-          )}
+          <div className="hidden sm:block shrink-0">
+            <PrayerTimesHeaderChip />
+          </div>
 
           <div className="shrink-0">
-            <ThemeToggle dark={dark} toggle={toggleTheme} />
+            <ThemeToggle
+              dark={dark}
+              toggle={toggleTheme}
+              themeMode={themeHook.themeMode}
+              setThemeMode={themeHook.setThemeMode}
+            />
           </div>
 
           {/* Auth buttons / Account menu (Visible on all screens) */}
@@ -408,23 +442,13 @@ export function SiteHeader({
                 </button>
               </>
             ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={handleStart}
-                  className="hidden whitespace-nowrap shrink-0 rounded-sm border border-foreground/80 px-2.5 lg:px-3.5 py-1 lg:py-1.5 text-xs lg:text-sm font-semibold hover:bg-foreground hover:text-background sm:inline-flex focus-visible:outline-2 focus-visible:outline-ring"
-                >
-                  Open editor
-                </button>
-
-                <AccountMenu
-                  user={user}
-                  onLogin={handleLogin}
-                  onProjects={handleProjects}
-                  onSettings={handleSettings}
-                  onSignOut={handleSignOut}
-                />
-              </>
+              <AccountMenu
+                user={user}
+                onLogin={handleLogin}
+                onProjects={handleProjects}
+                onSettings={handleSettings}
+                onSignOut={handleSignOut}
+              />
             )}
           </div>
 
@@ -435,7 +459,7 @@ export function SiteHeader({
             aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-navigation"
-            className="grid size-9 place-items-center rounded-sm border border-border hover:bg-muted md:hidden focus-visible:outline-2 focus-visible:outline-ring"
+            className="grid size-9 place-items-center rounded-sm border border-border hover:bg-muted lg:hidden focus-visible:outline-2 focus-visible:outline-ring"
           >
             {mobileMenuOpen ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
           </button>
@@ -447,9 +471,15 @@ export function SiteHeader({
         <nav
           id="mobile-navigation"
           aria-label="Main navigation"
-          className="border-t border-border bg-card px-5 py-3 md:hidden"
+          className="border-t border-border bg-card px-5 py-3 lg:hidden"
         >
           <div className="mx-auto flex max-w-6xl flex-col">
+            {/* Mobile-only Prayer Times chip / countdown banner */}
+            <div className="sm:hidden mb-2.5 pb-2.5 border-b border-border/60 flex items-center justify-between px-1">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Prayer Times</span>
+              <PrayerTimesHeaderChip />
+            </div>
+
             {NAV_ITEMS.map((item) => {
               if (item.children) {
                 const active = isActive(pathname, item.label);
@@ -517,11 +547,25 @@ export function SiteHeader({
                                 Read Quran
                               </Link>
                               <Link
+                                href="/guide#mushaf"
+                                onClick={closeMobileMenu}
+                                className="rounded px-2 py-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              >
+                                Mushaf View
+                              </Link>
+                              <Link
                                 href="/guide#listen"
                                 onClick={closeMobileMenu}
                                 className="rounded px-2 py-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"
                               >
                                 Listen Guide
+                              </Link>
+                              <Link
+                                href="/guide#adhkar"
+                                onClick={closeMobileMenu}
+                                className="rounded px-2 py-1.5 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              >
+                                Daily Adhkar
                               </Link>
                               <Link
                                 href="/guide#editor"
@@ -594,20 +638,6 @@ export function SiteHeader({
             <div className="border-t border-border/50 py-2 space-y-1">
               <ToursMenu buttonVariant="button" label="Interactive Tours" className="w-full" onSelectTour={closeMobileMenu} />
               <InstallAppButton variant="menu-item" />
-            </div>
-
-            {/* Mobile Drawer Action */}
-            <div className="mt-2 border-t border-border pt-3">
-              <button
-                type="button"
-                onClick={() => {
-                  closeMobileMenu();
-                  handleStart();
-                }}
-                className="w-full rounded-sm bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 text-center"
-              >
-                Open editor
-              </button>
             </div>
           </div>
         </nav>

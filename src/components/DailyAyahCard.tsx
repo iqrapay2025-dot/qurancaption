@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   BookOpen,
   Play,
@@ -410,114 +411,133 @@ export function DailyAyahCard() {
       data-tour="daily-ayah-card"
       className="rounded-2xl border border-gold/40 bg-card p-4 sm:p-7 md:p-8 shadow-md relative transition-all"
     >
-      {/* Top Banner */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-border pb-3 mb-4 sm:mb-5">
-        <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gold">
-          <Sparkles size={14} /> Daily Ayah
+      <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] lg:grid-cols-[240px_1fr] gap-5 md:gap-7 items-center">
+        {/* Left: Quran on Rehal Photo */}
+        <div className="relative w-full h-48 sm:h-56 md:h-full min-h-[220px] rounded-xl overflow-hidden border border-border/80 shadow-xs shrink-0 group">
+          <Image
+            src="/images/daily-ayah-quran.jpg"
+            alt="Holy Quran on wooden rehal stand"
+            fill
+            className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, 240px"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent md:hidden" />
+          <div className="absolute bottom-2.5 left-3 text-xs font-semibold text-white drop-shadow-xs md:hidden">
+            Daily Ayah · {surahName} {surahNum}:{ayahNum}
+          </div>
         </div>
 
-        <div className="flex items-center flex-wrap gap-2 text-xs">
-          {/* Diacritics (Tashkeel) toggle */}
-          <button
-            type="button"
-            onClick={toggleTashkeel}
-            title={showTashkeel ? "Switch to simplified script (hide diacritics)" : "Show full diacritics (tashkeel)"}
-            aria-label={showTashkeel ? "Switch to simplified script" : "Show full diacritics"}
-            className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border border-border bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
-          >
-            {showTashkeel ? "Tashkeel: On" : "Tashkeel: Off"}
-          </button>
+        {/* Right: Content Column */}
+        <div className="flex flex-col justify-between h-full min-w-0">
+          {/* Top Banner */}
+          <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-border pb-3 mb-3">
+            <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gold">
+              <Sparkles size={14} /> Daily Ayah
+            </div>
 
-          {/* Font Size A- / A+ */}
-          <div className="inline-flex items-center rounded border border-border bg-muted/50 text-[11px] font-medium text-muted-foreground overflow-hidden">
-            <button
-              type="button"
-              onClick={() => changeSizeOffset(-1)}
-              disabled={sizeOffset <= -1}
-              title="Smaller Arabic font"
-              aria-label="Smaller Arabic font"
-              className="px-2 py-0.5 hover:bg-muted hover:text-foreground disabled:opacity-30 transition-colors touch-manipulation"
-            >
-              A-
-            </button>
-            <span className="w-px h-3 bg-border" />
-            <button
-              type="button"
-              onClick={() => changeSizeOffset(1)}
-              disabled={sizeOffset >= 1}
-              title="Larger Arabic font"
-              aria-label="Larger Arabic font"
-              className="px-2 py-0.5 hover:bg-muted hover:text-foreground disabled:opacity-30 transition-colors touch-manipulation"
-            >
-              A+
-            </button>
+            <div className="flex items-center flex-wrap gap-2 text-xs">
+              {/* Diacritics (Tashkeel) toggle */}
+              <button
+                type="button"
+                onClick={toggleTashkeel}
+                title={showTashkeel ? "Switch to simplified script (hide diacritics)" : "Show full diacritics (tashkeel)"}
+                aria-label={showTashkeel ? "Switch to simplified script" : "Show full diacritics"}
+                className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border border-border bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
+              >
+                {showTashkeel ? "Tashkeel: On" : "Tashkeel: Off"}
+              </button>
+
+              {/* Font Size A- / A+ */}
+              <div className="inline-flex items-center rounded border border-border bg-muted/50 text-[11px] font-medium text-muted-foreground overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => changeSizeOffset(-1)}
+                  disabled={sizeOffset <= -1}
+                  title="Smaller Arabic font"
+                  aria-label="Smaller Arabic font"
+                  className="px-2 py-0.5 hover:bg-muted hover:text-foreground disabled:opacity-30 transition-colors touch-manipulation"
+                >
+                  A-
+                </button>
+                <span className="w-px h-3 bg-border" />
+                <button
+                  type="button"
+                  onClick={() => changeSizeOffset(1)}
+                  disabled={sizeOffset >= 1}
+                  title="Larger Arabic font"
+                  aria-label="Larger Arabic font"
+                  className="px-2 py-0.5 hover:bg-muted hover:text-foreground disabled:opacity-30 transition-colors touch-manipulation"
+                >
+                  A+
+                </button>
+              </div>
+
+              <span className="font-mono text-xs text-muted-foreground hidden sm:inline">
+                {surahName} {surahNum}:{ayahNum}
+              </span>
+            </div>
           </div>
 
-          <span className="font-mono text-xs text-muted-foreground">
-            {surahName} {surahNum}:{ayahNum}
-          </span>
-        </div>
-      </div>
+          {/* Hidden Audio Element */}
+          {audioUrl && (
+            <audio
+              ref={audioRef}
+              src={audioUrl}
+              onEnded={() => setIsPlaying(false)}
+              onPause={() => setIsPlaying(false)}
+              onPlay={() => {
+                setIsPlaying(true);
+                notifyAudioPlaybackStarted("daily");
+              }}
+            />
+          )}
 
-      {/* Hidden Audio Element */}
-      {audioUrl && (
-        <audio
-          ref={audioRef}
-          src={audioUrl}
-          onEnded={() => setIsPlaying(false)}
-          onPause={() => setIsPlaying(false)}
-          onPlay={() => {
-            setIsPlaying(true);
-            notifyAudioPlaybackStarted("daily");
-          }}
-        />
-      )}
-
-      {/* Arabic Verse in Quran Font with Adaptive Sizing & Generous Leading for Diacritics */}
-      <p
-        dir="rtl"
-        lang="ar"
-        style={{
-          fontFamily: "var(--font-quran, 'Amiri Quran', 'Scheherazade New', serif)",
-          textWrap: "pretty",
-          wordSpacing: "0.04em",
-        }}
-        className={`text-right ${arabicClasses} text-foreground my-3 select-text transition-all`}
-      >
-        {displayedArabic}
-      </p>
-
-      {/* Translation */}
-      <p className="text-sm sm:text-base leading-relaxed text-muted-foreground mt-3">
-        {translationText}
-      </p>
-
-      {/* Reference */}
-      <p className="mt-2 text-xs font-medium text-foreground">
-        — {surahName} {surahNum}:{ayahNum}
-      </p>
-
-      {/* Action Buttons */}
-      <div className="mt-6 flex flex-wrap items-center gap-2 pt-4 border-t border-border/60">
-        <Link
-          href={`/quran/${surahNum}#ayah-${ayahNum}`}
-          className="inline-flex min-h-[40px] sm:min-h-[38px] items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity touch-manipulation"
-        >
-          <BookOpen size={14} /> Read in context
-        </Link>
-
-        {audioUrl && (
-          <button
-            type="button"
-            onClick={handleTogglePlay}
-            className="inline-flex min-h-[40px] sm:min-h-[38px] items-center gap-1.5 rounded-sm border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation"
+          {/* Arabic Verse in Quran Font with Adaptive Sizing */}
+          <p
+            dir="rtl"
+            lang="ar"
+            style={{
+              fontFamily: "var(--font-quran, 'Amiri Quran', 'Scheherazade New', serif)",
+              textWrap: "pretty",
+              wordSpacing: "0.04em",
+            }}
+            className={`text-right ${arabicClasses} text-foreground my-2 select-text transition-all`}
           >
-            {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-            <span>{isPlaying ? "Pause" : "Listen"}</span>
-          </button>
-        )}
+            {displayedArabic}
+          </p>
 
-        <button
+          {/* Translation */}
+          <p className="text-sm sm:text-base leading-relaxed text-muted-foreground mt-2">
+            {translationText}
+          </p>
+
+          {/* Reference */}
+          <p className="mt-2 text-xs font-medium text-foreground">
+            — {surahName} {surahNum}:{ayahNum}
+          </p>
+
+          {/* Action Buttons */}
+          <div className="mt-5 flex flex-wrap items-center gap-2 pt-3 border-t border-border/60">
+            <Link
+              href={`/quran/${surahNum}#ayah-${ayahNum}`}
+              className="inline-flex min-h-[40px] sm:min-h-[38px] items-center gap-1.5 rounded-sm bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity touch-manipulation"
+            >
+              <BookOpen size={14} /> Read in context
+            </Link>
+
+            {audioUrl && (
+              <button
+                type="button"
+                onClick={handleTogglePlay}
+                className="inline-flex min-h-[40px] sm:min-h-[38px] items-center gap-1.5 rounded-sm border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation"
+              >
+                {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+                <span>{isPlaying ? "Pause" : "Listen"}</span>
+              </button>
+            )}
+
+            <button
           type="button"
           onClick={handleCopy}
           className="inline-flex min-h-[40px] sm:min-h-[38px] items-center gap-1.5 rounded-sm border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors touch-manipulation"
@@ -672,6 +692,8 @@ export function DailyAyahCard() {
             </div>
           )}
         </div>
+      </div>
+      </div>
       </div>
 
       {imageError && (

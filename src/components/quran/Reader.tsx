@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { ChevronLeft, ChevronRight, Settings, Video, CheckSquare, ArrowRight, Play, Pause, BookOpen, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Video, CheckSquare, ArrowRight, Play, Pause, BookOpen, FileText, Sparkles } from "lucide-react";
+import { DuaHandsIcon } from "@/components/icons/DuaHandsIcon";
 import type { Chapter, ApiVerse } from "@/lib/quran/server";
 import { DEFAULT_TR1, TRANSLITERATION_ID } from "@/lib/quran/types";
 import { adjacentSurahs, showSeparateBismillah, BISMILLAH_ARABIC } from "@/lib/quran/reader";
@@ -18,6 +19,7 @@ import { buildEditorLink } from "@/lib/editor-link";
 import { buildMistakeReportMailto } from "@/lib/mistake-report";
 import Attribution from "@/components/Attribution";
 import { TourReplayButton } from "@/components/tour/TourReplayButton";
+import { TodayPlanChip } from "@/components/planner/TodayPlanChip";
 
 const TafsirDrawer = dynamic(
   () => import("./TafsirDrawer").then((m) => m.TafsirDrawer),
@@ -489,9 +491,21 @@ export function Reader({ chapter, initialVerses }: Props) {
           <span />
         )}
 
-        <Link href="/quran" className="hover:text-foreground transition-colors">
-          Surah Index
-        </Link>
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm">
+          <Link href="/quran" className="hover:text-foreground transition-colors">
+            Surah Index
+          </Link>
+          <span className="text-border">·</span>
+          <TodayPlanChip />
+          <span className="text-border">·</span>
+          <Link
+            href="/adhkar"
+            className="inline-flex items-center gap-1 font-semibold text-primary hover:underline transition-colors"
+          >
+            <DuaHandsIcon size={13} />
+            <span>Daily adhkar →</span>
+          </Link>
+        </div>
 
         {next ? (
           <Link

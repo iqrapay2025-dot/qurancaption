@@ -1,14 +1,18 @@
 import type { TourDefinition, TourId } from "../types";
 import { welcomeTour } from "./welcome";
 import { quranReaderTour } from "./quran";
+import { mushafTour } from "./mushaf";
 import { listenTour } from "./listen";
+import { adhkarTour } from "./adhkar";
 import { editorTour } from "./editor";
 import { bookmarksTour } from "./bookmarks";
 
 export const TOURS: Record<TourId, TourDefinition> = {
   welcome: welcomeTour,
   "quran-reader": quranReaderTour,
+  mushaf: mushafTour,
   listen: listenTour,
+  adhkar: adhkarTour,
   editor: editorTour,
   bookmarks: bookmarksTour,
 };
@@ -16,7 +20,9 @@ export const TOURS: Record<TourId, TourDefinition> = {
 export const TOUR_LIST: TourDefinition[] = [
   welcomeTour,
   quranReaderTour,
+  mushafTour,
   listenTour,
+  adhkarTour,
   editorTour,
   bookmarksTour,
 ];

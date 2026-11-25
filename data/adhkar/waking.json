@@ -1,0 +1,59 @@
+[
+  {
+    "id": "waking-1",
+    "category": "waking",
+    "order": 1,
+    "title": "Praise for Being Given Life After Sleep",
+    "arabic": "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ",
+    "transliteration": "Al-ḥamdu lillāhil-ladhī aḥyānā ba'da mā amātanā wa ilayhin-nushūr.",
+    "translation_en": "Praise is to Allah Who gave us life after He had given us death and unto Him is the resurrection.",
+    "repeat": 1,
+    "virtue": "Recited immediately upon awakening from sleep.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "Sahih al-Bukhari 6312; Sahih Muslim 2711; Hisn al-Muslim 1",
+      "sunnah_url": "https://sunnah.com/hisn:1",
+      "grading": "Sahih",
+      "narrator": "Hudhayfah & Abu Dharr"
+    },
+    "sourceDataset": "Hisn al-Muslim / Bukhari 6312"
+  },
+  {
+    "id": "waking-2",
+    "category": "waking",
+    "order": 2,
+    "title": "Praise for Health and Return of the Soul",
+    "arabic": "الْحَمْدُ لِلَّهِ الَّذِي عَافَانِي فِي جَسَدِي، وَرَدَّ عَلَيَّ رُوحِي، وَأَذِنَ لِي بِذِكْرِهِ",
+    "transliteration": "Al-ḥamdu lillāhil-ladhī 'āfānī fī jasadī, wa radda 'alayya rūḥī, wa adhina lī bi-dhikrih.",
+    "translation_en": "Praise is to Allah Who gave strength to my body and returned my soul to me and permitted me to remember Him.",
+    "repeat": 1,
+    "virtue": "Recited upon awakening with gratitude for physical wellness and renewed consciousness.",
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "Jami` at-Tirmidhi 3401; Hisn al-Muslim 3",
+      "sunnah_url": "https://sunnah.com/hisn:3",
+      "grading": "Hasan",
+      "narrator": "Abu Hurairah"
+    },
+    "sourceDataset": "Hisn al-Muslim / Tirmidhi 3401"
+  },
+  {
+    "id": "waking-3",
+    "category": "waking",
+    "order": 3,
+    "title": "Tahleel & Tasbih Upon Waking During the Night",
+    "arabic": "لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ، سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَٰهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ، رَبِّ اغْفِرْ لِي",
+    "transliteration": "Lā ilāha illallāhu waḥdahū lā sharīka lah, lahul-mulku wa lahul-ḥamdu, wa huwa 'alā kulli shay'in qadīr. Subḥānallāh, wal-ḥamdu lillāh, wa lā ilāha illallāh, wallāhu akbar, wa lā ḥawla wa lā quwwata illā billāhil-'aliyyil-'aẓīm. Rabbigh-fir lī.",
+    "translation_en": "There is no deity except Allah alone, with no partner. His is the kingdom, and His is all praise, and He has power over all things. Glory be to Allah, and praise be to Allah, and there is no deity except Allah, and Allah is the greatest, and there is no power nor might except with Allah, the Most High, the Supreme. My Lord, forgive me.",
+    "repeat": 1,
+    "virtue": "Whoever wakes up at night and says this, then supplicates, his prayer will be answered; and if he performs ablution and prays, his prayer will be accepted.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "Sahih al-Bukhari 1154; Hisn al-Muslim 2",
+      "sunnah_url": "https://sunnah.com/hisn:2",
+      "grading": "Sahih",
+      "narrator": "'Ubadah ibn as-Samit"
+    },
+    "sourceDataset": "Hisn al-Muslim / Bukhari 1154"
+  }
+]

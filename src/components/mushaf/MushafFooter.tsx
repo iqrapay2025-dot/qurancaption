@@ -1,7 +1,9 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { DuaHandsIcon } from "@/components/icons/DuaHandsIcon";
 
 interface MushafFooterProps {
   pageNumber: number;
@@ -16,7 +18,7 @@ export function MushafFooter({ pageNumber, onPageChange }: MushafFooterProps) {
     <footer className="w-full border-t border-border/80 bg-background/95 backdrop-blur-sm py-4 px-3">
       <div className="max-w-4xl mx-auto flex flex-col items-center gap-3">
         {/* Pagination buttons */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
           <button
             type="button"
             disabled={!canGoPrev}
@@ -44,6 +46,14 @@ export function MushafFooter({ pageNumber, onPageChange }: MushafFooterProps) {
             <span className="hidden sm:inline">Next Page</span>
             <ChevronRight size={16} />
           </button>
+
+          <Link
+            href="/adhkar"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline transition-colors ml-1"
+          >
+            <DuaHandsIcon size={13} />
+            <span>Daily adhkar →</span>
+          </Link>
         </div>
 
         {/* Attribution required by acceptance criteria */}

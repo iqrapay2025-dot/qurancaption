@@ -22,4 +22,26 @@ describe('parseVerseTajweed', () => {
     expect(words[0]).toEqual([{ text: 'قُلْ' }]);
     expect(words[1]).toEqual([{ text: 'هُوَ' }]);
   });
+
+  it('normalizes leading combining marks and legacy dagger alif glyphs', () => {
+    // Test case from 1:6 and 1:7
+    const raw = 'ٱهْدِنَا <tajweed class=ham_wasl>ٱ</tajweed><tajweed class=laam_shamsiyah>ل</tajweed>صِّر<tajweed class=madda_normal>َٲ</tajweed>طَ <tajweed class=ham_wasl>ٱ</tajweed><tajweed class=laam_shamsiyah>ل</tajweed>ضّ<tajweed class=madda_necessary>َا</tajweed>ٓلّ<tajweed class=madda_permissible>ِي</tajweed>نَ <span class=end>٦</span>';
+    const words = parseVerseTajweed(raw);
+    
+    // Word 1: ٱلصِّرَـٰطَ
+    const siratWord = words[1];
+    expect(siratWord[2].text).toBe('صِّرَ'); // fatha moved to 'صِّر'
+    expect(siratWord[3].text).toBe('ـٰ'); // \u0672 converted to tatweel + superscript alef
+    expect(siratWord[3].rule).toBe('madda_normal');
+    expect(siratWord[4].text).toBe('طَ');
+
+    // Word 2: ٱلضَّآلِّينَ
+    const ddaleenWord = words[2];
+    expect(ddaleenWord[2].text).toBe('ضَّ'); // fatha attached to dad
+    expect(ddaleenWord[3].text).toBe('آ'); // alif with maddah mark attached
+    expect(ddaleenWord[3].rule).toBe('madda_necessary');
+    expect(ddaleenWord[4].text).toBe('لِّ'); // kasra attached to lam with shaddah
+    expect(ddaleenWord[5].text).toBe('ي');
+    expect(ddaleenWord[6].text).toBe('نَ');
+  });
 });

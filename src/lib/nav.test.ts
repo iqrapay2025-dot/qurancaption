@@ -1,17 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { NAV_ITEMS, QURAN_CHILDREN, LEARN_CHILDREN, isActive } from "./nav";
+import { NAV_ITEMS, QURAN_CHILDREN, ADHKAR_CHILDREN, LEARN_CHILDREN, isActive } from "./nav";
 
 describe("NAV_ITEMS", () => {
-  it("has the expected link order: Home, Quran, Learn, Pricing", () => {
+  it("has the expected link order: Home, Quran, Adhkar, Learn, Pricing", () => {
     const labels = NAV_ITEMS.map((item) => item.label);
-    expect(labels).toEqual(["Home", "Quran", "Learn", "Pricing"]);
+    expect(labels).toEqual(["Home", "Quran", "Adhkar", "Learn", "Pricing"]);
   });
 
-  it("Quran dropdown has the expected children: Read Quran, Mushaf View, Listen to Quran, Offline Downloads, Bookmarks", () => {
+  it("Quran dropdown has the expected children: Read Quran, Mushaf View, Listen to Quran, Offline Downloads, Memorization Planner, Bookmarks", () => {
     const quranItem = NAV_ITEMS.find((item) => item.label === "Quran");
     expect(quranItem).toBeDefined();
     expect(quranItem?.children).toBeDefined();
-    expect(quranItem?.children?.length).toBe(5);
+    expect(quranItem?.children?.length).toBe(6);
 
     expect(quranItem?.children?.[0]).toEqual({
       label: "Read Quran",
@@ -42,6 +42,13 @@ describe("NAV_ITEMS", () => {
     });
 
     expect(quranItem?.children?.[4]).toEqual({
+      label: "Memorization Planner",
+      description: "Plan your memorization and revision",
+      href: "/planner",
+      icon: "Calendar",
+    });
+
+    expect(quranItem?.children?.[5]).toEqual({
       label: "Bookmarks",
       description: "Your saved ayahs",
       href: "/quran/bookmarks",
@@ -49,6 +56,50 @@ describe("NAV_ITEMS", () => {
     });
 
     expect(QURAN_CHILDREN).toEqual(quranItem?.children);
+  });
+
+  it("Adhkar dropdown has the expected children: All Adhkar & Du'as, Morning Adhkar, Evening Adhkar, After Salah, Before Sleep", () => {
+    const adhkarItem = NAV_ITEMS.find((item) => item.label === "Adhkar");
+    expect(adhkarItem).toBeDefined();
+    expect(adhkarItem?.children).toBeDefined();
+    expect(adhkarItem?.children?.length).toBe(5);
+
+    expect(adhkarItem?.children?.[0]).toEqual({
+      label: "All Adhkar & Du'as",
+      description: "Categories, counter, virtues & daily progress",
+      href: "/adhkar",
+      icon: "DuaHands",
+    });
+
+    expect(adhkarItem?.children?.[1]).toEqual({
+      label: "Morning Adhkar",
+      description: "Remembrance from Fajr to sunrise",
+      href: "/adhkar/morning",
+      icon: "Sunrise",
+    });
+
+    expect(adhkarItem?.children?.[2]).toEqual({
+      label: "Evening Adhkar",
+      description: "Remembrance from Asr to sunset",
+      href: "/adhkar/evening",
+      icon: "Sunset",
+    });
+
+    expect(adhkarItem?.children?.[3]).toEqual({
+      label: "After Salah",
+      description: "Authentic supplications post prayer",
+      href: "/adhkar/after-salah",
+      icon: "Clock",
+    });
+
+    expect(adhkarItem?.children?.[4]).toEqual({
+      label: "Before Sleep",
+      description: "Night protection and Sunnah adhkar",
+      href: "/adhkar/sleep",
+      icon: "Moon",
+    });
+
+    expect(ADHKAR_CHILDREN).toEqual(adhkarItem?.children);
   });
 
   it("Learn dropdown has How it works and Guide", () => {
@@ -82,11 +133,16 @@ describe("isActive", () => {
     expect(isActive("/guide", "/")).toBe(false);
   });
 
-  it("Quran parent matches /quran, /quran/[surah] and /listen", () => {
+  it("Quran parent matches /quran, /quran/[surah], /listen, /mushaf, /offline, and /planner", () => {
     expect(isActive("/quran", "/quran")).toBe(true);
     expect(isActive("/quran/2", "/quran")).toBe(true);
     expect(isActive("/quran/114", "/quran")).toBe(true);
     expect(isActive("/listen", "/quran")).toBe(true);
+    expect(isActive("/mushaf", "/quran")).toBe(true);
+    expect(isActive("/offline", "/quran")).toBe(true);
+    expect(isActive("/planner", "/quran")).toBe(true);
+    expect(isActive("/planner/setup", "/quran")).toBe(true);
+    expect(isActive("/planner/progress", "Quran")).toBe(true);
     expect(isActive("/guide", "/quran")).toBe(false);
 
     expect(isActive("/quran", "Quran")).toBe(true);
@@ -116,5 +172,13 @@ describe("isActive", () => {
   it("/guide matches Guide", () => {
     expect(isActive("/guide", "/guide")).toBe(true);
     expect(isActive("/quran", "/guide")).toBe(false);
+  });
+
+  it("Adhkar matches /adhkar and subroutes", () => {
+    expect(isActive("/adhkar", "Adhkar")).toBe(true);
+    expect(isActive("/adhkar/morning", "Adhkar")).toBe(true);
+    expect(isActive("/adhkar/after-salah", "/adhkar")).toBe(true);
+    expect(isActive("/quran", "Adhkar")).toBe(false);
+    expect(isActive("/", "Adhkar")).toBe(false);
   });
 });

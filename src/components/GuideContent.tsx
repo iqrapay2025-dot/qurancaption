@@ -30,6 +30,7 @@ import {
 } from "@/lib/guide";
 import { useTour } from "./tour/TourProvider";
 import type { TourId } from "@/lib/tours/types";
+import { DuaHandsIcon } from "./icons/DuaHandsIcon";
 
 function getSectionIcon(id: GuideSectionId) {
   switch (id) {
@@ -37,8 +38,12 @@ function getSectionIcon(id: GuideSectionId) {
       return <Sparkles className="size-5 text-gold shrink-0" aria-hidden="true" />;
     case "read":
       return <BookOpen className="size-5 text-gold shrink-0" aria-hidden="true" />;
+    case "mushaf":
+      return <BookOpen className="size-5 text-primary shrink-0" aria-hidden="true" />;
     case "listen":
       return <Headphones className="size-5 text-gold shrink-0" aria-hidden="true" />;
+    case "adhkar":
+      return <DuaHandsIcon size={18} className="text-gold shrink-0" />;
     case "daily-ayah":
       return <Calendar className="size-5 text-gold shrink-0" aria-hidden="true" />;
     case "editor":
@@ -502,6 +507,88 @@ export function GuideContent({ compact = false }: { compact?: boolean }) {
           </div>
         </section>
 
+        {/* Section: Mushaf View */}
+        <section id="mushaf" aria-labelledby="heading-mushaf" className="scroll-mt-32 sm:scroll-mt-24 space-y-4">
+          <div className="border-b border-border pb-3">
+            <a
+              href="#mushaf"
+              className="group inline-flex items-center gap-2 text-foreground hover:text-gold transition-colors focus-visible:outline-2 focus-visible:outline-ring rounded-sm"
+            >
+              <h2 id="heading-mushaf" className="text-2xl sm:text-3xl font-bold tracking-tight">
+                Madani Mushaf Page View
+              </h2>
+              <span className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity text-lg font-normal" aria-hidden="true">
+                #
+              </span>
+            </a>
+            <p className="mt-2 text-sm sm:text-base leading-relaxed text-muted-foreground">
+              Read the Holy Quran page-by-page in authentic 604-page Madani Mushaf layout with colored Tajweed rules, word-by-word audio, dynamic Basmala font scaling, and dark mode.
+            </p>
+          </div>
+
+          <div className="grid gap-3.5 sm:grid-cols-2">
+            <div className="rounded-sm border border-border bg-card p-4">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                Authentic 604-page Madani layout
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                Browse the Quran exactly as printed in the classical Madani Mushaf (15 lines per page). Jump directly to any page (1–604), Juz (1–30), or Surah (1–114) with instant search.
+              </p>
+            </div>
+
+            <div className="rounded-sm border border-border bg-card p-4">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                Word-by-word interactive audio playback
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                Click on any individual word on the page to hear its authentic pronunciation, or trigger full ayah playback. The active word and verse are highlighted in real time.
+              </p>
+            </div>
+
+            <div className="rounded-sm border border-border bg-card p-4">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                Tajweed rule color coding
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                Enable Tajweed colors in the font settings to visually distinguish recitation rules (ghunnah, ikhfa, idgham, qalqalah, madd) directly on the Arabic text.
+              </p>
+            </div>
+
+            <div className="rounded-sm border border-border bg-card p-4">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                Dynamic proportional Basmala scaling
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                When you increase or decrease font size in Mushaf settings, the decorative surah header banners and Bismillah dynamically scale in harmony with the verse text.
+              </p>
+            </div>
+
+            <div className="rounded-sm border border-border bg-card p-4 sm:col-span-2">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                Dedicated dark mode & reciter switching
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                Toggle between Light and Dark mode seamlessly from within the Mushaf header for comfortable night reading, and select your preferred reciter for audio playback.
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-2 flex flex-wrap items-center gap-3">
+            <TourAction
+              tourId="mushaf"
+              route="/mushaf/1"
+              label="Take Mushaf tour"
+            />
+            <Link
+              href="/mushaf"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-sm border border-border bg-card px-4 py-2 text-xs sm:text-sm font-medium text-foreground hover:bg-muted transition-colors focus-visible:outline-2 focus-visible:outline-ring"
+            >
+              <span>Open Mushaf View</span>
+              <ArrowRight size={14} aria-hidden="true" />
+            </Link>
+          </div>
+        </section>
+
         {/* Section 3: Listen Quran */}
         <section id="listen" aria-labelledby="heading-listen" className="scroll-mt-32 sm:scroll-mt-24 space-y-4">
           <div className="border-b border-border pb-3">
@@ -579,6 +666,97 @@ export function GuideContent({ compact = false }: { compact?: boolean }) {
               className="inline-flex min-h-[44px] items-center gap-1.5 rounded-sm border border-border bg-card px-4 py-2 text-xs sm:text-sm font-medium text-foreground hover:bg-muted transition-colors focus-visible:outline-2 focus-visible:outline-ring"
             >
               <span>Open Listen page</span>
+              <ArrowRight size={14} aria-hidden="true" />
+            </Link>
+          </div>
+        </section>
+
+        {/* Section: Daily Adhkar */}
+        <section id="adhkar" aria-labelledby="heading-adhkar" className="scroll-mt-32 sm:scroll-mt-24 space-y-4">
+          <div className="border-b border-border pb-3">
+            <a
+              href="#adhkar"
+              className="group inline-flex items-center gap-2 text-foreground hover:text-gold transition-colors focus-visible:outline-2 focus-visible:outline-ring rounded-sm"
+            >
+              <h2 id="heading-adhkar" className="text-2xl sm:text-3xl font-bold tracking-tight">
+                Adhkar, Du'as & Daily Remembrance
+              </h2>
+              <span className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity text-lg font-normal" aria-hidden="true">
+                #
+              </span>
+            </a>
+            <p className="mt-2 text-sm sm:text-base leading-relaxed text-muted-foreground">
+              Recite authentic morning & evening supplications, after-salah adhkar, sleep protection, track daily streaks, view hadith evidence, and stay punctual with prayer times.
+            </p>
+          </div>
+
+          <div className="grid gap-3.5 sm:grid-cols-2">
+            <div className="rounded-sm border border-border bg-card p-4">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                Authentic categories & daily schedule
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                Explore 6 core categories from Hisn al-Muslim: Morning Adhkar (Fajr to sunrise), Evening Adhkar (Asr to sunset), After Salah, Before Sleep, Waking Up, and General Du'as.
+              </p>
+            </div>
+
+            <div className="rounded-sm border border-border bg-card p-4">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                Digital tap counter & haptic feedback
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                Each dhikr card features a tap counter counting down from the Sunnah repeat goal (e.g. 1x, 3x, 33x, 100x) with subtle haptic vibration on mobile and an automated 'Done ✓' celebration state.
+              </p>
+            </div>
+
+            <div className="rounded-sm border border-border bg-card p-4">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                Verified hadith references & Sunnah.com links
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                Every supplication includes its authentic source (Sahih al-Bukhari, Sahih Muslim, Abu Dawud, At-Tirmidhi), grading, narrator, virtue, and a direct link to Sunnah.com.
+              </p>
+            </div>
+
+            <div className="rounded-sm border border-border bg-card p-4">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                Daily streak tracking & today dashboard
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                Keep consistent with your daily remembrance using the automated streak counter and the Today dashboard tracking your 5 post-salah supplication windows.
+              </p>
+            </div>
+
+            <div className="rounded-sm border border-border bg-card p-4">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                Accurate prayer times & smart reminders
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                View calculated prayer times (Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha) with live countdowns, customizable calculation methods, Asr school, and after-salah reminder offsets.
+              </p>
+            </div>
+
+            <div className="rounded-sm border border-border bg-card p-4">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                Bilingual search & 100% offline access
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+                Search adhkar in Arabic or English with spelling tolerance, and click 'Save Offline' to download all supplications and prayer schedules to your device.
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-2 flex flex-wrap items-center gap-3">
+            <TourAction
+              tourId="adhkar"
+              route="/adhkar"
+              label="Take Adhkar tour"
+            />
+            <Link
+              href="/adhkar"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-sm border border-border bg-card px-4 py-2 text-xs sm:text-sm font-medium text-foreground hover:bg-muted transition-colors focus-visible:outline-2 focus-visible:outline-ring"
+            >
+              <span>Open Daily Adhkar</span>
               <ArrowRight size={14} aria-hidden="true" />
             </Link>
           </div>

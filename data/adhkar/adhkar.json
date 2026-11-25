@@ -1,0 +1,1823 @@
+[
+  {
+    "id": "morning-1",
+    "category": "morning",
+    "order": 1,
+    "title": "Ayatul Kursi",
+    "arabic": "ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ ۚ لَا تَأْخُذُهُۥ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُۥ مَا فِى ٱلسَّمَٰوَٰتِ وَمَا فِى ٱلْأَرْضِ ۗ مَن ذَا ٱلَّذِى يَشْفَعُ عِندَهُۥٓ إِلَّا بِإِذْنِهِۦ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَىْءٍ مِّنْ عِلْمِهِۦٓ إِلَّا بِمَا شَآءَ ۚ وَسِعَ كُرْسِيُّهُ ٱلسَّمَٰوَٰتِ وَٱلْأَرْضَ ۖ وَلَا يَـُٔودُهُۥ حِفْظُهُمَا ۚ وَهُوَ ٱلْعَلِىُّ ٱلْعَظِيمُ",
+    "transliteration": "allahu la ilaha illa huwa, al-hayyul-qayyum. la ta'khudhuhu sinatun wa la nawm. lahu ma fis-samawati wa ma fil-ard. man dhal-ladhi yashfa'u 'indahu illa bi-idhnihi. ya'lamu ma bayna aydihim wa ma khalfahum. wa la yuhituna bishay'in min 'ilmihi illa bima sha'. wa si'a kursiyyuhu as-samawati wal-ard. wa la ya'udu-hu hifdhuhuma. wa huwa al-'aliyyul-'azim",
+    "translation_en": "Allah - there is no deity except Him, the Ever-Living, the Sustainer of [all] existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is [presently] before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most Hight, the Most Great.",
+    "repeat": 1,
+    "virtue": "Whoever reads this verse in the morning, he will be protected until evening. And whoever reads it in the evening, he will be protected until morning.",
+    "source": {
+      "book": "Hisn al-Muslim",
+      "hadith_reference": "Hisn al-Muslim 75; Jami` at-Tirmidhi 2879",
+      "sunnah_url": "https://sunnah.com/hisn:75",
+      "grading": "Authentic / Sahih"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-2",
+    "category": "morning",
+    "order": 2,
+    "title": "Al-Ikhlas",
+    "arabic": "قُلْ هُوَ ٱللَّهُ أَحَدٌ (1) ٱللَّهُ ٱلصَّمَدُ (2) لَمْ يَلِدْ وَلَمْ يُولَدْ (3) وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ (4)",
+    "transliteration": "qul huwa allahu ahad (1) allahu samad (2) lam yalid wa lam yulad (3) wa lam yakun lahu kufuwan ahad (4)",
+    "translation_en": "Say, \"He is Allah, [who is] One, (1) Allah, the Eternal Refuge. (2) He neither begets nor is born, (3) Nor is there to Him any equivalent.\" (4)",
+    "repeat": 3,
+    "virtue": "The Messenger of Allah, sallallahu 'alayhi wa sallam, said: Recite Qul huwallahu ahad, and Al-Mu'awwidhatayn (Al-Falaq and An-Nas) in the evening and morning three times, and it will suffice you (protect you) from everything.",
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud No. 4241",
+      "sunnah_url": "https://sunnah.com/abudawud:4241",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-3",
+    "category": "morning",
+    "order": 3,
+    "title": "Al-Falaq",
+    "arabic": "قُلْ أَعُوذُ بِرَبِّ ٱلْفَلَقِ (1) مِن شَرِّ مَا خَلَقَ (2) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (3) وَمِن شَرِّ ٱلنَّفَّٰثَٰتِ فِى ٱلْعُقَدِ (4) وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (5)",
+    "transliteration": "qul a'udhu birabbil-falaq (1) min sharri ma khalaq (2) wa min sharri ghasiqin idha waqab (3) wa min sharri naffathati fil-'uqad (4) wa min sharri hasidin idha hasad (5)",
+    "translation_en": "Say, \"I seek refuge in the Lord of daybreak (1) From the evil of that which He created (2) And from the evil of darkness when it settles (3) And from the evil of the blowers in knots (4) And from the evil of an envier when he envies.\" (5)",
+    "repeat": 3,
+    "virtue": "The Messenger of Allah, sallallahu 'alayhi wa sallam, said: Recite Qul huwallahu ahad, and Al-Mu'awwidhatayn (Al-Falaq and An-Nas) in the evening and morning three times, and it will suffice you (protect you) from everything.",
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud No. 4241",
+      "sunnah_url": "https://sunnah.com/abudawud:4241",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-4",
+    "category": "morning",
+    "order": 4,
+    "title": "An-Nas",
+    "arabic": "قُلْ أَعُوذُ بِرَبِّ ٱلنَّاسِ (1) مَلِكِ ٱلنَّاسِ (2) إِلَٰهِ ٱلنَّاسِ (3) مِن شَرِّ ٱلْوَسْوَاسِ ٱلْخَنَّاسِ (4) ٱلَّذِى يُوَسْوِسُ فِى صُدُورِ ٱلنَّاسِ (5) مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ (6)",
+    "transliteration": "qul a'udhu birabbin-nas (1) malikin-nas (2) ilahin-nas (3) min sharri al-waswasi al-khannas (4) alladhi yuwaswisu fi sudurin-nas (5) mina al-jinnati wan-nas (6)",
+    "translation_en": "Say, \"I seek refuge in the Lord of mankind, (1) The King of mankind. (2) The God of mankind, (3) From the evil of the whisperer who withdraws, (4) Who whispers in the breasts of mankind, (5) Of the jinn and mankind.\" (6)",
+    "repeat": 3,
+    "virtue": "The Messenger of Allah, sallallahu 'alayhi wa sallam, said: Recite Qul huwallahu ahad, and Al-Mu'awwidhatayn (Al-Falaq and An-Nas) in the evening and morning three times, and it will suffice you (protect you) from everything.",
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud No. 4241",
+      "sunnah_url": "https://sunnah.com/abudawud:4241",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-5",
+    "category": "morning",
+    "order": 5,
+    "title": "Upon Entering The Morning by Asking for Protection from Allah",
+    "arabic": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لاَ إِلَـهَ إِلاَّ اللهُ وَحْدَهُ لاَ شَرِيْكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيْرُ. رَبِّ أَسْأَلُكَ خَيْرَ مَا فِيْ هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوْذُ بِكَ مِنْ شَرِّ مَا فِيْ هَذَا الْيَوْمِ وَشَرِّ مَا بَعْدَهُ، رَبِّ أَعُوْذُ بِكَ مِنَ الْكَسَلِ وَسُوْءِ الْكِبَرِ، رَبِّ أَعُوْذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ",
+    "transliteration": "asbahna wa asbahal-mulku lillahi, wal-hamdu lillahi, la ilaha illa allah wahdahu la sharika lahu, lahu al-mulku wa lahu al-hamdu wa huwa 'ala kulli shay'in qadir. rabbi as'aluka khayra ma fi hadha al-yawm wa khayra ma ba'dahu, wa a'udhu bika min sharri ma fi hadha al-yawm wa sharri ma ba'dahu. rabbi a'udhu bika mina al-kasali wa su'il-kibar. rabbi a'udhu bika min 'adhabin fin-nar wa 'adhabin fil-qabr",
+    "translation_en": "We have entered the morning and the dominion belongs to Allah, and all praise is for Allah. There is no deity worthy of worship except Allah alone, He has no partner. To Him belongs the dominion and to Him is praise, and He is over all things competent. My Lord, I ask You for the good of this day and the good of what follows it, and I seek refuge in You from the evil of this day and the evil of what follows it. My Lord, I seek refuge in You from laziness and the evil of old age. My Lord, I seek refuge in You from the punishment of the Fire and the punishment of the grave.",
+    "repeat": 1,
+    "virtue": "Asking for protection from evil takes precedence, the rule that shows the importance of this is: \"Preventing harm is more important and takes precedence than bringing good\".",
+    "source": {
+      "book": "Hisn al-Muslim",
+      "hadith_reference": "Hisn al-Muslim 77; Sahih Muslim 2723",
+      "sunnah_url": "https://sunnah.com/hisn:77",
+      "grading": "Authentic / Sahih"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-6",
+    "category": "morning",
+    "order": 6,
+    "title": "Upon Entering The Morning with The Grace of Allah",
+    "arabic": "اَللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوْتُ وَإِلَيْكَ النُّشُوْرُ",
+    "transliteration": "allahumma bika asbahna, wa bika amsayna, wa bika nahya, wa bika namutu wa ilaykan-nushur",
+    "translation_en": "O Allah, with Your grace and help we enter the morning, and with Your grace and help we enter the evening. By Your grace and will we live and by Your grace and will we die. And to You is the resurrection (for all creatures).",
+    "repeat": 1,
+    "virtue": "Everything we do from morning to evening, from when we start our life until we die, is all under the control of Allah and to Him we return.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari in al-Adab al-Mufrad No. 1199, this wording is the wording of al-Bukhari, at-Tirmidzi No. 3391, Abu Dawud No. 5068, Ahmad 11/354, Ibn Majah No. 3868",
+      "sunnah_url": "https://sunnah.com/bukhari:1199",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-7",
+    "category": "morning",
+    "order": 7,
+    "title": "Sayyid al-Istighfar",
+    "arabic": "اَللَّهُمَّ أَنْتَ رَبِّيْ ، لَا إِلٰـهَ إِلاَّ أَنْتَ خَلَقْتَنِيْ وَأَنَا عَبْدُكَ ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ ، أَعُوْذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ ، أَبُوْءُ لَكَ بِنِعْمتِكَ عَلَيَّ ، وَأَبُوْءُ بِذَنْبِيْ فَاغْفِرْ لِيْ ، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلاَّ أَنْتَ",
+    "transliteration": "allahumma anta rabbi, la ilaha illa anta, khalaqtani wa ana 'abduka, wa ana 'ala 'ahdika wa wa'dika mastata'tu. a'udhu bika min sharri ma sana'tu, abu'u laka bini'matika 'alayya, wa abu'u bidhanbi faghfir li, fa innahu la yaghfirudh-dhunuba illa anta",
+    "translation_en": "O Allah, You are my Lord. There is no deity worthy of worship except You. You created me and I am Your servant. I will be true to my covenant and promise to You as much as I can. I seek refuge in You from the evil of what I have done. I acknowledge Your favor upon me and I acknowledge my sin, therefore, forgive me. Indeed, there is no one who can forgive sins except You.",
+    "repeat": 1,
+    "virtue": "Whoever reads it with confidence in the evening, then he dies, he will enter heaven, so also if (read) in the morning.",
+    "source": {
+      "book": "Hisn al-Muslim",
+      "hadith_reference": "Hisn al-Muslim 79; Sahih al-Bukhari 6306",
+      "sunnah_url": "https://sunnah.com/hisn:79",
+      "grading": "Authentic / Sahih"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-8",
+    "category": "morning",
+    "order": 8,
+    "title": "Dua for Protection and Good Health",
+    "arabic": "اَللَّهُمَّ عَافِنِيْ فِيْ بَدَنِيْ ، اَللَّهُمَّ عَافِنِيْ فِيْ سَمْعِيْ ، اَللَّهُمَّ عَافِنِيْ فِيْ بَصَرِيْ ، لَا إِلَـهَ إِلَّا أَنْتَ ، اَللَّهُمَّ إِنِّيْ أَعُوْذُ بِكَ مِنَ الْكُفْرِوَالْفَقْرِ ، وَأَعُوْذُ بِكَ مِنْ عَذَابِ الْقَبْرِ ، لَا إِلَـهَ إِلَّا أَنْتَ",
+    "transliteration": "allahumma 'afini fi badani, allahumma 'afini fi sam'i, allahumma 'afini fi basari, la ilaha illa anta. allahumma inni a'udhu bika minal-kufri wal-faqr, wa a'udhu bika min 'adhabil-qabr, la ilaha illa anta",
+    "translation_en": "O Allah, protect my body (from illness and from what I do not want). O Allah, protect my hearing (from illness and disobedience or from what I do not want). O Allah, protect my sight, there is no deity worthy of worship except You. O Allah, indeed I seek refuge in You from disbelief and poverty. I seek refuge in You from the punishment of the grave, there is no deity worthy of worship except You.",
+    "repeat": 1,
+    "virtue": "By asking Allah to grant us well-being in our body, we are asking to be cured from all physical and spritual ailments, so that we possess both a healthy body and a pure heart, and therefore use this healthy body in a way that pleases Allah.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari in Sahih al-Adab al-Mufrad No. 701, Abu Dawud No. 5090, Ahmad V/42, hasan",
+      "sunnah_url": "https://sunnah.com/bukhari:701",
+      "grading": "Hasan"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-9",
+    "category": "morning",
+    "order": 9,
+    "title": "Dua for Salvation in The World and Hereafter",
+    "arabic": "اَللَّهُمَّ إِنِّيْ أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَاْلآخِرَةِ، اَللَّهُمَّ إِنِّيْ أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِيْنِيْ وَدُنْيَايَ وَأَهْلِيْ وَمَالِيْ اللَّهُمَّ اسْتُرْ عَوْرَاتِى وَآمِنْ رَوْعَاتِى. اَللَّهُمَّ احْفَظْنِيْ مِنْ بَيْنِ يَدَيَّ، وَمِنْ خَلْفِيْ، وَعَنْ يَمِيْنِيْ وَعَنْ شِمَالِيْ، وَمِنْ فَوْقِيْ، وَأَعُوْذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِيْ",
+    "transliteration": "allahumma inni as'alukal-'afwa wal-'afiyah fid-dunya wal-akhirah. allahumma inni as'alukal-'afwa wal-'afiyah fi dini wa dunyaya wa ahli wa mali. allahummastur 'awrati wa amin raw'ati. allahummahfadhni min bayni yadayya, wa min khalfi, wa 'an yamini wa 'an shimali, wa min fawqi. wa a'udhu bi 'adhamatika an ughtala min tahti",
+    "translation_en": "O Allah, indeed I ask You for well-being and safety in this world and the Hereafter. O Allah, indeed I ask You for well-being and safety in my religion, my world, my family and my wealth. O Allah, cover my flaws (faults and things that are not appropriate for others to see) and calm me from fear. O Allah, protect me from the front, behind, right, left and above me. I seek refuge in Your greatness, so that I am not snatched from below me (by snakes or swallowed by the earth, etc., which would cause me to fall).",
+    "repeat": 1,
+    "virtue": "The Prophet sallallahu 'alayhi wa sallam never left this prayer in the morning and evening. It contains protection and safety for religion, the world, family and property from various kinds of disturbances that come from various directions.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari in al-Adab al-Mufrad No. 1200, Abu Dawud No. 5074, an-Nasa'i VII/282, Ibn Majah No. 3871, al-Hakim 1/517-518, and others from Ibn Umar radhiyallahu 'anhuma",
+      "sunnah_url": "https://sunnah.com/bukhari:1200",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-10",
+    "category": "morning",
+    "order": 10,
+    "title": "Dua for Protection from Shaytan Whispers",
+    "arabic": "اَللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ فَاطِرَ السَّمَاوَاتِ وَاْلأَرْضِ، رَبَّ كُلِّ شَيْءٍ وَمَلِيْكَهُ، أَشْهَدُ أَنْ لاَ إِلَـهَ إِلاَّ أَنْتَ، أَعُوْذُ بِكَ مِنْ شَرِّ نَفْسِيْ، وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِيْ سُوْءًا أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ",
+    "transliteration": "allahumma 'alimal-ghaybi wash-shahadati, fatiras-samawati wal-ard, rabbakulli shayin wa malikahu. ashhadu alla ilaha illa anta, a'udhu bika min sharri nafsi, wa min sharri ash-shaytani wa shirkih. wa an aqtarifa 'ala nafsi su'an aw ajurrahu ila muslim",
+    "translation_en": "O Allah, Knower of the unseen and the seen, Creator of the heavens and the earth, Lord of all things and their Sovereign. I bear witness that there is no deity worthy of worship except You. I seek refuge in You from the evil of myself, Satan and his soldiers (temptations to commit shirk against Allah), and I (seek refuge in You) from committing evil against myself or dragging it to a Muslim.",
+    "repeat": 1,
+    "virtue": "The Prophet Muhammad sallallahu 'alayhi wa sallam said to Abu Bakr ash-Shiddiq radhiyallahu 'anhu 'Say morning and evening and when you are going to sleep'.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari in al-Adab al-Mufrad No. 1202, at-Tirmidzi No. 3392 and Abu Dawud No. 5067",
+      "sunnah_url": "https://sunnah.com/bukhari:1202",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-11",
+    "category": "morning",
+    "order": 11,
+    "title": "Asking for Protection from All Harms",
+    "arabic": "بِسْمِ اللَّهِ الَّذِى لاَ يَضُرُّ مَعَ اسْمِهِ شَىْءٌ فِى الأَرْضِ وَلاَ فِى السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
+    "transliteration": "bismillahi alladhi la yadurru ma'asmihi shay'un fi'l-ard wa la fi's-sama'i, wa huwa as-sami'u al-'aleem",
+    "translation_en": "In the name of Allah with Whose name nothing can harm on earth or in heaven, and He is the All-Hearing, All-Knowing.",
+    "repeat": 3,
+    "virtue": "Whoever reads it three times in the morning and evening, then nothing will harm him.",
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. at-Tirmidzi No. 3388, Abu Dawud No. 5088, Ibn Majah No. 3869, al-Hakim 1/514, and Ahmad No. 446 and 474",
+      "sunnah_url": "https://sunnah.com/tirmidhi:3388",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-12",
+    "category": "morning",
+    "order": 12,
+    "title": "Declaration of Pleasure with Allah, Islam, and the Prophet Muhammad sallallahu 'alayhi wa sallam",
+    "arabic": "رَضِيْتُ بِاللهِ رَبًّا، وَبِاْلإِسْلاَمِ دِيْنًا، وَبِمُحَمَّدٍ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا",
+    "transliteration": "raditu billahi rabba, wa bil-islami dina, wa bi-muhammadin sallallahu 'alayhi wa sallama nabiyya",
+    "translation_en": "I am pleased with Allah as my Lord, Islam as my religion and Muhammad sallallahu 'alayhi wa sallam as my Prophet (sent by Allah).",
+    "repeat": 3,
+    "virtue": "Whoever reads it three times in the morning and evening, Allah will give His pleasure to him and the Day of Judgment.",
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. Ahmad IV/337, Abu Dawud No. 5072, at-Tirmidzi No. 3389, Ibn Majah No. 3870, an-Nasa'i in 'Amalul Yaum wal Lailah No. 4 and Ibnus Sunni No. 68",
+      "sunnah_url": "https://sunnah.com/tirmidhi:337",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-13",
+    "category": "morning",
+    "order": 13,
+    "title": "Asking Allah for Guidance",
+    "arabic": "يَا حَيُّ يَا قَيُّوْمُ بِرَحْمَتِكَ أَسْتَغِيْثُ، وَأَصْلِحْ لِيْ شَأْنِيْ كُلَّهُ وَلاَ تَكِلْنِيْ إِلَى نَفْسِيْ طَرْفَةَ عَيْنٍ أَبَدًا",
+    "transliteration": "ya hayyu ya qayyum, bi rahmatika astaghith. wa aslih li sha'ni kullahu wa la takilni ila nafsi tarfata 'aynin abada",
+    "translation_en": "O Ever-Living, O Self-Sustaining, by Your mercy I seek help, rectify all my affairs and do not leave me to myself even for the blink of an eye.",
+    "repeat": 1,
+    "virtue": "The meaning of this prayer is that humans really need Allah and pray that Allah will not leave him even for a moment.",
+    "source": {
+      "book": "Sunan an-Nasa'i",
+      "hadith_reference": "HR. an-Nasa'i in 'Amalul Yaum wal Lailah No. 575, and al-Hakim 1/545, Sahih at-Targhib wat Tarhib 1/417 No. 661, As-Sahihah No. 227, hasan",
+      "grading": "Hasan"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-14",
+    "category": "morning",
+    "order": 14,
+    "title": "Entering The Morning Upon The Natural Religion of Islam",
+    "arabic": "أَصْبَحْنَا عَلَى فِطْرَةِ اْلإِسْلاَمِ وَعَلَى كَلِمَةِ اْلإِخْلاَصِ، وَعَلَى دِيْنِ نَبِيِّنَا مُحَمَّدٍ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ، وَعَلَى مِلَّةِ أَبِيْنَا إِبْرَاهِيْمَ، حَنِيْفًا مُسْلِمًا وَمَا كَانَ مِنَ الْمُشْرِكِيْنَ",
+    "transliteration": "asbahna 'ala fitratil-islam wa 'ala kalimatil-ikhlas, wa 'ala dini nabiyyina muhammadin sallallahu 'alayhi wa sallam, wa 'ala millati abina ibrahima hanifan musliman wa ma kana minal-mushrikin",
+    "translation_en": "In the morning we are upon the fitrah of Islam, the word of sincerity (the testimony of faith), the religion of our Prophet Muhammad, sallallahu 'alayhi wa sallam, and the religion of our father Abraham, who stood upon the straight path, a Muslim, and was not among the polytheists.",
+    "repeat": 1,
+    "virtue": "'Fitratil Islam' means above the sunnah, 'kalimatil Ikhlas' means the Shahada and 'hanifan' means the heart is inclined to the straight path and goodness.",
+    "source": {
+      "book": "Musnad Ahmad",
+      "hadith_reference": "HR. Ahmad III/406, 407, ad-Darimi II/292 and Ibnus Sunni in Amalul Yaum wal Lailah No. 34, Mishkat al-Masabih No. 2415, Sahih al-Jami' as-Saghir No. 4674, sahih",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-15",
+    "category": "morning",
+    "order": 15,
+    "title": "Tawheed Dhikr",
+    "arabic": "لاَ إِلَـهَ إِلاَّ اللهُ وَحْدَهُ لاَ شَرِيْكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيْرُ",
+    "transliteration": "la ilaha illa allah wahdahu la sharika lah, lahul-mulku wa lahul-hamdu wa huwa 'ala kulli shay'in qadir",
+    "translation_en": "There is no deity worthy of worship except Allah alone, He has no partner. To Him belongs the dominion and all praise. And He is over all things competent.",
+    "repeat": 1,
+    "virtue": "Whoever reads it 100 times a day, then for him (the reward) is like freeing ten slaves, writing a hundred good things, removing a hundred bad things from him, getting protection from the devil that day until the evening. It is not that a person can bring better than what he brought unless he did more than that.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR al-Bukhari No. 3293 and 6403, Muslim IV/2071 No. 2691 (28), at-Tirmidzi No. 3468, Ibn Majah No. 3798",
+      "sunnah_url": "https://sunnah.com/bukhari:3293",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-16",
+    "category": "morning",
+    "order": 16,
+    "title": "Read Tasbih",
+    "arabic": "سُبْحَانَ اللهِ وَبِحَمْدِهِ عَدَدَ خَلْقَهِ وَرِضَى نَفْسِهِ وَزِنَةَ عَرْشِهِ وَمِدَادَ كَلِمَاتِهِ",
+    "transliteration": "subhanallahi wa bihamdihi 'adada khalqihi wa rida nafsihi wa zinata 'arshihi wa midada kalimatihi",
+    "translation_en": "Glory to Allah, I praise Him as many as the number of His creatures, Glory to Allah according to His pleasure, as pure as the weight of His Throne, and as pure as the ink (which writes) His words.",
+    "repeat": 3,
+    "virtue": "The Prophet, sallallahu 'alayhi wa sallam, told Juwairiyah that the dhikr above has surpassed the dhikr recited by Juwairiyah from after Fajr until Dhuha time.",
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim No. 2726. Sharh Muslim XVII/44. From Juwairiyah binti al-Harits radhiyallahu 'anhuma",
+      "sunnah_url": "https://sunnah.com/muslim:2726",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-17",
+    "category": "morning",
+    "order": 17,
+    "title": "Dua for Useful Knowledge, Good Sustenance, and Accepted Deeds",
+    "arabic": "اللَّهُمَّ إِنِّى أَسْأَلُكَ عِلْمًا نَافِعًا وَرِزْقًا طَيِّبًا وَعَمَلاً مُتَقَبَّلاً",
+    "transliteration": "allahumma inni as'aluka 'ilman nafi'an, wa rizqan tayyiban, wa 'amalan mutaqabbalan",
+    "translation_en": "O Allah, I really ask You for knowledge that is beneficial, sustenance that is lawful, and deeds that are accepted.",
+    "repeat": 1,
+    "virtue": "This prayer is recommended in the morning because morning time has more privileges and blessings. As the words of Rasulullah sallallahu 'alayhi wa sallam \"O Allah, bless my people in the morning\".",
+    "source": {
+      "book": "Sunan Ibn Majah",
+      "hadith_reference": "HR. Ibnu Majah No. 925, Sahih Ibni Majah 1/152 No. 753 Ibnus Sunni in 'Amalul Yaum wal Lailah No. 54, 110, and Ahmad VI/294, 305, 318, 322. From Ummu Salamah, sahih",
+      "sunnah_url": "https://sunnah.com/ibnmajah:925",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-18",
+    "category": "morning",
+    "order": 18,
+    "title": "Daily Tasbih and Tahmid",
+    "arabic": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ",
+    "transliteration": "subhanallah wa bihamdihi",
+    "translation_en": "Glory be to Allah, I praise Him.",
+    "repeat": 100,
+    "virtue": "Whoever says the phrase 'subhanallah wa bi hamdih' in the morning and evening 100 times, then no one will come on the Day of Judgement that is better than what he did except the person who said something like or more thant that.",
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim No. 2691 and No. 2692, from Abu Hurairah radhiyallahu 'anhu Sharh Muslim XVII/17-18, Sahih at-Targhib wat Tarhib 1/413 No. 653",
+      "sunnah_url": "https://sunnah.com/muslim:2691",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "morning-19",
+    "category": "morning",
+    "order": 19,
+    "title": "Istighfar 100x a Day",
+    "arabic": "أَسْتَغْفِرُ الله وَأَتُوْبُ إِلَيْهِ",
+    "transliteration": "astaghfirullah wa atubu ilayh",
+    "translation_en": "I seek forgiveness from Allah and repent to Him.",
+    "repeat": 100,
+    "virtue": "Ibn 'Umar said: The Messenger of Allah, sallallahu 'alayhi wa sallam, said: 'O people, repent to Allah, for indeed I repent to Him one hundred times a day'.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari/Fat-hul Baari XI/101 and Muslim No. 2702",
+      "sunnah_url": "https://sunnah.com/bukhari:101",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-1",
+    "category": "evening",
+    "order": 1,
+    "title": "Ayat al-Kursi",
+    "arabic": "ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ ۚ لَا تَأْخُذُهُۥ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُۥ مَا فِى ٱلسَّمَٰوَٰتِ وَمَا فِى ٱلْأَرْضِ ۗ مَن ذَا ٱلَّذِى يَشْفَعُ عِندَهُۥٓ إِلَّا بِإِذْنِهِۦ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَىْءٍ مِّنْ عِلْمِهِۦٓ إِلَّا بِمَا شَآءَ ۚ وَسِعَ كُرْسِيُّهُ ٱلسَّمَٰوَٰتِ وَٱلْأَرْضَ ۖ وَلَا يَـُٔودُهُۥ حِفْظُهُمَا ۚ وَهُوَ ٱلْعَلِىُّ ٱلْعَظِيمُ",
+    "transliteration": "allahu la ilaha illa huwa, al-hayyul-qayyum. la ta'khudhuhu sinatun wa la nawm. lahu ma fis-samawati wa ma fil-ard. man dhal-ladhi yashfa'u 'indahu illa bi-idhnihi. ya'lamu ma bayna aydihim wa ma khalfahum. wa la yuhituna bishay'in min 'ilmihi illa bima sha'. wa si'a kursiyyuhu as-samawati wal-ard. wa la ya'udu-hu hifdhuhuma. wa huwa al-'aliyyul-'azim",
+    "translation_en": "Allah - there is no deity except Him, the Ever-Living, the Sustainer of [all] existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is [presently] before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great.",
+    "repeat": 1,
+    "source": {
+      "book": "Hisn al-Muslim",
+      "hadith_reference": "Hisn al-Muslim 75; Jami` at-Tirmidhi 2879",
+      "sunnah_url": "https://sunnah.com/hisn:75",
+      "grading": "Authentic / Sahih"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-2",
+    "category": "evening",
+    "order": 2,
+    "title": "Al-Ikhlas",
+    "arabic": "قُلْ هُوَ ٱللَّهُ أَحَدٌ (1) ٱللَّهُ ٱلصَّمَدُ (2) لَمْ يَلِدْ وَلَمْ يُولَدْ (3) وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ (4)",
+    "transliteration": "qul huwa allahu ahad (1) allahu samad (2) lam yalid wa lam yulad (3) wa lam yakun lahu kufuwan ahad (4)",
+    "translation_en": "Say, \"He is Allah , [who is] One, (1) Allah , the Eternal Refuge. (2) He neither begets nor is born, (3) Nor is there to Him any equivalent.\" (4)",
+    "repeat": 3,
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud No. 4241",
+      "sunnah_url": "https://sunnah.com/abudawud:4241",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-3",
+    "category": "evening",
+    "order": 3,
+    "title": "Al-Falaq",
+    "arabic": "قُلْ أَعُوذُ بِرَبِّ ٱلْفَلَقِ (1) مِن شَرِّ مَا خَلَقَ (2) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (3) وَمِن شَرِّ ٱلنَّفَّٰثَٰتِ فِى ٱلْعُقَدِ (4) وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (5)",
+    "transliteration": "qul a'udhu birabbil-falaq (1) min sharri ma khalaq (2) wa min sharri ghasiqin idha waqab (3) wa min sharri naffathati fil-'uqad (4) wa min sharri hasidin idha hasad (5)",
+    "translation_en": "Say, \"I seek refuge in the Lord of daybreak (1) From the evil of that which He created (2) And from the evil of darkness when it settles (3) And from the evil of the blowers in knots (4) And from the evil of an envier when he envies.\" (5)",
+    "repeat": 3,
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud No. 4241",
+      "sunnah_url": "https://sunnah.com/abudawud:4241",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-4",
+    "category": "evening",
+    "order": 4,
+    "title": "An-Nas",
+    "arabic": "قُلْ أَعُوذُ بِرَبِّ ٱلنَّاسِ (1) مَلِكِ ٱلنَّاسِ (2) إِلَٰهِ ٱلنَّاسِ (3) مِن شَرِّ ٱلْوَسْوَاسِ ٱلْخَنَّاسِ (4) ٱلَّذِى يُوَسْوِسُ فِى صُدُورِ ٱلنَّاسِ (5) مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ (6)",
+    "transliteration": "qul a'udhu birabbin-nas (1) malikin-nas (2) ilahin-nas (3) min sharri al-waswasi al-khannas (4) alladhi yuwaswisu fi sudurin-nas (5) mina al-jinnati wan-nas (6)",
+    "translation_en": "Say, \"I seek refuge in the Lord of mankind, (1) The King of mankind. (2) The God of mankind, (3) From the evil of the whisperer who withdraws, (4) Who whispers in the breasts of mankind, (5) Of the jinn and mankind.\" (6)",
+    "repeat": 3,
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud No. 4241",
+      "sunnah_url": "https://sunnah.com/abudawud:4241",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-5",
+    "category": "evening",
+    "order": 5,
+    "title": "Entering the Evening in the Kingdom of Allah and Seeking His Protection",
+    "arabic": "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ للهِ، وَالْحَمْدُ للهِ، لَا إِلَهَ إِلاَّ اللهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُبِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ مَا بَعْدَهَا، رَبِّ أَعُوذُبِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُبِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ",
+    "transliteration": "amsayna wa amsal-mulku lillahi wal-hamdu lillahi, la ilaha illa allah wahdahu la sharika lahu, lahu al-mulku wa lahu al-hamdu wa huwa 'ala kulli shay'in qadir. rabbi as'aluka khayra ma fi hadhihil-laylah wa khayra ma ba'daha, wa a'udhu bika min sharri ma fi hadhihil-laylah wa sharri ma ba'daha. rabbi a'udhu bika mina al-kasali wa su'il-kibar. rabbi a'udhu bika min 'adhabin fin-nar wa 'adhabin fil-qabr",
+    "translation_en": "We have entered the evening and the dominion belongs to Allah, and all praise is for Allah. There is no deity worthy of worship except Allah alone, He has no partner. To Him belongs the dominion and to Him is praise, and He is over all things competent. My Lord, I ask You for the good of this night and the good of what follows it, and I seek refuge in You from the evil of this night and the evil of what follows it. My Lord, I seek refuge in You from laziness and the evil of old age. My Lord, I seek refuge in You from the punishment of the Fire and the punishment of the grave.",
+    "repeat": 1,
+    "virtue": "The Prophet ﷺ would recite this supplication at the beginning of the evening [Muslim]. It reminds us that the world oscillates between night and day only through Allah's power and absolute control — all praise is due to Him alone. We ask for protection from laziness and old age, and implore our Lord to save us from the difficulty of the two most consequential transitions of our existence: the day we are buried and the day we face the results of our deeds.",
+    "source": {
+      "book": "Hisn al-Muslim",
+      "hadith_reference": "Hisn al-Muslim 77; Sahih Muslim 2723",
+      "sunnah_url": "https://sunnah.com/hisn:77",
+      "grading": "Authentic / Sahih"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-6",
+    "category": "evening",
+    "order": 6,
+    "title": "Entering the Evening by Seeking Allah's Mercy",
+    "arabic": "اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا،وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ الْمَصِيْرُ",
+    "transliteration": "allahumma bika amsayna, wa bika asbahna, wa bika nahya, wa bika namutu wa ilayka al-masir",
+    "translation_en": "O Allah, by Your grace and help we have entered the evening, and by Your grace and help we enter the morning. By Your grace and help we live and by Your will we die. And to You is the final return (of all creatures).",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari in al-Adab al-Mufrad No. 1199, this wording is the wording of al-Bukhari at-Tirmidzi No. 3391, Abu Dawud No. 5068, Ahmad 11/354, Ibn Majah No. 3868",
+      "sunnah_url": "https://sunnah.com/bukhari:1199",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-7",
+    "category": "evening",
+    "order": 7,
+    "title": "The Master of Seeking Forgiveness",
+    "arabic": "اَللَّهُمَّ أَنْتَ رَبِّيْ ، لَا إِلٰـهَ إِلاَّ أَنْتَ خَلَقْتَنِيْ وَأَنَا عَبْدُكَ ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ ، أَعُوْذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ ، أَبُوْءُ لَكَ بِنِعْمتِكَ عَلَيَّ ، وَأَبُوْءُ بِذَنْبِيْ فَاغْفِرْ لِيْ ، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلاَّ أَنْتَ",
+    "transliteration": "allahumma anta rabbi la ilaha illa anta khalaqtani wa ana 'abduka wa ana 'ala 'ahdika wa wa'dika mastata'tu a'udhu bika min sharri ma sana'tu abu'u laka bini'matika 'alayya wa abu'u bidhanbi faghfir li fa innahu la yaghfirudh-dhunuba illa anta",
+    "translation_en": "O Allah, You are my Lord, there is no deity worthy of worship except You, You created me and I am Your servant. I will be true to my covenant and promise to You as much as I can. I seek refuge in You from the evil of what I have done. I acknowledge Your favor upon me and I acknowledge my sin, therefore, forgive me. Indeed, there is no one who can forgive sins except You.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari No. 6306, 6323, Ahmad IV/122-125, an-Nasa'i VIII/279-280",
+      "sunnah_url": "https://sunnah.com/bukhari:6306",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-8",
+    "category": "evening",
+    "order": 8,
+    "title": "Prayer for Health and Protection",
+    "arabic": "اَللَّهُمَّ عَافِنِيْ فِيْ بَدَنِيْ ، اَللَّهُمَّ عَافِنِيْ فِيْ سَمْعِيْ ، اَللَّهُمَّ عَافِنِيْ فِيْ بَصَرِيْ ، لَا إِلَـهَ إِلَّا أَنْتَ ، اَللَّهُمَّ إِنِّيْ أَعُوْذُ بِكَ مِنَ الْكُفْرِوَالْفَقْرِ ، وَأَعُوْذُ بِكَ مِنْ عَذَابِ الْقَبْرِ ، لَا إِلَـهَ إِلَّا أَنْتَ",
+    "transliteration": "allahumma 'afini fi badani, allahumma 'afini fi sam'i, allahumma 'afini fi basari, la ilaha illa anta. allahumma inni a'udhu bika minal-kufri wal-faqr, allahumma inni a'udhu bika min 'adhabil-qabr, la ilaha illa anta",
+    "translation_en": "O Allah, protect my body (from illness and from what I do not want). O Allah, protect my hearing (from illness and disobedience or from what I do not want). O Allah, protect my sight, there is no deity worthy of worship except You. O Allah, indeed I seek refuge in You from disbelief and poverty. I seek refuge in You from the punishment of the grave, there is no deity worthy of worship except You.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari in Sahih al-Adab al-Mufrad No. 701, Abu Dawud No. 5090, Ahmad V/42, hasan",
+      "sunnah_url": "https://sunnah.com/bukhari:701",
+      "grading": "Hasan"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-9",
+    "category": "evening",
+    "order": 9,
+    "title": "Prayer for Safety in This World and the Hereafter",
+    "arabic": "اَللَّهُمَّ إِنِّيْ أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَاْلآخِرَةِ، اَللَّهُمَّ إِنِّيْ أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِيْنِيْ وَدُنْيَايَ وَأَهْلِيْ وَمَالِيْ اللَّهُمَّ اسْتُرْ عَوْرَاتِى وَآمِنْ رَوْعَاتِى. اَللَّهُمَّ احْفَظْنِيْ مِنْ بَيْنِ يَدَيَّ، وَمِنْ خَلْفِيْ، وَعَنْ يَمِيْنِيْ وَعَنْ شِمَالِيْ، وَمِنْ فَوْقِيْ، وَأَعُوْذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِيْ",
+    "transliteration": "allahumma inni as'alukal-'afwa wal-'afiyah fid-dunya wal-akhirah. allahumma inni as'alukal-'afwa wal-'afiyah fi dini wa dunyaya wa ahli wa mali. allahummastur 'awrati wa amin raw'ati. allahummahfadhni min bayni yadayya wa min khalfi wa 'an yamini wa 'an shimali wa min fawqi wa a'udhu bi 'adhamatika an ughtala min tahti",
+    "translation_en": "O Allah, indeed I ask You for well-being and safety in this world and the Hereafter. O Allah, indeed I ask You for well-being and safety in my religion, my world, my family and my wealth. O Allah, cover my flaws (faults and things that are not appropriate for others to see) and calm me from fear. O Allah, protect me from the front, behind, right, left and above me. I seek refuge in Your greatness, so that I am not snatched from below me (by snakes or swallowed by the earth, etc., which would cause me to fall).",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari in al-Adab al-Mufrad No. 1200, Abu Dawud No. 5074, an-Nasa'i VII/282, Ibn Majah No. 3871, al-Hakim 1/517-518, and others from Ibn Umar radhiyallahu 'anhuma",
+      "sunnah_url": "https://sunnah.com/bukhari:1200",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-10",
+    "category": "evening",
+    "order": 10,
+    "title": "Prayer for Seeking Protection from the Whispers of Satan",
+    "arabic": "اَللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ فَاطِرَ السَّمَاوَاتِ وَاْلأَرْضِ، رَبَّ كُلِّ شَيْءٍ وَمَلِيْكَهُ، أَشْهَدُ أَنْ لاَ إِلَـهَ إِلاَّ أَنْتَ، أَعُوْذُ بِكَ مِنْ شَرِّ نَفْسِيْ، وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِيْ سُوْءًا أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ",
+    "transliteration": "allahumma 'alimal-ghaybi wash-shahadati, fatiras-samawati wal-ard, rabbakulli shayin wa malikahu. ashhadu alla ilaha illa anta, a'udhu bika min sharri nafsi, wa min sharri ash-shaytani wa shirkih. wa an aqtarifa 'ala nafsi su'an aw ajurrahu ila muslim",
+    "translation_en": "O Allah, Knower of the unseen and the seen, Creator of the heavens and the earth, Lord of all things and their Sovereign. I bear witness that there is no deity worthy of worship except You. I seek refuge in You from the evil of myself, Satan and his soldiers (temptations to commit shirk against Allah), and I (seek refuge in You) from committing evil against myself or dragging it to a Muslim.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari in al-Adab al-Mufrad No. 1202, at-Tirmidzi No. 3392 and Abu Dawud No. 5067",
+      "sunnah_url": "https://sunnah.com/bukhari:1202",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-11",
+    "category": "evening",
+    "order": 11,
+    "title": "Remembrance to Be Protected from All Dangers",
+    "arabic": "بِسْمِ اللَّهِ الَّذِى لاَ يَضُرُّ مَعَ اسْمِهِ شَىْءٌ فِى الأَرْضِ وَلاَ فِى السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
+    "transliteration": "bismillahilladhi la yadurru ma'asmihi shay'un fil-ardi wa la fis-sama' wa huwas-sami'ul-'alim",
+    "translation_en": "In the name of Allah, with whose name nothing in the earth or the heavens can cause harm, and He is the All-Hearing, the All-Knowing.",
+    "repeat": 3,
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. at-Tirmidzi No. 3388, Abu Dawud No. 5088, Ibn Majah No. 3869, al-Hakim 1/514, and Ahmad No. 446 and 474",
+      "sunnah_url": "https://sunnah.com/tirmidhi:3388",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-12",
+    "category": "evening",
+    "order": 12,
+    "title": "Declaration of Contentment with Allah, Islam, and the Prophet Muhammad sallallahu 'alayhi wa sallam",
+    "arabic": "رَضِيْتُ بِاللهِ رَبًّا، وَبِاْلإِسْلاَمِ دِيْنًا، وَبِمُحَمَّدٍ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا",
+    "transliteration": "raditu billahi rabba, wa bil-islami dina, wa bi-muhammadin sallallahu 'alayhi wa sallama nabiyya",
+    "translation_en": "I am pleased with Allah as my Lord, Islam as my religion, and Muhammad, sallallahu 'alayhi wa sallam, as my Prophet.",
+    "repeat": 3,
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. Ahmad IV/337, Abu Dawud No. 5072, at-Tirmidzi No. 3389, Ibn Majah No. 3870, an-Nasa'i in 'Amalul Yaum wal Lailah No. 4 and Ibnus Sunni No. 68",
+      "sunnah_url": "https://sunnah.com/tirmidhi:337",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-13",
+    "category": "evening",
+    "order": 13,
+    "title": " Asking for Guidance from Allah",
+    "arabic": "يَا حَيُّ يَا قَيُّوْمُ بِرَحْمَتِكَ أَسْتَغِيْثُ، وَأَصْلِحْ لِيْ شَأْنِيْ كُلَّهُ وَلاَ تَكِلْنِيْ إِلَى نَفْسِيْ طَرْفَةَ عَيْنٍ أَبَدًا",
+    "transliteration": "ya hayyu ya qayyum, bi-rahmatika astaghith, wa aslih li sha'ni kullahu wa la takilni ila nafsi tarfata 'aynin abada",
+    "translation_en": "O Ever-Living, O Self-Sustaining, by Your mercy I seek help, rectify all my affairs and do not leave me to myself even for the blink of an eye.",
+    "repeat": 1,
+    "source": {
+      "book": "Sunan an-Nasa'i",
+      "hadith_reference": "HR. an-Nasa'i in 'Amalul Yaum wal Lailah No. 575, and al-Hakim 1/545, see Sahih at-Targhib wat Tarhib 1/417 No. 661, As-Sahihah No. 227, hasan",
+      "grading": "Hasan"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-14",
+    "category": "evening",
+    "order": 14,
+    "title": "Entering the Evening on the Natural Disposition of Islam",
+    "arabic": "أَمْسَيْنَا عَلَى فِطْرَةِ اْلإِسْلاَمِ وَعَلَى كَلِمَةِ اْلإِخْلاَصِ، وَعَلَى دِيْنِ نَبِيِّنَا مُحَمَّدٍ صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ، وَعَلَى مِلَّةِ أَبِيْنَا إِبْرَاهِيْمَ، حَنِيْفًا مُسْلِمًا وَمَا كَانَ مِنَ الْمُشْرِكِيْنَ",
+    "transliteration": "amsayna 'ala fitratil-islam wa 'ala kalimatil-ikhlas, wa 'ala dini nabiyyina muhammadin sallallahu 'alayhi wa sallam, wa 'ala millati abina ibrahima hanifan musliman wa ma kana minal-mushrikin",
+    "translation_en": "In the evening we are upon the fitrah of Islam, the word of sincerity (the testimony of faith), the religion of our Prophet Muhammad, sallallahu 'alayhi wa sallam, and the religion of our father Abraham, who stood upon the straight path, a Muslim, and was not among the polytheists.",
+    "repeat": 1,
+    "source": {
+      "book": "Musnad Ahmad",
+      "hadith_reference": "HR. Ahmad III/406, 407, ad-Darimi II/292 and Ibnus Sunni in Amalul Yaum wal Lailah No. 34, Mishkat al-Masabih No. 2415, Sahih al-Jami' as-Saghir No. 4674, sahih",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-15",
+    "category": "evening",
+    "order": 15,
+    "title": "Remembrance of the Oneness of Allah",
+    "arabic": "لاَ إِلَـهَ إِلاَّ اللهُ وَحْدَهُ لاَ شَرِيْكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيْرُ",
+    "transliteration": "la ilaha illa allah wahdahu la sharika lah, lahul-mulku wa lahul-hamdu wa huwa 'ala kulli shay'in qadir",
+    "translation_en": "There is no deity worthy of worship except Allah alone, He has no partner. To Him belongs the dominion and all praise. He is over all things competent.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR al-Bukhari No. 3293 and 6403, Muslim IV/2071 No. 2691 (28), at-Tirmidzi No. 3468, Ibn Majah No. 3798",
+      "sunnah_url": "https://sunnah.com/bukhari:3293",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-16",
+    "category": "evening",
+    "order": 16,
+    "title": "Reciting Praise to Allah",
+    "arabic": "سُبْحَانَ اللهِ وَبِحَمْدِهِ عَدَدَ خَلْقَهِ وَرِضَى نَفْسِهِ وَزِنَةَ عَرْشِهِ وَمِدَادَ كَلِمَاتِهِ",
+    "transliteration": "subhanallahi wa bihamdihi 'adada khalqihi wa rida nafsihi wa zinata 'arshihi wa midada kalimatihi",
+    "translation_en": "Glory be to Allah, as many as His creations, Glory be to Allah as much as His pleasure, Glory be to Allah as much as the weight of His Throne, and as much as the ink of His written words.",
+    "repeat": 3,
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim No. 2726. Sharh Muslim XVII/44. From Juwairiyah bint al-Harith radhiyallahu 'anha",
+      "sunnah_url": "https://sunnah.com/muslim:2726",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-17",
+    "category": "evening",
+    "order": 17,
+    "title": "Daily Praise (Tasbih and Alhamdulillah)",
+    "arabic": "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ",
+    "transliteration": "subhanallahi wa bihamdihi",
+    "translation_en": "Glory be to Allah, and praise be to Him.",
+    "repeat": 100,
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim No. 2691 and No. 2692, from Abu Hurairah radhiyallahu 'anhu Sharh Muslim XVII/17-18, Sahih at-Targhib wat Tarhib 1/413 No. 653",
+      "sunnah_url": "https://sunnah.com/muslim:2691",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-18",
+    "category": "evening",
+    "order": 18,
+    "title": "Seeking Forgiveness 100 Times a Day",
+    "arabic": "أَسْتَغْفِرُ الله وَأَتُوْبُ إِلَيْهِ",
+    "transliteration": "astaghfirullah wa atubu ilayh",
+    "translation_en": "I seek forgiveness from Allah and repent to Him.",
+    "repeat": 100,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari/Fat-hul Baari XI/101 and Muslim No. 2702",
+      "sunnah_url": "https://sunnah.com/bukhari:101",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "evening-19",
+    "category": "evening",
+    "order": 19,
+    "title": "Prayer for Protection from the Evil of Allah's Creation",
+    "arabic": "أَعُوْذُ بِكَلِمَاتِ اللهِ التَّآمَّاتِ مِنْ شَرِّ مَا خَلَقَ",
+    "transliteration": "a'udhu bikalimatillahit-tammati min sharri ma khalaq",
+    "translation_en": "I seek refuge in the perfect words of Allah from the evil of what He has created.",
+    "repeat": 3,
+    "source": {
+      "book": "Sunan an-Nasa'i",
+      "hadith_reference": "HR. Ahmad 11/290, an-Nasa'i in 'Amalul Yaum wal Lailah No. 596, Sahih at-Targhib wat Tarhib 1/412 No. 652, Sahih al-Jami' as-Saghir No. 6427",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "after-salah-1",
+    "category": "after-salah",
+    "order": 1,
+    "title": "Istighfar",
+    "arabic": "أَسْتَغْفِرُ اللَّهَ",
+    "transliteration": "astaghfirullah",
+    "translation_en": "I seek forgiveness from Allah.",
+    "repeat": 3,
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim No. 591",
+      "sunnah_url": "https://sunnah.com/muslim:591",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "after-salah-2",
+    "category": "after-salah",
+    "order": 2,
+    "title": "Allah, The Giver of Peace",
+    "arabic": "اَللَّهُمَّ أَنْتَ السَّلاَمُ، وَمِنْكَ السَّلاَمُ، تَبَارَكْتَ يَا ذَا الْجَلاَلِ وَاْلإِكْرَامِ",
+    "transliteration": "allahumma antas-salam wa minkas-salam tabarakta ya dhal-jalali wal-ikram",
+    "translation_en": "O Allah, You are Peace, and from You is peace. Blessed are You, O Possessor of majesty and honor.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim No. 591",
+      "sunnah_url": "https://sunnah.com/muslim:591",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "after-salah-3",
+    "category": "after-salah",
+    "order": 3,
+    "title": "Allah, The Preventer and The Giver of All Things",
+    "arabic": "لاَ إِلَـهَ إِلاَّ اللهُ وَحْدَهُ لاَ شَرِيْكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيْرُ، اَللَّهُمَّ لاَ مَانِعَ لِمَا أَعْطَيْتَ، وَلاَ مُعْطِيَ لِمَا مَنَعْتَ، وَلاَ يَنْفَعُ ذَا الْجَدِّ مِنْكَ الْجَدُّ",
+    "transliteration": "la ilaha illa allah wahdahu la sharika lah, lahul-mulku wa lahul-hamdu wa huwa 'ala kulli shay'in qadir. allahumma la mani'a lima a'tayta wa la mu'tiya lima mana'ta wa la yanfa'u dhal-jaddi minkal-jaddu",
+    "translation_en": "There is no deity worthy of worship except Allah alone, He has no partner. To Him belongs dominion and praise, and He is over all things competent. O Allah, there is no preventer of what You give, and no giver of what You withhold, and wealth and honor do not benefit their possessor (except faith and righteous deeds that save from punishment). Only from You is wealth and honor.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. Bukhari No. 844 and Muslim No. 593",
+      "sunnah_url": "https://sunnah.com/bukhari:844",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "after-salah-4",
+    "category": "after-salah",
+    "order": 4,
+    "title": "Allah, The Possessor of All and The Only One Worthy of Worship",
+    "arabic": "لاَ إِلَـهَ إِلاَّ اللهُ وَحْدَهُ لاَ شَرِيْكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيْرُ. لاَ حَوْلَ وَلاَ قُوَّةَ إِلاَّ بِاللهِ، لاَ إِلَـهَ إِلاَّ اللهُ، وَلاَ نَعْبُدُ إِلاَّ إِيَّاهُ، لَهُ النِّعْمَةُ وَلَهُ الْفَضْلُ وَلَهُ الثَّنَاءُ الْحَسَنُ، لاَ إِلَـهَ إِلاَّ اللهُ مُخْلِصِيْنَ لَهُ الدِّيْنَ وَلَوْ كَرِهَ الْكَافِرُوْنَ",
+    "transliteration": "la ilaha illa allah wahdahu la sharika lah. lahul-mulku wa lahul-hamdu wa huwa 'ala kulli shay'in qadir. la hawla wa la quwwata illa billah. la ilaha illa allah wa la na'budu illa iyyah. lahun-ni'mah wa lahul-fadl wa lahuth-thana'ul-hasan. la ilaha illa allah mukhlisina lahud-dina wa law karihal-kafirun",
+    "translation_en": "There is no deity worthy of worship except Allah alone, He has no partner. To Him belongs dominion and praise, and He is over all things competent. There is no power and no strength except by Allah. There is no deity worthy of worship except Allah, and we do not worship except Him. To Him belongs all favor, grace, and good praise. There is no deity worthy of worship except Allah, making our religion sincerely for Him, even if the disbelievers dislike it.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim No. 594",
+      "sunnah_url": "https://sunnah.com/muslim:594",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "after-salah-5",
+    "category": "after-salah",
+    "order": 5,
+    "title": "Tasbih",
+    "arabic": "سُبْحَانَ اللهِ",
+    "transliteration": "subhanallah",
+    "translation_en": "Glory be to Allah",
+    "repeat": 33,
+    "source": {
+      "book": "Hadith Collection",
+      "hadith_reference": "Fortress of the Muslim (Hisn al-Muslim)",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "after-salah-6",
+    "category": "after-salah",
+    "order": 6,
+    "title": "Tahmid",
+    "arabic": "الْحَمْدُ لِلَّهِ",
+    "transliteration": "alhamdulillah",
+    "translation_en": "All praise is for Allah",
+    "repeat": 33,
+    "source": {
+      "book": "Hadith Collection",
+      "hadith_reference": "Fortress of the Muslim (Hisn al-Muslim)",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "after-salah-7",
+    "category": "after-salah",
+    "order": 7,
+    "title": "Takbir",
+    "arabic": "اللهُ أَكْبَرُ",
+    "transliteration": "allahu akbar",
+    "translation_en": "Allah is the Greatest",
+    "repeat": 33,
+    "source": {
+      "book": "Hadith Collection",
+      "hadith_reference": "Fortress of the Muslim (Hisn al-Muslim)",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "after-salah-8",
+    "category": "after-salah",
+    "order": 8,
+    "title": "There is No Partner for Allah, and To Him Belongs All Things",
+    "arabic": "لاَ إِلَـهَ إِلاَّ اللهُ وَحْدَهُ لاَ شَرِيْكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيْرُ",
+    "transliteration": "la ilaha illa allah wahdahu la sharika lah. lahul-mulku wa lahul-hamdu wa huwa 'ala kulli shay'in qadir",
+    "translation_en": "There is no deity worthy of worship except Allah alone, He has no partner. To Him belongs dominion and praise, and He is over all things competent.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "Sharh Shahih Muslim, 5: 84",
+      "sunnah_url": "https://sunnah.com/muslim:5",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "after-salah-9",
+    "category": "after-salah",
+    "order": 9,
+    "title": "Ayat al-Kursi",
+    "arabic": "ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ ۚ لَا تَأْخُذُهُۥ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُۥ مَا فِى ٱلسَّمَٰوَٰتِ وَمَا فِى ٱلْأَرْضِ ۗ مَن ذَا ٱلَّذِى يَشْفَعُ عِندَهُۥٓ إِلَّا بِإِذْنِهِۦ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَىْءٍ مِّنْ عِلْمِهِۦٓ إِلَّا بِمَا شَآءَ ۚ وَسِعَ كُرْسِيُّهُ ٱلسَّمَٰوَٰتِ وَٱلْأَرْضَ ۖ وَلَا يَـُٔودُهُۥ حِفْظُهُمَا ۚ وَهُوَ ٱلْعَلِىُّ ٱلْعَظِيمُ",
+    "transliteration": "allahu la ilaha illa huwa, al-hayyul-qayyum. la ta'khudhuhu sinatun wa la nawm. lahu ma fis-samawati wa ma fil-ard. man dhal-ladhi yashfa'u 'indahu illa bi-idhnihi. ya'lamu ma bayna aydihim wa ma khalfahum. wa la yuhituna bishay'in min 'ilmihi illa bima sha'. wa si'a kursiyyuhu as-samawati wal-ard. wa la ya'udu-hu hifdhuhuma. wa huwa al-'aliyyul-'azim",
+    "translation_en": "Allah - there is no deity except Him, the Ever-Living, the Sustainer of [all] existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is [presently] before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great.",
+    "repeat": 1,
+    "source": {
+      "book": "Hisn al-Muslim",
+      "hadith_reference": "Hisn al-Muslim 75; Jami` at-Tirmidhi 2879",
+      "sunnah_url": "https://sunnah.com/hisn:75",
+      "grading": "Authentic / Sahih"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "after-salah-10",
+    "category": "after-salah",
+    "order": 10,
+    "title": "Al-Ikhlas",
+    "arabic": "قُلْ هُوَ ٱللَّهُ أَحَدٌ (1) ٱللَّهُ ٱلصَّمَدُ (2) لَمْ يَلِدْ وَلَمْ يُولَدْ (3) وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ (4)",
+    "transliteration": "qul huwa allahu ahad (1) allahu samad (2) lam yalid wa lam yulad (3) wa lam yakun lahu kufuwan ahad (4)",
+    "translation_en": "Say, \"He is Allah , [who is] One, (1) Allah , the Eternal Refuge. (2) He neither begets nor is born, (3) Nor is there to Him any equivalent.\" (4)",
+    "repeat": 3,
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud No. 1523 and an-Nasa'i No. 1337. Al-Hafiz Abu Tahir said that the chain of this hadith is hasan",
+      "sunnah_url": "https://sunnah.com/abudawud:1523",
+      "grading": "Hasan"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "after-salah-11",
+    "category": "after-salah",
+    "order": 11,
+    "title": "Al-Falaq",
+    "arabic": "قُلْ أَعُوذُ بِرَبِّ ٱلْفَلَقِ (1) مِن شَرِّ مَا خَلَقَ (2) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (3) وَمِن شَرِّ ٱلنَّفَّٰثَٰتِ فِى ٱلْعُقَدِ (4) وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (5)",
+    "transliteration": "qul a'udhu birabbil-falaq (1) min sharri ma khalaq (2) wa min sharri ghasiqin idha waqab (3) wa min sharri naffathati fil-'uqad (4) wa min sharri hasidin idha hasad (5)",
+    "translation_en": "Say, \"I seek refuge in the Lord of daybreak (1) From the evil of that which He created (2) And from the evil of darkness when it settles (3) And from the evil of the blowers in knots (4) And from the evil of an envier when he envies.\" (5)",
+    "repeat": 3,
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud No. 1523 and an-Nasa'i No. 1337. Al-Hafiz Abu Tahir said that the chain of this hadith is hasan",
+      "sunnah_url": "https://sunnah.com/abudawud:1523",
+      "grading": "Hasan"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "after-salah-12",
+    "category": "after-salah",
+    "order": 12,
+    "title": "An-Nas",
+    "arabic": "قُلْ أَعُوذُ بِرَبِّ ٱلنَّاسِ (1) مَلِكِ ٱلنَّاسِ (2) إِلَٰهِ ٱلنَّاسِ (3) مِن شَرِّ ٱلْوَسْوَاسِ ٱلْخَنَّاسِ (4) ٱلَّذِى يُوَسْوِسُ فِى صُدُورِ ٱلنَّاسِ (5) مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ (6)",
+    "transliteration": "qul a'udhu birabbin-nas (1) malikin-nas (2) ilahin-nas (3) min sharri al-waswasi al-khannas (4) alladhi yuwaswisu fi sudurin-nas (5) mina al-jinnati wan-nas (6)",
+    "translation_en": "Say, \"I seek refuge in the Lord of mankind, (1) The King of mankind. (2) The God of mankind, (3) From the evil of the whisperer who withdraws, (4) Who whispers in the breasts of mankind, (5) Of the jinn and mankind.\" (6)",
+    "repeat": 3,
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud No. 1523 and an-Nasa'i No. 1337. Al-Hafiz Abu Tahir said that the chain of this hadith is hasan",
+      "sunnah_url": "https://sunnah.com/abudawud:1523",
+      "grading": "Hasan"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "after-salah-13",
+    "category": "after-salah",
+    "order": 13,
+    "title": "Supplication for Beneficial Knowledge, Good Provision, and Accepted Deeds",
+    "arabic": "اللَّهُمَّ إِنِّى أَسْأَلُكَ عِلْمًا نَافِعًا وَرِزْقًا طَيِّبًا وَعَمَلاً مُتَقَبَّلاً",
+    "transliteration": "allahumma inni as'aluka 'ilman nafi'an, wa rizqan tayyiban, wa 'amalan mutaqabbalan",
+    "translation_en": "O Allah, I ask You for beneficial knowledge, good provision, and accepted deeds.",
+    "repeat": 1,
+    "source": {
+      "book": "Sunan Ibn Majah",
+      "hadith_reference": "HR. Ibn Majah No. 925 and Ahmad 6: 305, 322. Al-Hafiz Abu Tahir said that this hadith is sahih",
+      "sunnah_url": "https://sunnah.com/ibnmajah:925",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "sleep-1",
+    "category": "sleep",
+    "order": 1,
+    "title": "Supplication Before Sleeping (Bismika)",
+    "arabic": "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا",
+    "transliteration": "Bismikallahumma amūtu wa aḥyā.",
+    "translation_en": "In Your Name, O Allah, I die and I live.",
+    "repeat": 1,
+    "virtue": "The Messenger of Allah ﷺ used to say this when lying down to sleep.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "Sahih al-Bukhari 6324; Hisn al-Muslim 101",
+      "sunnah_url": "https://sunnah.com/hisn:101",
+      "grading": "Sahih",
+      "narrator": "Hudhayfah ibn al-Yaman"
+    },
+    "sourceDataset": "Hisn al-Muslim / Bukhari 6324"
+  },
+  {
+    "id": "sleep-2",
+    "category": "sleep",
+    "order": 2,
+    "title": "Ayat al-Kursi Before Sleeping",
+    "arabic": "اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+    "transliteration": "Allāhu lā ilāha illā huwal-ḥayyul-qayyūm, lā ta'khudhuhu sinatuw-wa lā nawm, lahū mā fis-samāwāti wa mā fil-arḍ, man dhal-ladhī yashfa'u 'indahū illā bi-idhnih, ya'lamu mā bayna aydīhim wa mā khalfahum, wa lā yuḥīṭūna bi-shay'im-min 'ilmihī illā bimā shā', wasi'a kursiyyuhus-samāwāti wal-arḍ, wa lā ya'ūduhū ḥifẓuhumā, wa huwal-'aliyyul-'aẓīm.",
+    "translation_en": "Allah! There is no deity except Him, the Ever-Living, the Sustainer of [all] existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is [presently] before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great.",
+    "repeat": 1,
+    "virtue": "Whoever recites this when retiring to bed, an angel from Allah will protect him and Satan will not come near him until the morning.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "Sahih al-Bukhari 2311; Hisn al-Muslim 104",
+      "sunnah_url": "https://sunnah.com/hisn:104",
+      "grading": "Sahih",
+      "narrator": "Abu Hurairah"
+    },
+    "sourceDataset": "Hisn al-Muslim / Bukhari 2311"
+  },
+  {
+    "id": "sleep-3",
+    "category": "sleep",
+    "order": 3,
+    "title": "Last Two Verses of Surah Al-Baqarah",
+    "arabic": "آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ ۚ كُلٌّ آمَنَ بِاللَّهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِ ۚ وَقَالُوا سَمِعْنَا وَأَطَعْنَا ۖ غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ ۝ لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا ۚ لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ ۗ رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا ۚ رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا ۚ رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ ۖ وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا ۚ أَنتَ مَوْلَانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ",
+    "transliteration": "Āmanar-rasūlu bimā unzila ilayhi mir-rabbihī wal-mu'minūn, kullun āmana billāhi wa malā'ikatihī wa kutubihī wa rusulih, lā nufarriqu bayna aḥadim-mir-rusulih, wa qālū sami'nā wa aṭa'nā ghufrānaka rabbanā wa ilaykal-maṣīr. Lā yukallifullāhu nafsan illā wus'ahā, lahā mā kasabat wa 'alayhā maktasabat, rabbanā lā tu'ākhidhnā in nasīnā aw akhṭa'nā, rabbanā wa lā taḥmil 'alaynā iṣran kamā ḥamaltahū 'alal-ladhīna min qablinā, rabbanā wa lā tuḥammilnā mā lā ṭāqata lanā bih, wa'fu 'annā waghfir lanā warḥamnā, anta mawlānā fanṣurnā 'alal-qawmil-kāfirīn.",
+    "translation_en": "The Messenger has believed in what was revealed to him from his Lord, and [so have] the believers... Our Lord, do not impose blame upon us if we have forgotten or erred... You are our protector, so give us victory over the disbelieving people.",
+    "repeat": 1,
+    "virtue": "The Prophet ﷺ said: 'Whoever recites the last two verses of Surah Al-Baqarah at night, they will suffice him.'",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "Sahih al-Bukhari 5009; Sahih Muslim 808; Hisn al-Muslim 105",
+      "sunnah_url": "https://sunnah.com/hisn:105",
+      "grading": "Sahih",
+      "narrator": "Abu Mas'ud al-Badri"
+    },
+    "sourceDataset": "Hisn al-Muslim / Bukhari 5009"
+  },
+  {
+    "id": "sleep-4",
+    "category": "sleep",
+    "order": 4,
+    "title": "Lying on the Right Side (Bismika Rabbi)",
+    "arabic": "بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي وَبِكَ أَرْفَعُهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ",
+    "transliteration": "Bismika Rabbī waḍa'tu janbī wa bika arfa'uh, fa-in amsakta nafsī farḥamhā, wa in arsaltahā faḥfaẓhā bimā taḥfaẓu bihī 'ibādakaṣ-ṣāliḥīn.",
+    "translation_en": "In Your name my Lord, I lie down and in Your name I rise, so if You take my soul then have mercy upon it, and if You release it then protect it with that which You protect Your righteous servants.",
+    "repeat": 1,
+    "virtue": "When any one of you goes to bed, he should dust off his bed... then recite this supplication.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "Sahih al-Bukhari 6320; Sahih Muslim 2714; Hisn al-Muslim 98",
+      "sunnah_url": "https://sunnah.com/hisn:98",
+      "grading": "Sahih",
+      "narrator": "Abu Hurairah"
+    },
+    "sourceDataset": "Hisn al-Muslim / Bukhari 6320"
+  },
+  {
+    "id": "sleep-5",
+    "category": "sleep",
+    "order": 5,
+    "title": "Tasbih of Fatimah (33x, 33x, 34x)",
+    "arabic": "سُبْحَانَ اللَّهِ (٣٣)، وَالْحَمْدُ لِلَّهِ (٣٣)، وَاللَّهُ أَكْبَرُ (٣٤)",
+    "transliteration": "Subḥānallāh (33x), wal-ḥamdulillāh (33x), wallāhu akbar (34x).",
+    "translation_en": "Glory be to Allah (33 times), Praise be to Allah (33 times), and Allah is the Greatest (34 times).",
+    "repeat": 33,
+    "virtue": "The Prophet ﷺ taught this to Ali and Fatimah radhiyallahu 'anhuma, stating it is better for them than a servant.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "Sahih al-Bukhari 3705; Sahih Muslim 2727; Hisn al-Muslim 102",
+      "sunnah_url": "https://sunnah.com/hisn:102",
+      "grading": "Sahih",
+      "narrator": "Ali ibn Abi Talib"
+    },
+    "sourceDataset": "Hisn al-Muslim / Bukhari 3705"
+  },
+  {
+    "id": "sleep-6",
+    "category": "sleep",
+    "order": 6,
+    "title": "Protection from Allah's Punishment (3x)",
+    "arabic": "اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ",
+    "transliteration": "Allāhumma qinī 'adhābaka yawma tab'athu 'ibādak.",
+    "translation_en": "O Allah, protect me from Your punishment on the Day You resurrect Your servants.",
+    "repeat": 3,
+    "virtue": "The Prophet ﷺ used to place his right hand under his cheek and recite this three times when retiring to sleep.",
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "Sunan Abi Dawud 5045; Jami` at-Tirmidhi 3398; Hisn al-Muslim 100",
+      "sunnah_url": "https://sunnah.com/hisn:100",
+      "grading": "Sahih",
+      "narrator": "Hudhayfah & Hafsah"
+    },
+    "sourceDataset": "Hisn al-Muslim / Abu Dawud 5045"
+  },
+  {
+    "id": "sleep-7",
+    "category": "sleep",
+    "order": 7,
+    "title": "Gratitude for Food, Drink, and Shelter",
+    "arabic": "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا، وَكَفَانَا، وَآوَانَا، فَكَمْ مِمَّنْ لَا كَافِيَ لَهُ وَلَا مُؤْوِيَ",
+    "transliteration": "Al-ḥamdu lillāhil-ladhī aṭ'amanā wa saqānā, wa kafānā, wa āwānā, fa-kam mimman lā kāfiya lahū wa lā mu'wī.",
+    "translation_en": "Praise is to Allah Who has provided us with food and with drink, satisfied our needs and sheltered us, for how many are there who have no protector and no shelter.",
+    "repeat": 1,
+    "virtue": "The Prophet ﷺ used to say this when he retired to his bed.",
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "Sahih Muslim 2715; Hisn al-Muslim 103",
+      "sunnah_url": "https://sunnah.com/hisn:103",
+      "grading": "Sahih",
+      "narrator": "Anas ibn Malik"
+    },
+    "sourceDataset": "Hisn al-Muslim / Muslim 2715"
+  },
+  {
+    "id": "sleep-8",
+    "category": "sleep",
+    "order": 8,
+    "title": "Entrusting One's Soul to Allah",
+    "arabic": "اللَّهُمَّ أَسْلَمْتُ نَفْسِي إِلَيْكَ، وَفَوَّضْتُ أَمْرِي إِلَيْكَ، وَوَجَّهْتُ وَجْهِي إِلَيْكَ، وَأَلْجَأْتُ ظَهْرِي إِلَيْكَ، رَغْبَةً وَرَهْبَةً إِلَيْكَ، لَا مَلْجَأَ وَلَا مَنْجَا مِنْكَ إِلَّا إِلَيْكَ، آمَنْتُ بِكِتَابِكَ الَّذِي أَنْزَلْتَ، وَبِنَبِيِّكَ الَّذِي أَرْسَلْتَ",
+    "transliteration": "Allāhumma aslamtu nafsī ilayk, wa fawwaḍtu amrī ilayk, wa wajjahtu wajhī ilayk, wa alja'tu ẓahrī ilayk, raghbatan wa rahbatan ilayk, lā malja'a wa lā manjā minka illā ilayk, āmantu bi-kitābikal-ladhī anzalt, wa bi-nabiyyikal-ladhī arsalt.",
+    "translation_en": "O Allah, I surrender my soul unto You, and I entrust my matter unto You, and I turn my face unto You, and I betake my back unto You, out of hope and fear of You. There is no refuge nor escape from You except to You. I have believed in Your Book which You have revealed and Your Prophet whom You have sent.",
+    "repeat": 1,
+    "virtue": "The Prophet ﷺ said: 'If you die that night, you will die upon the natural innate faith (Fitrah).'",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "Sahih al-Bukhari 247; Sahih Muslim 2710; Hisn al-Muslim 107",
+      "sunnah_url": "https://sunnah.com/hisn:107",
+      "grading": "Sahih",
+      "narrator": "Al-Bara' ibn 'Azib"
+    },
+    "sourceDataset": "Hisn al-Muslim / Bukhari 247"
+  },
+  {
+    "id": "waking-1",
+    "category": "waking",
+    "order": 1,
+    "title": "Praise for Being Given Life After Sleep",
+    "arabic": "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ",
+    "transliteration": "Al-ḥamdu lillāhil-ladhī aḥyānā ba'da mā amātanā wa ilayhin-nushūr.",
+    "translation_en": "Praise is to Allah Who gave us life after He had given us death and unto Him is the resurrection.",
+    "repeat": 1,
+    "virtue": "Recited immediately upon awakening from sleep.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "Sahih al-Bukhari 6312; Sahih Muslim 2711; Hisn al-Muslim 1",
+      "sunnah_url": "https://sunnah.com/hisn:1",
+      "grading": "Sahih",
+      "narrator": "Hudhayfah & Abu Dharr"
+    },
+    "sourceDataset": "Hisn al-Muslim / Bukhari 6312"
+  },
+  {
+    "id": "waking-2",
+    "category": "waking",
+    "order": 2,
+    "title": "Praise for Health and Return of the Soul",
+    "arabic": "الْحَمْدُ لِلَّهِ الَّذِي عَافَانِي فِي جَسَدِي، وَرَدَّ عَلَيَّ رُوحِي، وَأَذِنَ لِي بِذِكْرِهِ",
+    "transliteration": "Al-ḥamdu lillāhil-ladhī 'āfānī fī jasadī, wa radda 'alayya rūḥī, wa adhina lī bi-dhikrih.",
+    "translation_en": "Praise is to Allah Who gave strength to my body and returned my soul to me and permitted me to remember Him.",
+    "repeat": 1,
+    "virtue": "Recited upon awakening with gratitude for physical wellness and renewed consciousness.",
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "Jami` at-Tirmidhi 3401; Hisn al-Muslim 3",
+      "sunnah_url": "https://sunnah.com/hisn:3",
+      "grading": "Hasan",
+      "narrator": "Abu Hurairah"
+    },
+    "sourceDataset": "Hisn al-Muslim / Tirmidhi 3401"
+  },
+  {
+    "id": "waking-3",
+    "category": "waking",
+    "order": 3,
+    "title": "Tahleel & Tasbih Upon Waking During the Night",
+    "arabic": "لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ، سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَٰهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ، رَبِّ اغْفِرْ لِي",
+    "transliteration": "Lā ilāha illallāhu waḥdahū lā sharīka lah, lahul-mulku wa lahul-ḥamdu, wa huwa 'alā kulli shay'in qadīr. Subḥānallāh, wal-ḥamdu lillāh, wa lā ilāha illallāh, wallāhu akbar, wa lā ḥawla wa lā quwwata illā billāhil-'aliyyil-'aẓīm. Rabbigh-fir lī.",
+    "translation_en": "There is no deity except Allah alone, with no partner. His is the kingdom, and His is all praise, and He has power over all things. Glory be to Allah, and praise be to Allah, and there is no deity except Allah, and Allah is the greatest, and there is no power nor might except with Allah, the Most High, the Supreme. My Lord, forgive me.",
+    "repeat": 1,
+    "virtue": "Whoever wakes up at night and says this, then supplicates, his prayer will be answered; and if he performs ablution and prays, his prayer will be accepted.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "Sahih al-Bukhari 1154; Hisn al-Muslim 2",
+      "sunnah_url": "https://sunnah.com/hisn:2",
+      "grading": "Sahih",
+      "narrator": "'Ubadah ibn as-Samit"
+    },
+    "sourceDataset": "Hisn al-Muslim / Bukhari 1154"
+  },
+  {
+    "id": "general-1",
+    "category": "general",
+    "order": 1,
+    "title": "Supplication Entering the Bathroom",
+    "arabic": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ",
+    "transliteration": "allahumma inni a'udhu bika minal-khubuthi wal-khaba'ith",
+    "translation_en": "O Allah, I seek refuge in You from the evil and the wicked.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari and Muslim",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-2",
+    "category": "general",
+    "order": 2,
+    "title": "Supplication Leaving the Bathroom",
+    "arabic": "غُفْرَانَكَ",
+    "transliteration": "ghufranak",
+    "translation_en": "I ask for Your forgiveness (O Allah).",
+    "repeat": 1,
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. at-Tirmidzi",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-3",
+    "category": "general",
+    "order": 3,
+    "title": "Supplication Before Eating",
+    "arabic": "بِسْمِ اللَّهِ",
+    "transliteration": "bismillah",
+    "translation_en": "In the name of Allah.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. al-Bukari No. 5376 and Muslim No. 2022",
+      "sunnah_url": "https://sunnah.com/muslim:5376",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-4",
+    "category": "general",
+    "order": 4,
+    "title": "Supplication If Forgetting Bismillah at the Beginning of a Meal",
+    "arabic": "بِسْمِ اللَّهِ أَوَّلَهُ وَآخِرَهُ",
+    "transliteration": "bismillahi awwalahu wa akhirahu",
+    "translation_en": "In the name of Allah, at its beginning and its end.",
+    "repeat": 1,
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-5",
+    "category": "general",
+    "order": 5,
+    "title": "Supplication After Eating",
+    "arabic": "الْحَمْدُ لِلَّهِ الَّذِى أَطْعَمَنِى هَذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّى وَلاَ قُوَّةٍ",
+    "transliteration": "alhamdulillahilladhi at'amani hadha wa razaqanihi min ghayri hawlin minni wa la quwwah",
+    "translation_en": "All praise is to Allah who has fed me this and provided for me without any power or strength from me.",
+    "repeat": 1,
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "Shahih at-Tirmidzi",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-6",
+    "category": "general",
+    "order": 6,
+    "title": "Supplication Entering the Mosque",
+    "arabic": "اَللَّهُمَّ افْتَحْ لِيْ أَبْوَابَ رَحْمَتِكَ",
+    "transliteration": "allahummaftah li abwaba rahmatik",
+    "translation_en": "O Allah, open the doors of Your mercy for me.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-7",
+    "category": "general",
+    "order": 7,
+    "title": "Supplication Leaving the Mosque",
+    "arabic": "اَللَّهُمَّ إِنِّيْ أَسْأَلُكَ مِنْ فَضْلِكَ",
+    "transliteration": "allahumma inni as'aluka min fadlik",
+    "translation_en": "O Allah, I ask You for Your bounty.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim No. 713",
+      "sunnah_url": "https://sunnah.com/muslim:713",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-8",
+    "category": "general",
+    "order": 8,
+    "title": "Supplication Before Performing Ablution",
+    "arabic": "بِسْمِ اللَّهِ",
+    "transliteration": "bismillah",
+    "translation_en": "In the name of Allah.",
+    "repeat": 1,
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. at-Tirmidzi and al-Baihaqi",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-9",
+    "category": "general",
+    "order": 9,
+    "title": "Supplication After Performing Ablution",
+    "arabic": "أشْهَدُ أنْ لا إله إِلاَّ اللَّهُ وَحْدَهُ لا شَرِيك لَهُ ، وأشْهَدُ أنَّ مُحَمَّداً عَبْدُهُ وَرَسُولُهُ ، اللَّهُمَّ اجْعَلْنِي مِنَ التَوَّابِينَ ، واجْعَلْني مِنَ المُتَطَهِّرِينَ ، سُبْحانَكَ اللَّهُمَّ وبِحَمْدِكَ ، أشْهَدُ أنْ لا إلهَ إِلاَّ أنْتَ ، أسْتَغْفِرُكَ وأتُوبُ إِلَيْكَ",
+    "transliteration": "ashhadu alla ilaha illa allah wahdahu la sharika lahu, wa ashhadu anna muhammadan 'abduhu wa rasuluh. allahummaj'alni minat-tawwabina waj'alni minal-mutatahhirin. subhanakallahumma wa bihamdika ashhadu alla ilaha illa anta astaghfiruka wa atubu ilayk",
+    "translation_en": "I bear witness that there is no deity except Allah alone, with no partner, and I bear witness that Muhammad is His servant and Messenger. O Allah, make me among those who repent and make me among those who purify themselves. Glory be to You, O Allah, and with Your praise, I bear witness that there is no deity except You. I seek Your forgiveness and repent to You.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim, at-Tirmidzi and an-Nasa'i",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-10",
+    "category": "general",
+    "order": 10,
+    "title": "Supplication for Breaking the Fast",
+    "arabic": "ذَهَبَ الظَّمَأُ وابْتَلَّتِ الْعُرُوقُ وثَبَتَ اْلأَجْرُ إِنْ شَاءَاللهُ",
+    "transliteration": "dhahabadh-dhama'u wabtallatil-'uruqu wa thabatal-ajru insha allah",
+    "translation_en": "The thirst has gone, the veins are moistened, and the reward is confirmed, Insha Allah.",
+    "repeat": 1,
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Daud, As-Sunan Al-Kubra Lil Baihaqi, Vol. 4, p. 239, al-Hakim in Mustadrak 'alas Shahihain No. 1484",
+      "sunnah_url": "https://sunnah.com/abudawud:4",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-11",
+    "category": "general",
+    "order": 11,
+    "title": "Supplication Entering the House #1",
+    "arabic": "اَلسَّلَامُ عَلَيْكُمْ",
+    "transliteration": "assalamu 'alaykum",
+    "translation_en": "Peace be upon you.",
+    "repeat": 1,
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. at-Tirmidzi",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-12",
+    "category": "general",
+    "order": 12,
+    "title": "Supplication Entering the House #2",
+    "arabic": "اَلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَا تُهُ",
+    "transliteration": "assalamu 'alaykum wa rahmatullahi wa barakatuh",
+    "translation_en": "Peace, mercy, and blessings of Allah be upon you.",
+    "repeat": 1,
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. at-Tirmidzi",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-13",
+    "category": "general",
+    "order": 13,
+    "title": "Supplication Leaving the House",
+    "arabic": "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ، لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+    "transliteration": "bismillah, tawakkaltu 'alallah, la hawla wa la quwwata illa billah",
+    "translation_en": "In the name of Allah, I place my trust in Allah. There is no might nor power except with Allah.",
+    "repeat": 1,
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. Abu Dawud and at-Tirmidzi",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-14",
+    "category": "general",
+    "order": 14,
+    "title": "Supplication for Protection from Causing or Experiencing Harm Outside the House",
+    "arabic": "اللَّهُمَّ إِنِّى أَعُوذُ بِكَ أَنْ أَضِلَّ أَوْ أُضَلَّ أَوْ أَزِلَّ أَوْ أُزَلَّ أَوْ أَظْلِمَ أَوْ أُظْلَمَ أَوْ أَجْهَلَ أَوْ يُجْهَلَ عَلَىَّ",
+    "transliteration": "allahumma inni a'udhu bika an adilla aw udalla, aw azilla aw uzalla, aw adhlima aw udhlama, aw ajhala aw yujhala 'alayya",
+    "translation_en": "O Allah, I seek refuge in You lest I should stray or be led astray, slip or be tripped, wrong or be wronged, or act foolishly or have foolishness done to me.",
+    "repeat": 1,
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. Abu Dawud, at-Tirmidzi, Ibn Majah and an-Nasa'i",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-15",
+    "category": "general",
+    "order": 15,
+    "title": "Travel Supplication",
+    "arabic": "الله أَكْبَرُ،الله أَكْبَرُ،الله أَكْبَرُ،سُبْحَانَ الَّذِى سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ اللَّهُمَّ إِنَّا نَسْأَلُكَ فِى سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى وَمِنَ الْعَمَلِ مَا تَرْضَى اللَّهُمَّ هَوِّنْ عَلَيْنَا سَفَرَنَا هَذَا وَاطْوِ عَنَّا بُعْدَهُ اللَّهُمَّ أَنْتَ الصَّاحِبُ فِى السَّفَرِ وَالْخَلِيفَةُ فِى الأَهْلِ اللَّهُمَّ إِنِّى أَعُوذُ بِكَ مِنْ وَعْثَاءِ السَّفَرِ وَكَآبَةِ الْمَنْظَرِ وَسُوءِ الْمُنْقَلَبِ فِى الْمَالِ وَالأَهْلِ",
+    "transliteration": "allahu akbar, allahu akbar, allahu akbar. subhanalladhi sakhkhara lana hadha wa ma kunna lahu muqrinin wa inna ila rabbina lamunqalibun. allahumma inna nas'aluka fi safarina hadhal-birra wat-taqwa wa minal-'amali ma tarda. allahumma hawwin 'alayna safarana hadha watwi 'anna bu'dah. allahumma antas-sahibu fis-safar. wal-khalifatu fil-ahl. allahumma inni a'udhu bika min wa'tha'is-safar wa ka'abatil-mandhari wa su'il-munqalabi fil-mali wal-ahl",
+    "translation_en": "Allah is the Greatest, Allah is the Greatest, Allah is the Greatest. Glory be to Him who has provided this for us, though we could never have had it by our own efforts. Surely to our Lord we are returning. O Allah, we ask You for righteousness and piety in this journey of ours, and for deeds that please You. O Allah, lighten for us the hardship of this journey and quickly bring us to our destination. O Allah, You are our Companion on the journey and the Guardian of our families. O Allah, I seek refuge in You from the hardship of travel, from a bad return, and from seeing something unpleasant concerning our wealth, family, or children.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-16",
+    "category": "general",
+    "order": 16,
+    "title": "Supplication of a Resident for Someone Who is Traveling",
+    "arabic": "أَسْتَوْدِعُ اللَّهَ دِينَكَ وَأَمَانَتَكَ وَخَوَاتِيمَ عَمَلِكَ",
+    "transliteration": "astawdi'ullaha dinaka, wa amanataka, wa khawatima 'amalik",
+    "translation_en": "I entrust your religion, your trust, and the end of your deeds to Allah.",
+    "repeat": 1,
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud: 2601",
+      "sunnah_url": "https://sunnah.com/abudawud:2601",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-17",
+    "category": "general",
+    "order": 17,
+    "title": "Supplication for Piety from a Resident to Someone Who is Traveling",
+    "arabic": "زَوَّدَكَ اللَّهُ التَّقْوَى وَغَفَرَ ذَنْبَكَ  وَيَسَّرَ لَكَ الْخَيْرَ حَيْثُمَا كُنْتَ",
+    "transliteration": "zawwadakallahut-taqwa, wa ghafara dhanbaka, wa yassara lakal-khayra haythuma kunta",
+    "translation_en": "May Allah provide you with piety, forgive your sins, and ease goodness for you wherever you are.",
+    "repeat": 1,
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. at-Tirmidzi",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-18",
+    "category": "general",
+    "order": 18,
+    "title": "Supplication When Wearing New Clothes",
+    "arabic": "اللَّهُمَّ لَكَ الْحَمْدُ أَنْتَ كَسَوْتَنِيهِ أَسْأَلُكَ مِنْ خَيْرِهِ وَخَيْرِ مَا صُنِعَ لَهُ وَأَعُوذُ بِكَ مِنْ شَرِّهِ وَشَرِّ مَا صُنِعَ لَهُ",
+    "transliteration": "allahumma lakal-hamdu anta kasawtanihi. as'aluka min khayrihi wa khayri ma suni'a lah, wa a'udhu bika min sharrihi wa sharri ma suni'a lah",
+    "translation_en": "O Allah, to You is all praise. You have clothed me with this. I ask You for its goodness and the goodness for which it was made, and I seek refuge in You from its evil and the evil for which it was made.",
+    "repeat": 1,
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. Ahmad, Abu Dawud, at-Tirmidzi and Al-Hakim",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-19",
+    "category": "general",
+    "order": 19,
+    "title": "Supplication When Wearing Clothes",
+    "arabic": "الْحَمْدُ لِلَّهِ الَّذِى كَسَانِى هَذَا الثَّوْبَ وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّى وَلاَ قُوَّةٍ",
+    "transliteration": "alhamdulillahilladhi kasani hadha wa razaqanihi min ghayri hawlin minni wa la quwwah",
+    "translation_en": "Praise be to Allah who has clothed me with this garment and provided it for me without any power or strength from me.",
+    "repeat": 1,
+    "source": {
+      "book": "Sunan an-Nasa'i",
+      "hadith_reference": "HR. all compilers of Sunan books, except Nasa'i",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-20",
+    "category": "general",
+    "order": 20,
+    "title": "Supplication When Mounting a Vehicle",
+    "arabic": "بِسْمِ اللَّهِ، بِسْمِ اللَّهِ، بِسْمِ اللَّهِ، الحَمْدُ للِه، سُبْحَانَ الَّذِى سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ، سُبْحَانَكَ إِنِّى قَدْ ظَلَمْتُ نَفْسِى فَاغْفِرْ لِى فَإِنَّهُ لاَ يَغْفِرُ الذُّنُوبَ إِلاَّ أَنْتَ",
+    "transliteration": "bismillah, bismillah, bismillah, alhamdulillah, subhanalladhi sakhkhara lana hadha wa ma kunna lahu muqrinin. wa inna ila rabbina lamunqalibun. subhanaka inni qad dhalamtu nafsi, faghfir li fa innahu la yaghfirudh-dhunuba illa anta",
+    "translation_en": "In the name of Allah, in the name of Allah, in the name of Allah. All praise is to Allah. Glory be to Him who has subjected this to us, and we could not have done so by ourselves. And indeed, to our Lord we will return. Glory be to You, indeed I have wronged myself, so forgive me, for none can forgive sins except You.",
+    "repeat": 1,
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. Abu Dawud and at-Tirmidzi",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-21",
+    "category": "general",
+    "order": 21,
+    "title": "Supplication When it Rains",
+    "arabic": "اللَّهُمَّ صَيِّبًا نَافِعًا",
+    "transliteration": "allahumma sayyiban nafi'a",
+    "translation_en": "O Allah, make it a beneficial rain.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari No. 1032",
+      "sunnah_url": "https://sunnah.com/bukhari:1032",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-22",
+    "category": "general",
+    "order": 22,
+    "title": "Supplication During Heavy Rain",
+    "arabic": "اللَّهُمَّ حَوَالَيْنَا وَلاَ عَلَيْنَا ، اللَّهُمَّ عَلَى الآكَامِ وَالظِّرَابِ وَبُطُونِ الأَوْدِيَةِ وَمَنَابِتِ الشَّجَرِ",
+    "transliteration": "allahumma hawalayna wa la 'alayna. allahumma 'alal-akami wadh-dhirabi, wa butunil-awdiyati, wa manabitish-shajar",
+    "translation_en": "O Allah, (let the rain fall) around us, not on us. O Allah, (let it fall) on the hills, mountains, small mountains, valleys, and places where trees grow.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari No. 1014",
+      "sunnah_url": "https://sunnah.com/bukhari:1014",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-23",
+    "category": "general",
+    "order": 23,
+    "title": "Supplication After it Rains",
+    "arabic": "مُطِرْنا بفَضْلِ اللهِ ورَحْمَتِهِ",
+    "transliteration": "mutirna bi fadlillahi wa rahmatih",
+    "translation_en": "We have been given rain by the bounty and mercy of Allah.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari No. 846 and Muslim No. 71",
+      "sunnah_url": "https://sunnah.com/bukhari:846",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-24",
+    "category": "general",
+    "order": 24,
+    "title": "Supplication During Strong Wind",
+    "arabic": "اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَهَا، وَأَعُوْذُ بِكَ مِنْ شَرِّهَا",
+    "transliteration": "allahumma inni as'aluka khayraha wa a'udhu bika min sharriha",
+    "translation_en": "O Allah, I ask You for the good of this wind, and I seek refuge in You from its evil.",
+    "repeat": 1,
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud and Ibn Majah",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-25",
+    "category": "general",
+    "order": 25,
+    "title": "The Best Supplication for Seeking Forgiveness (Sayyid al-Istighfar)",
+    "arabic": "اَللَّهُمَّ أَنْتَ رَبِّيْ ، لَا إِلٰـهَ إِلاَّ أَنْتَ خَلَقْتَنِيْ وَأَنَا عَبْدُكَ ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ ، أَعُوْذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ ، أَبُوْءُ لَكَ بِنِعْمتِكَ عَلَيَّ ، وَأَبُوْءُ بِذَنْبِيْ فَاغْفِرْ لِيْ ، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلاَّ أَنْتَ",
+    "transliteration": "allahumma anta rabbi la ilaha illa anta khalaqtani wa ana 'abduka wa ana 'ala 'ahdika wa wa'dika mastata'tu a'udhu bika min sharri ma sana'tu abu'u laka bini'matika 'alayya wa abu'u bidhanbi faghfir li fa innahu la yaghfirudh-dhunuba illa anta",
+    "translation_en": "O Allah, You are my Lord. There is no deity worthy of worship except You. You created me, and I am Your servant. I abide to Your covenant and promise as best I can. I seek refuge in You from the evil of what I have done. I acknowledge Your blessings upon me, and I acknowledge my sin. So forgive me, for none can forgive sins except You.",
+    "repeat": 1,
+    "source": {
+      "book": "Hisn al-Muslim",
+      "hadith_reference": "Hisn al-Muslim 79; Sahih al-Bukhari 6306",
+      "sunnah_url": "https://sunnah.com/hisn:79",
+      "grading": "Authentic / Sahih"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-26",
+    "category": "general",
+    "order": 26,
+    "title": "Supplication for Ease in All Matters",
+    "arabic": "اللَّهُمَّ لاَ سَهْلَ إِلاَّ مَا جَعَلْتَهُ سَهْلاً وَأَنْتَ تَجْعَلُ الحَزْنَ إِذَا شِئْتَ سَهْلاً",
+    "transliteration": "allahumma la sahla illa ma ja'altahu sahla, wa anta taj'alul-hazna idha shi'ta sahla",
+    "translation_en": "O Allah, there is no ease except in that which You make easy, and You make the difficult easy if You wish.",
+    "repeat": 1,
+    "source": {
+      "book": "Hadith Collection",
+      "hadith_reference": "HR. Ibn Hibban",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-27",
+    "category": "general",
+    "order": 27,
+    "title": "Supplication When Afflicted by Calamity",
+    "arabic": "إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ اللَّهُمَّ أْجُرْنِى فِى مُصِيبَتِى وَأَخْلِفْ لِى خَيْرًا مِنْهَا",
+    "transliteration": "inna lillahi wa inna ilayhi raji'un. allahumma'jurni fi musibati wa akhlif li khayran minha",
+    "translation_en": "Indeed we belong to Allah, and indeed to Him we will return. O Allah, reward me for my affliction and replace it with something better.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-28",
+    "category": "general",
+    "order": 28,
+    "title": "Supplication When in Debt",
+    "arabic": "اللَّهُمَّ اكْفِنِى بِحَلاَلِكَ عَنْ حَرَامِكَ وَأَغْنِنِى بِفَضْلِكَ عَمَّنْ سِوَاكَ",
+    "transliteration": "allahummakfini bi halalika 'an haramik, wa aghnini bi fadlika 'amman siwak",
+    "translation_en": "O Allah, suffice me with what is lawful and keep me away from what is unlawful, and enrich me with Your bounty so I do not depend on anyone besides You.",
+    "repeat": 1,
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. at-Tirmidzi No. 2563",
+      "sunnah_url": "https://sunnah.com/tirmidhi:2563",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-29",
+    "category": "general",
+    "order": 29,
+    "title": "Supplication for Protection from Laziness, Sadness, and Debt",
+    "arabic": "اَللّٰهُمَّ إِنِّى أَعُوْذُبِكَ مِنَ الْهَمِّ وَالْحَزْنِ وَأَعُوْذُبِكَ مِنَ الْعَجْزِ وَالْكَسَلِ وَأَعُوْذُبِكَ مِنَ الْجُبْنِ وَالْبُخْلِ وَأَعُوْذُبِكَ مِنْ غَلَبَتِ الدَّيْنِ وَقَهْرِ الرجال",
+    "transliteration": "allahumma inni a'udhu bika minal-hammi wal-hazan. wa a'udhu bika minal-'ajzi wal-kasal. wa a'udhu bika minal-jubni wal-bukhl. wa a'udhu bika min ghalabatid-dayni wa qahrir-rijal",
+    "translation_en": "O Allah, I seek refuge in You from anxiety and grief, and I seek refuge in You from incapacity and laziness, and I seek refuge in You from cowardice and miserliness, and I seek refuge in You from being overpowered by debt and from being overcome by men.",
+    "repeat": 1,
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud No. 1555",
+      "sunnah_url": "https://sunnah.com/abudawud:1555",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-30",
+    "category": "general",
+    "order": 30,
+    "title": "Supplication After Sneezing",
+    "arabic": "الحَمْدُ للهِ",
+    "transliteration": "alhamdulillah",
+    "translation_en": "All praise is to Allah.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-31",
+    "category": "general",
+    "order": 31,
+    "title": "Supplication Upon Hearing Someone Sneeze",
+    "arabic": "يَرْحَمُكَ اللهُ",
+    "transliteration": "yarhamukallah",
+    "translation_en": "May Allah have mercy on you.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-32",
+    "category": "general",
+    "order": 32,
+    "title": "Response to Someone Who Says 'Yarhamukallah' After You Sneeze",
+    "arabic": "يَهْدِيكُمُ اللهُ وَيُصْلِحُ بَالَكُمْ",
+    "transliteration": "yahdikumullah wa yuslihu balakum",
+    "translation_en": "May Allah guide you and improve your condition.",
+    "repeat": 1,
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-33",
+    "category": "general",
+    "order": 33,
+    "title": "Supplication for Good Character",
+    "arabic": "اللَّهُمَّ كَمَا حَسَّنْتَ خَلْقِي فَحَسِّنْ خُلُقِي",
+    "transliteration": "allahumma kama hassanta khalqi fahassin khuluqi",
+    "translation_en": "O Allah, just as You have made my external form good, make my character good as well.",
+    "repeat": 1,
+    "source": {
+      "book": "Musnad Ahmad",
+      "hadith_reference": "HR. Ahmad, authenticated by al-Albani in al-Irwa', 1/115",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-34",
+    "category": "general",
+    "order": 34,
+    "title": "Prayer for Protection from Satan",
+    "arabic": "رَبِّ أَعُوْذُ بِكَ مِنْ هَمَزَاتِ الشَّيَاطِيْنِ وَأَعُوْذُ بِكَ رَبِّ أَنْ يَحْضُرُوْنِ",
+    "transliteration": "rabbi a'udhu bika min hamazatish-shayatin wa a'udhu bika rabbi ay-yahdurun",
+    "translation_en": "My Lord, I seek refuge in You from the whispers of Satan, and I seek refuge in You, my Lord, from their presence around me.",
+    "repeat": 1,
+    "virtue": "Indeed, Allah commands the Prophet Muhammad and all his followers to seek refuge from the whispers of Satan in all activities, especially when approaching death. Satan whispers evil into the hearts of humans, encouraging wrongdoing.",
+    "source": {
+      "book": "Noble Quran",
+      "hadith_reference": "QS. Al-Mu'minun: 97-98",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-35",
+    "category": "general",
+    "order": 35,
+    "title": "Prayer After the Adhan",
+    "arabic": "اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ",
+    "transliteration": "allahumma rabba hadhihid-da'watit-tammah, was-salatil-qa'imah, ati muhammadanil-wasilata wal-fadilah, wab'ath-hu maqaman mahmudanilladhi wa'adtah",
+    "translation_en": "O Allah, Lord of this perfect call and the established prayer, grant Muhammad the wasilah (a high status in Paradise) and the excellence (above all creation), and raise him to the praiseworthy station that You have promised him.",
+    "repeat": 1,
+    "virtue": "This prayer is recommended by the Prophet Muhammad sallallahu 'alayhi wa sallam for those who hear the call to prayer. It has many benefits, including receiving intercession from the Prophet on the Day of Judgment, attaining the wasilah and honor in Paradise for the Prophet, and receiving great and commendable reward from Allah. It is also a way to show respect and admiration for Allah and His Messenger, expressing love and longing for the Prophet Muhammad, the role model for Muslims.",
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "Narrated by Abu Dawud (529), at-Tirmidhi (211), an-Nasa'i (2:26), Ibn Majah (722)",
+      "sunnah_url": "https://sunnah.com/tirmidhi:529",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-36",
+    "category": "general",
+    "order": 36,
+    "title": "Prayer for Forgiveness for Parents",
+    "arabic": "رَبَّنَا ٱغْفِرْ لِى وَلِوَٰلِدَىَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ ٱلْحِسَابُ",
+    "transliteration": "rabbanaghfir li wa liwalidayya wa lil-mu'minina yawma yaqumul-hisab",
+    "translation_en": "Our Lord, forgive me and my parents and all the believers on the Day the account is established.",
+    "repeat": 1,
+    "virtue": "This is a prayer of Prophet Ibrahim (peace be upon him), teaching us to honor and love our parents, remember the Day of Judgment, and care for fellow believers. By making this prayer, we hope that Allah will forgive our sins and make us among the faithful.",
+    "source": {
+      "book": "Noble Quran",
+      "hadith_reference": "QS. Ibrahim: 41",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-37",
+    "category": "general",
+    "order": 37,
+    "title": "Dua Seeking Good In This World And In The Hereafter",
+    "arabic": "رَبَّنَا آَتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآَخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
+    "transliteration": "rabbana atina fid-dunya hasanatan wa fil-akhirati hasanatan wa qina 'adhaban-nar",
+    "translation_en": "Our Lord! Give us good in this world and give us good in the Hereafter, and save us from the torment of the hell fire.",
+    "repeat": 1,
+    "virtue": "This dua is the dua most often said by the Prophet sallallahu 'alayhi wa sallam, as told by sahaba Anas bin Malik radhiallahu anhu.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "QS. Al-Baqarah: 201, al-Bukhari: 6389, HR. Muslim: 2690",
+      "sunnah_url": "https://sunnah.com/bukhari:201",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-38",
+    "category": "general",
+    "order": 38,
+    "title": "Dua To Make Heart Firm Upon Deen #1",
+    "arabic": "يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِى عَلَى دِينِكَ",
+    "transliteration": "ya muqallibal-qulubi thabbit qalbi 'ala dinik",
+    "translation_en": "O Changer of the hearts, make my heart firm upon Your religion.",
+    "repeat": 1,
+    "virtue": "A person's heart is between the fingers of Allah ta'ala, and He turns it back and forth according to his will. So, it is appropriate for someone to always ask that Allah will set their heart on goodness, and always be istiqamah in the truth.",
+    "source": {
+      "book": "Jami` at-Tirmidhi",
+      "hadith_reference": "HR. at-Tirmidzi, No. 3522 and Ahmad, 6: 315",
+      "sunnah_url": "https://sunnah.com/tirmidhi:3522",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-39",
+    "category": "general",
+    "order": 39,
+    "title": "Dua To Make Heart Firm Upon Deen #2",
+    "arabic": "اللَّهُمَّ مُصَرِّفَ الْقُلُوبِ صَرِّفْ قُلُوبَنَا عَلَى طَاعَتِكَ",
+    "transliteration": "allahumma musarrifal-qulubi sarrif qulubana 'ala ta'atik",
+    "translation_en": "O Allah! Controller of the hearts, direct our hearts to Your obedience.",
+    "repeat": 1,
+    "virtue": "A person's heart is between the fingers of Allah ta'ala, and He turns it back and forth according to his will. So, it is appropriate for someone to always ask that Allah will set their heart on goodness, and always be istiqamah in the truth.",
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim No. 2654",
+      "sunnah_url": "https://sunnah.com/muslim:2654",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-40",
+    "category": "general",
+    "order": 40,
+    "title": "Dua To Make Heart Firm Upon Deen #3",
+    "arabic": "رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا",
+    "transliteration": "rabbana la tuzigh qulubana ba'da idh hadaytana",
+    "translation_en": "O our Lord, do not make our hearts incline to error after You have guided us.",
+    "repeat": 1,
+    "virtue": "A person's heart is between the fingers of Allah ta'ala, and He turns it back and forth according to his will. So, it is appropriate for someone to always ask that Allah will set their heart on goodness, and always be istiqamah in the truth.",
+    "source": {
+      "book": "Noble Quran",
+      "hadith_reference": "QS. Ali Imran: 8",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-41",
+    "category": "general",
+    "order": 41,
+    "title": "Dua To Seek Refuge Against The Loss Of Pleasure",
+    "arabic": "اللَّهُمَّ إِنِّى أَعُوذُ بِكَ مِنْ زَوَالِ نِعْمَتِكَ وَتَحَوُّلِ عَافِيَتِكَ وَفُجَاءَةِ نِقْمَتِكَ وَجَمِيعِ سَخَطِكَ",
+    "transliteration": "allahumma inni a'udhu bika min zawali ni'matik, wa tahawwuli 'afiyatik, wa fuja'ati niqmatik, wa jami'i sakhatik",
+    "translation_en": "O Allah, I seek refuge in You from the loss of the pleasures that You have bestowed, from changes in the health that You have bestowed, from Your sudden torment, and from all Your wrath.",
+    "repeat": 1,
+    "virtue": "The pleasures of being present at this time are very likely to be lost, the health of our souls and bodies in a blink of an eye can turn into illness, and only Allah can prevent that from happening.",
+    "source": {
+      "book": "Sahih Muslim",
+      "hadith_reference": "HR. Muslim No. 2739",
+      "sunnah_url": "https://sunnah.com/muslim:2739",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-42",
+    "category": "general",
+    "order": 42,
+    "title": "Dua To Resist Affliction",
+    "arabic": "اللَّهُمَّ إِنِّي أَعُوْذُ بِكَ مِنْ جَهْدِ البَلاَءِ ، وَدَرَكِ الشَّقَاءِ ، وَسُوءِ القَضَاءِ ، وَشَمَاتَةِ الأَعْدَاء",
+    "transliteration": "allahumma inni a'udhu bika min jahdil-bala', wa darakish-shaqa', wa su'il-qada', wa shamatatil-a'da'",
+    "translation_en": "O Allah, I seek refuge in You from severe calamity, being overtaken by misery, evil destiny, and the triumphant mockery of enemies.",
+    "repeat": 1,
+    "virtue": "Taking refuge from the provisions of fate that have a bad impact, does not contradict the attitude of being pleased with the provisions of the destiny of Allah azza wa jalla. Because asking for protection from the provision of Allah's destiny. Allah azza wa jalla could have predestined a disaster for someone, but Allah azza wa jalla also predestined that if he prays, Allah will remove the disaster.",
+    "source": {
+      "book": "Sahih al-Bukhari",
+      "hadith_reference": "HR. al-Bukhari: 6616, Muslim: 2707",
+      "sunnah_url": "https://sunnah.com/bukhari:6616",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-43",
+    "category": "general",
+    "order": 43,
+    "title": "Dua To Be Released From Debt, Anxiety, Weakness, Laziness, Fear, And Pressure from Others",
+    "arabic": "اَللّٰهُمَّ إِنِّى أَعُوْذُبِكَ مِنَ الْهَمِّ وَالْحَزْنِ وَأَعُوْذُبِكَ مِنَ الْعَجْزِ وَالْكَسَلِ وَأَعُوْذُبِكَ مِنَ الْجُبْنِ وَالْبُخْلِ وَأَعُوْذُبِكَ مِنْ غَلَبَتِ الدَّيْنِ وَقَهْرِ الرجال",
+    "transliteration": "allahumma inni a'udhu bika minal-hammi wal-huzni wa a'udhu bika minal-'ajzi wal-kasali wa a'udhu bika minal-jubni wal-bukhli wa a'udhu bika min ghalabatid-dayni wa qahrir-rijal",
+    "translation_en": "O Allah, I seek refuge in You from care and grief, I seek refuge in You from incapacity and slackness, I seek refuge in You from cowardice and niggardliness, and I seek refuge in You from being overcome by debt and being put in subjection by men.",
+    "repeat": 1,
+    "virtue": "A noble sahaba, Abu Umamah, who narrated this hadith, said: after I practiced this prayer, Allah completely removed my confusion and gave me the ability to pay off debts.",
+    "source": {
+      "book": "Sunan Abi Dawud",
+      "hadith_reference": "HR. Abu Dawud No. 1555",
+      "sunnah_url": "https://sunnah.com/abudawud:1555",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  },
+  {
+    "id": "general-44",
+    "category": "general",
+    "order": 44,
+    "title": "Dua When Getting Good News",
+    "arabic": "الْحَمْدُ لِلَّهِ الَّذِى بِنِعْمَتِهِ تَتِمُّ الصَّالِحَاتُ",
+    "transliteration": "alhamdu lillahi alladhi bini'matihi tattimmu assalihat",
+    "translation_en": "Praise be to Allah, by whose grace goodness is perfected.",
+    "repeat": 1,
+    "virtue": "Aisha radhiyallahu 'anha said, Rasulullah sallallahu 'alayhi wa sallam when he saw something he liked, he read the sentence above.",
+    "source": {
+      "book": "Sunan Ibn Majah",
+      "hadith_reference": "HR. Ibn Majah in the Sunan, No. 3803 and al-Hakim in al-Mustadrak (1/499)",
+      "sunnah_url": "https://sunnah.com/ibnmajah:3803",
+      "grading": "Sahih / Verified"
+    },
+    "sourceDataset": "fitrahive/dua-dhikr"
+  }
+]

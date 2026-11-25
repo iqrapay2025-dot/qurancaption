@@ -23,6 +23,7 @@ import { Reciter, DEFAULT_RECITER } from "@/lib/quran/types";
 import { filterReciters } from "@/lib/search/reciter-search";
 import { useTheme, ThemeToggle } from "@/components/shared";
 import { TAJWEED_GROUPS } from "@/lib/quran/tajweed";
+import { TodayPlanChip } from "@/components/planner/TodayPlanChip";
 
 interface MushafHeaderProps {
   pageNumber: number;
@@ -132,6 +133,7 @@ export function MushafHeader({
           <div className="justify-self-center min-w-0 max-w-full flex items-center justify-center px-0.5">
             <button
               type="button"
+              data-tour="mushaf-nav"
               onClick={() => setJumpOpen(true)}
               className="max-w-full inline-flex items-center justify-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-border/70 bg-card/70 hover:border-gold hover:bg-gold/5 transition-all text-center"
               title="Jump to Surah, Juz, or Page"
@@ -155,6 +157,7 @@ export function MushafHeader({
 
           {/* Right: Toggle Switch & Reciter Selector */}
           <div className="flex items-center gap-1 sm:gap-2 justify-self-end shrink-0">
+            <TodayPlanChip className="hidden lg:inline-flex" />
             {/* Desktop: Segmented switch */}
             <div className="hidden sm:inline-flex items-center p-0.5 rounded-lg border border-border bg-muted/60 text-xs">
               <Link
@@ -187,6 +190,7 @@ export function MushafHeader({
             {/* Font & Display Settings Button */}
             <button
               type="button"
+              data-tour="mushaf-display-settings"
               onClick={() => setSettingsOpen(true)}
               className="p-1.5 sm:p-2 rounded-lg border border-border/80 bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center gap-1 shrink-0"
               title="Adjust Font Size & Script"
@@ -197,7 +201,7 @@ export function MushafHeader({
             </button>
 
             {/* Reciter Selector dropdown */}
-            <div className="relative shrink-0" ref={reciterDropdownRef}>
+            <div className="relative shrink-0" ref={reciterDropdownRef} data-tour="mushaf-reciter">
               <button
                 type="button"
                 onClick={() => setReciterMenuOpen(!reciterMenuOpen)}

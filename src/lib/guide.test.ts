@@ -11,11 +11,13 @@ import {
 } from "./guide";
 
 describe("GUIDE_SECTIONS structure and integrity", () => {
-  it("contains all expected 9 guide sections in logical sequence", () => {
+  it("contains all expected 11 guide sections in logical sequence", () => {
     const expectedIds = [
       "welcome",
       "read",
+      "mushaf",
       "listen",
+      "adhkar",
       "daily-ayah",
       "editor",
       "account",
@@ -50,7 +52,9 @@ describe("GUIDE_SECTIONS structure and integrity", () => {
         expect([
           "welcome",
           "quran-reader",
+          "mushaf",
           "listen",
+          "adhkar",
           "editor",
           "bookmarks",
         ]).toContain(section.tourId);

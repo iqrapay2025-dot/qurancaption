@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Play, Pause, BookOpen, Video, Link2, Check, X, Volume2 } from "lucide-react";
-import { buildEditorLink } from "@/lib/editor-link";
+import { Play, Pause, BookOpen, Link2, Check, X, Volume2 } from "lucide-react";
 import { getSurahMeta } from "@/lib/mushaf/data";
 import { MushafWord } from "@/lib/mushaf/types";
 import { registerAudioPlayback, notifyAudioPlaybackStarted } from "@/lib/audio/single-audio";
@@ -128,8 +127,6 @@ export function AyahBottomSheet({
     onPlayAyah(verseKey);
   };
 
-  const editorUrl = buildEditorLink({ surah, from: ayah, to: ayah });
-
   const wordArabic = selectedWord?.text_uthmani || selectedWord?.text_qpc_hafs || "";
   const wordTrans = selectedWord?.translation?.text;
   const wordTranslit = selectedWord?.transliteration?.text;
@@ -252,7 +249,7 @@ export function AyahBottomSheet({
         </div>
 
         {/* Action Buttons Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3">
+        <div className="grid grid-cols-3 gap-2.5 pt-3">
           {/* Play Entire Ayah */}
           <button
             type="button"
@@ -287,18 +284,6 @@ export function AyahBottomSheet({
             </div>
             <span className="text-xs font-medium">Tafsir</span>
           </button>
-
-          {/* Make Captions */}
-          <a
-            href={editorUrl}
-            onClick={onClose}
-            className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border border-border/80 bg-background hover:border-primary hover:bg-primary/5 transition-all text-foreground group"
-          >
-            <div className="p-2 rounded-full bg-primary/10 text-primary group-hover:bg-primary/20">
-              <Video size={18} />
-            </div>
-            <span className="text-xs font-medium">Captions</span>
-          </a>
 
           {/* Copy Link */}
           <button

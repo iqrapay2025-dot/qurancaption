@@ -1,7 +1,9 @@
 export type TourId =
   | "welcome"
   | "quran-reader"
+  | "mushaf"
   | "listen"
+  | "adhkar"
   | "editor"
   | "bookmarks";
 

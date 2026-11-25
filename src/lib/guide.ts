@@ -4,7 +4,9 @@ export { GUIDE_HINT_DISMISSED_KEY, shouldShowGuideHint } from "./guideHint";
 export type GuideSectionId =
   | "welcome"
   | "read"
+  | "mushaf"
   | "listen"
+  | "adhkar"
   | "daily-ayah"
   | "editor"
   | "account"
@@ -178,6 +180,40 @@ export const GUIDE_SECTIONS: GuideSection[] = [
     ],
   },
   {
+    id: "mushaf",
+    title: "Madani Mushaf Page View",
+    navTitle: "Mushaf View",
+    summary:
+      "Read the Holy Quran page-by-page in authentic 604-page Madani Mushaf layout with colored Tajweed rules, word-by-word audio, dynamic Basmala font scaling, and dark mode.",
+    tourId: "mushaf",
+    tourRoute: "/mushaf/1",
+    tourLabel: "Take Mushaf tour",
+    pageHref: "/mushaf",
+    pageLabel: "Open Mushaf View",
+    subsections: [
+      {
+        title: "Authentic 604-page Madani layout",
+        body: "Browse the Quran exactly as printed in the classical Madani Mushaf (15 lines per page). Jump directly to any page (1–604), Juz (1–30), or Surah (1–114) with instant search.",
+      },
+      {
+        title: "Word-by-word interactive audio playback",
+        body: "Click on any individual word on the page to hear its authentic pronunciation, or trigger full ayah playback. The active word and verse are highlighted in real time.",
+      },
+      {
+        title: "Tajweed rule color coding",
+        body: "Enable Tajweed colors in the font settings to visually distinguish recitation rules (ghunnah, ikhfa, idgham, qalqalah, madd) directly on the Arabic text.",
+      },
+      {
+        title: "Dynamic proportional Basmala scaling",
+        body: "When you increase or decrease font size in Mushaf settings, the decorative surah header banners and Bismillah dynamically scale in harmony with the verse text.",
+      },
+      {
+        title: "Dedicated dark mode & reciter switching",
+        body: "Toggle between Light and Dark mode seamlessly from within the Mushaf header for comfortable night reading, and select your preferred reciter for audio playback.",
+      },
+    ],
+  },
+  {
     id: "listen",
     title: "Listen to the Quran",
     navTitle: "Listen to Quran",
@@ -208,6 +244,44 @@ export const GUIDE_SECTIONS: GuideSection[] = [
       {
         title: "Saved position & auto-resume",
         body: "Aayah Studio remembers your exact timestamp and surah so you can pick up right where you left off when you return to the Listen page.",
+      },
+    ],
+  },
+  {
+    id: "adhkar",
+    title: "Adhkar, Du'as & Daily Remembrance",
+    navTitle: "Daily Adhkar",
+    summary:
+      "Recite authentic morning & evening supplications, after-salah adhkar, sleep protection, track daily streaks, view hadith evidence, and stay punctual with prayer times.",
+    tourId: "adhkar",
+    tourRoute: "/adhkar",
+    tourLabel: "Take Adhkar tour",
+    pageHref: "/adhkar",
+    pageLabel: "Open Daily Adhkar",
+    subsections: [
+      {
+        title: "Authentic categories & daily schedule",
+        body: "Explore 6 core categories from Hisn al-Muslim: Morning Adhkar (Fajr to sunrise), Evening Adhkar (Asr to sunset), After Salah, Before Sleep, Waking Up, and General Du'as.",
+      },
+      {
+        title: "Digital tap counter & haptic feedback",
+        body: "Each dhikr card features a tap counter counting down from the Sunnah repeat goal (e.g. 1x, 3x, 33x, 100x) with subtle haptic vibration on mobile and an automated 'Done ✓' celebration state.",
+      },
+      {
+        title: "Verified hadith references & Sunnah.com links",
+        body: "Every supplication includes its authentic source (Sahih al-Bukhari, Sahih Muslim, Abu Dawud, At-Tirmidhi), grading, narrator, virtue, and a direct link to Sunnah.com.",
+      },
+      {
+        title: "Daily streak tracking & today dashboard",
+        body: "Keep consistent with your daily remembrance using the automated streak counter and the Today dashboard tracking your 5 post-salah supplication windows.",
+      },
+      {
+        title: "Accurate prayer times & smart reminders",
+        body: "View calculated prayer times (Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha) with live countdowns, customizable calculation methods, Asr school, and after-salah reminder offsets.",
+      },
+      {
+        title: "Bilingual search & 100% offline access",
+        body: "Search adhkar in Arabic or English with spelling tolerance, and click 'Save Offline' to download all supplications and prayer schedules to your device.",
       },
     ],
   },
@@ -323,6 +397,18 @@ export const GUIDE_SECTIONS: GuideSection[] = [
 
 export const GUIDE_TROUBLESHOOTING: GuideIssue[] = [
   {
+    category: "general",
+    problem: "Location permission denied for Prayer Times.",
+    solution:
+      "If browser location is blocked, Aayah Studio uses your local timezone (e.g. Africa/Lagos) with one-tap city selection. You can also manually search for any city in Settings > Prayer Times or adjust calculation methods.",
+  },
+  {
+    category: "audio",
+    problem: "Offline surah audio playback error.",
+    solution:
+      "When listening offline, verify the surah is fully downloaded in Quran > Offline Downloads. Once cached locally in IndexedDB, audio streams instantly with zero data usage.",
+  },
+  {
     category: "audio",
     problem: "Audio will not play or stops unexpectedly.",
     solution:
@@ -385,6 +471,24 @@ export const GUIDE_TROUBLESHOOTING: GuideIssue[] = [
 ];
 
 export const GUIDE_FAQ: GuideFaqItem[] = [
+  {
+    category: "general",
+    question: "How are prayer times calculated?",
+    answer:
+      "Prayer times are calculated via the verified AlAdhan astronomical engine based on your coordinates or selected city. You can choose from standard calculation methods (MWL, ISNA, Egypt, Makkah, Karachi, Tehran) and adjust Asr school (Standard / Hanafi).",
+  },
+  {
+    category: "reading",
+    question: "Can I play audio for an individual word in the Quran?",
+    answer:
+      "Yes! In the Mushaf view (/mushaf), simply click or tap on any Arabic word to hear its authentic pronunciation and learn correct articulation.",
+  },
+  {
+    category: "reading",
+    question: "What do the Tajweed colors mean?",
+    answer:
+      "Tajweed colors highlight classical recitation rules: Ghunnah (nasalization), Ikhfa (concealment), Idgham (merging), Qalqalah (echo/bouncing consonants), and Madd (elongation). You can toggle them in reading and Mushaf settings.",
+  },
   {
     category: "reading",
     question: "Can I read the Quran offline?",

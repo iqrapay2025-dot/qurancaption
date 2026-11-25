@@ -35,6 +35,7 @@ export const MushafPage = React.memo(function MushafPage({
 
   return (
     <div
+      data-tour="mushaf-page"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       className="w-full max-w-2xl mx-auto my-2 sm:my-6 rounded-2xl sm:rounded-3xl border-2 border-border/80 bg-card/90 shadow-md p-2.5 sm:p-6 md:p-8 flex flex-col justify-between min-h-[520px] sm:min-h-[720px] transition-all overflow-x-hidden"

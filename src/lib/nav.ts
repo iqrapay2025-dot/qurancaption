@@ -37,10 +37,49 @@ export const QURAN_CHILDREN: NavChild[] = [
     icon: "HardDrive",
   },
   {
+    label: "Memorization Planner",
+    description: "Plan your memorization and revision",
+    href: "/planner",
+    icon: "Calendar",
+  },
+  {
     label: "Bookmarks",
     description: "Your saved ayahs",
     href: "/quran/bookmarks",
     icon: "Bookmark",
+  },
+];
+
+export const ADHKAR_CHILDREN: NavChild[] = [
+  {
+    label: "All Adhkar & Du'as",
+    description: "Categories, counter, virtues & daily progress",
+    href: "/adhkar",
+    icon: "DuaHands",
+  },
+  {
+    label: "Morning Adhkar",
+    description: "Remembrance from Fajr to sunrise",
+    href: "/adhkar/morning",
+    icon: "Sunrise",
+  },
+  {
+    label: "Evening Adhkar",
+    description: "Remembrance from Asr to sunset",
+    href: "/adhkar/evening",
+    icon: "Sunset",
+  },
+  {
+    label: "After Salah",
+    description: "Authentic supplications post prayer",
+    href: "/adhkar/after-salah",
+    icon: "Clock",
+  },
+  {
+    label: "Before Sleep",
+    description: "Night protection and Sunnah adhkar",
+    href: "/adhkar/sleep",
+    icon: "Moon",
   },
 ];
 
@@ -62,6 +101,7 @@ export const LEARN_CHILDREN: NavChild[] = [
 export const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "Quran", children: QURAN_CHILDREN },
+  { label: "Adhkar", children: ADHKAR_CHILDREN },
   { label: "Learn", children: LEARN_CHILDREN },
   { label: "Pricing", href: "/pricing" },
 ];
@@ -76,7 +116,7 @@ export function isActive(pathname: string | null | undefined, target: string): b
     return cleanPath === "/" || cleanPath === "/home";
   }
 
-  // "Quran" dropdown parent active for /quran, /quran/[surah], /listen, /mushaf, and /offline
+  // "Quran" dropdown parent active for /quran, /quran/[surah], /listen, /mushaf, /offline, and /planner
   if (cleanTarget === "Quran" || cleanTarget === "quran" || cleanTarget === "/quran") {
     return (
       cleanPath === "/quran" ||
@@ -86,7 +126,9 @@ export function isActive(pathname: string | null | undefined, target: string): b
       cleanPath === "/mushaf" ||
       cleanPath.startsWith("/mushaf/") ||
       cleanPath === "/offline" ||
-      cleanPath.startsWith("/offline/")
+      cleanPath.startsWith("/offline/") ||
+      cleanPath === "/planner" ||
+      cleanPath.startsWith("/planner/")
     );
   }
 
@@ -98,6 +140,11 @@ export function isActive(pathname: string | null | undefined, target: string): b
       cleanPath === "/guide" ||
       cleanPath.startsWith("/guide/")
     );
+  }
+
+  // "Adhkar" top-level link active for /adhkar and its sub-routes
+  if (cleanTarget === "Adhkar" || cleanTarget === "adhkar" || cleanTarget === "/adhkar") {
+    return cleanPath === "/adhkar" || cleanPath.startsWith("/adhkar/");
   }
 
   // /listen matches only listen

@@ -14,6 +14,7 @@ import CookieConsent from "@/components/CookieConsent"
 import CookieSettingsBar from "@/components/CookieSettingsBar"
 import SplashLoader from "@/components/SplashLoader"
 import BackToTop from "@/components/BackToTop"
+import { PlannerReminderToast } from "@/components/planner/PlannerReminderToast"
 
 const title = SEO_TITLE
 const description = BRAND_DESCRIPTION
@@ -101,7 +102,7 @@ gtag('js', new Date());`,
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem("qcs-theme");if(t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches)d.classList.add("dark");if(sessionStorage.getItem("qcs-splash"))d.dataset.splash="seen";var lm=localStorage.getItem("qcs-lite-mode");var conn=navigator.connection;var mem=navigator.deviceMemory;if(lm==="on"||(lm!=="off"&&((conn&&(conn.saveData||conn.effectiveType==="2g"||conn.effectiveType==="slow-2g"))||(typeof mem==="number"&&mem<=2))))d.classList.add("lite-mode")}catch(e){}})()`,
+            __html: `(function(){try{var d=document.documentElement;var t=localStorage.getItem("qcs-theme");var isDark=t==="dark"||((!t||t==="system")&&matchMedia("(prefers-color-scheme: dark)").matches);if(isDark){d.classList.add("dark");}else{d.classList.remove("dark");}if(sessionStorage.getItem("qcs-splash"))d.dataset.splash="seen";var lm=localStorage.getItem("qcs-lite-mode");var conn=navigator.connection;var mem=navigator.deviceMemory;if(lm==="on"||(lm!=="off"&&((conn&&(conn.saveData||conn.effectiveType==="2g"||conn.effectiveType==="slow-2g"))||(typeof mem==="number"&&mem<=2))))d.classList.add("lite-mode")}catch(e){}})()`,
           }}
         />
         {renderHeadCustomCode(customScripts?.headStart, "head-start")}
@@ -161,6 +162,7 @@ gtag('js', new Date());`,
               {children}
             </div>
             <MiniPlayer />
+            <PlannerReminderToast />
           </TourProvider>
         </GlobalAudioProvider>
         <BackToTop />

@@ -38,7 +38,7 @@ const csp = [
   "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' https://fonts.gstatic.com https://verses.quran.com https://static.qurancdn.com data:",
-  "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://api.quran.com https://apis.quran.foundation https://verses.quran.com https://static.qurancdn.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.googletagmanager.com https://va.vercel-scripts.com https://vitals.vercel-insights.com https://download.quranicaudio.com https://everyayah.com https://mp3quran.net https://*.mp3quran.net",
+  "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://api.quran.com https://apis.quran.foundation https://verses.quran.com https://static.qurancdn.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.googletagmanager.com https://va.vercel-scripts.com https://vitals.vercel-insights.com https://download.quranicaudio.com https://everyayah.com https://mp3quran.net https://*.mp3quran.net https://api.aladhan.com",
   "media-src 'self' https: blob:",
   "worker-src 'self' blob:",
   "frame-src 'none'",
@@ -55,7 +55,7 @@ const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self)' },
   { key: 'Content-Security-Policy', value: csp },
 ]
 

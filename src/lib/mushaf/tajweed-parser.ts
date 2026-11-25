@@ -1,5 +1,7 @@
 import { tajweedGroup } from "@/lib/quran/tajweed";
 
+const COMBINING_MARKS_REGEX = /^[\u0610-\u061A\u064B-\u065F\u06D6-\u06ED]+/;
+
 export function parseVerseTajweed(textUthmaniTajweed: string) {
   const clean = textUthmaniTajweed.replace(/<span class=end>[^<]*<\/span>/g, '').trim();
   let inTag = false;
@@ -38,6 +40,31 @@ export function parseVerseTajweed(textUthmaniTajweed: string) {
       const plain = wStr.slice(last).replace(/<[^>]*>/g, '');
       if (plain) segs.push({ text: plain });
     }
-    return segs;
+
+    // Normalization to prevent Arabic cursive disconnection and dotted circles:
+    // 1. Replace legacy dagger alif glyph \u0672 with tatweel + superscript alef (\u0640\u0670)
+    for (let i = 0; i < segs.length; i++) {
+      segs[i].text = segs[i].text.replace(/\u0672/g, '\u0640\u0670');
+    }
+
+    // 2. Move leading combining marks (fatha, kasra, damma, etc.) to the preceding segment
+    // so the vowel attaches to its consonant and the colored segment does not begin with an orphaned mark
+    for (let i = 1; i < segs.length; i++) {
+      const match = segs[i].text.match(COMBINING_MARKS_REGEX);
+      if (match) {
+        segs[i - 1].text += match[0];
+        segs[i].text = segs[i].text.slice(match[0].length);
+      }
+    }
+
+    // 3. Move maddah mark (\u0653) to preceding alif/waw/ya if split by tags
+    for (let i = 1; i < segs.length; i++) {
+      if (segs[i].text.startsWith('\u0653') && /[\u0627\u0649\u0648\u064A]$/.test(segs[i - 1].text)) {
+        segs[i - 1].text += '\u0653';
+        segs[i].text = segs[i].text.slice(1);
+      }
+    }
+
+    return segs.filter(s => s.text.length > 0);
   });
 }
