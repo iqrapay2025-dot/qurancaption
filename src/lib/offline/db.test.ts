@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatBytes, estimateJsonSize, STORES, DB_VERSION } from "./db";
+import { formatBytes, estimateJsonSize, STORES, DB_VERSION, getAllFromStore } from "./db";
 
 describe("Offline DB & Storage Helpers", () => {
   it("formats byte values accurately into B, KB, MB, GB", () => {
@@ -22,11 +22,50 @@ describe("Offline DB & Storage Helpers", () => {
   });
 
   it("defines expected stores and database version", () => {
-    expect(DB_VERSION).toBe(3);
+    expect(DB_VERSION).toBe(5);
     expect(STORES.CONTENT).toBe("surah_content");
     expect(STORES.AUDIO).toBe("surah_audio");
     expect(STORES.MUSHAF).toBe("mushaf_pages");
     expect(STORES.FULL_AUDIO).toBe("listen_audio");
     expect(STORES.ADHKAR).toBe("adhkar_content");
+    expect(STORES.ADHKAR_AUDIO).toBe("adhkar_audio");
+  });
+
+  it("safely handles missing stores in getAllFromStore without crashing", async () => {
+    const mockDbMissingStore = {
+      objectStoreNames: {
+        contains: (name: string) => false,
+      },
+    } as unknown as IDBDatabase;
+
+    const result = await getAllFromStore(mockDbMissingStore, "non_existent_store");
+    expect(result).toEqual([]);
+  });
+
+  it("retrieves records properly from an existing store via getAllFromStore", async () => {
+    const mockRecords = [{ id: 1, name: "Al-Fatihah" }];
+    const mockDb = {
+      objectStoreNames: {
+        contains: (name: string) => name === "surah_content",
+      },
+      transaction: () => {
+        const req: any = {};
+        const store = {
+          getAll: () => req,
+        };
+        setTimeout(() => {
+          req.result = mockRecords;
+          if (req.onsuccess) req.onsuccess();
+        }, 5);
+        return {
+          objectStore: () => store,
+          onerror: null,
+          onabort: null,
+        };
+      },
+    } as unknown as IDBDatabase;
+
+    const result = await getAllFromStore(mockDb, "surah_content");
+    expect(result).toEqual(mockRecords);
   });
 });

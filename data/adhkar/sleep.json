@@ -16,7 +16,10 @@
       "grading": "Sahih",
       "narrator": "Hudhayfah ibn al-Yaman"
     },
-    "sourceDataset": "Hisn al-Muslim / Bukhari 6324"
+    "sourceDataset": "Hisn al-Muslim / Bukhari 6324",
+    "audioUrl": "/audio/opendua/OD-105.mp3",
+    "audioDuration": 6,
+    "openduaId": "entry-000105"
   },
   {
     "id": "sleep-2",
@@ -35,7 +38,10 @@
       "grading": "Sahih",
       "narrator": "Abu Hurairah"
     },
-    "sourceDataset": "Hisn al-Muslim / Bukhari 2311"
+    "sourceDataset": "Hisn al-Muslim / Bukhari 2311",
+    "audioUrl": "/audio/opendua/OD-100.mp3",
+    "audioDuration": 71,
+    "openduaId": "entry-000100"
   },
   {
     "id": "sleep-3",
@@ -54,7 +60,10 @@
       "grading": "Sahih",
       "narrator": "Abu Mas'ud al-Badri"
     },
-    "sourceDataset": "Hisn al-Muslim / Bukhari 5009"
+    "sourceDataset": "Hisn al-Muslim / Bukhari 5009",
+    "audioUrl": "/audio/opendua/OD-101.mp3",
+    "audioDuration": 119,
+    "openduaId": "entry-000101"
   },
   {
     "id": "sleep-4",
@@ -73,7 +82,10 @@
       "grading": "Sahih",
       "narrator": "Abu Hurairah"
     },
-    "sourceDataset": "Hisn al-Muslim / Bukhari 6320"
+    "sourceDataset": "Hisn al-Muslim / Bukhari 6320",
+    "audioUrl": "/audio/opendua/OD-102.mp3",
+    "audioDuration": 26,
+    "openduaId": "entry-000102"
   },
   {
     "id": "sleep-5",
@@ -92,7 +104,10 @@
       "grading": "Sahih",
       "narrator": "Ali ibn Abi Talib"
     },
-    "sourceDataset": "Hisn al-Muslim / Bukhari 3705"
+    "sourceDataset": "Hisn al-Muslim / Bukhari 3705",
+    "audioUrl": "/audio/opendua/OD-106.mp3",
+    "audioDuration": 9,
+    "openduaId": "entry-000106"
   },
   {
     "id": "sleep-6",
@@ -111,7 +126,10 @@
       "grading": "Sahih",
       "narrator": "Hudhayfah & Hafsah"
     },
-    "sourceDataset": "Hisn al-Muslim / Abu Dawud 5045"
+    "sourceDataset": "Hisn al-Muslim / Abu Dawud 5045",
+    "audioUrl": "/audio/opendua/OD-104.mp3",
+    "audioDuration": 6,
+    "openduaId": "entry-000104"
   },
   {
     "id": "sleep-7",
@@ -130,7 +148,10 @@
       "grading": "Sahih",
       "narrator": "Anas ibn Malik"
     },
-    "sourceDataset": "Hisn al-Muslim / Muslim 2715"
+    "sourceDataset": "Hisn al-Muslim / Muslim 2715",
+    "audioUrl": "/audio/opendua/OD-108.mp3",
+    "audioDuration": 18,
+    "openduaId": "entry-000108"
   },
   {
     "id": "sleep-8",
@@ -149,6 +170,9 @@
       "grading": "Sahih",
       "narrator": "Al-Bara' ibn 'Azib"
     },
-    "sourceDataset": "Hisn al-Muslim / Bukhari 247"
+    "sourceDataset": "Hisn al-Muslim / Bukhari 247",
+    "audioUrl": "/audio/opendua/OD-111.mp3",
+    "audioDuration": 38,
+    "openduaId": "entry-000111"
   }
 ]

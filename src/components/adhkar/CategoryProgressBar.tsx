@@ -1,6 +1,6 @@
 "use client";
 
-import { SlidersHorizontal, RotateCcw, Download, CheckCircle2 } from "lucide-react";
+import { SlidersHorizontal, RotateCcw, Download, CheckCircle2, Play } from "lucide-react";
 import type { AdhkarCategoryMeta } from "@/lib/adhkar/types";
 
 interface CategoryProgressBarProps {
@@ -11,6 +11,12 @@ interface CategoryProgressBarProps {
   onResetCategory: () => void;
   onDownloadOffline?: () => void;
   isOfflineCached?: boolean;
+  audioSizeEstimate?: string;
+  isDownloadingAudio?: boolean;
+  downloadAudioProgress?: number;
+  isAudioOffline?: boolean;
+  onDownloadAudioOffline?: () => void;
+  onPlayAll?: () => void;
 }
 
 export function CategoryProgressBar({
@@ -21,6 +27,12 @@ export function CategoryProgressBar({
   onResetCategory,
   onDownloadOffline,
   isOfflineCached,
+  audioSizeEstimate,
+  isDownloadingAudio,
+  downloadAudioProgress,
+  isAudioOffline,
+  onDownloadAudioOffline,
+  onPlayAll,
 }: CategoryProgressBarProps) {
   const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
   const isDone = completedCount === totalCount && totalCount > 0;
@@ -44,21 +56,46 @@ export function CategoryProgressBar({
             )}
           </div>
 
-          <div className="flex items-center gap-1.5">
-            {onDownloadOffline && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {/* Play All Button */}
+            {onPlayAll && (
               <button
                 type="button"
-                onClick={onDownloadOffline}
-                title={isOfflineCached ? "Cached for offline use" : "Download for offline use"}
+                onClick={onPlayAll}
+                title="Play all adhkar sequentially in order"
+                className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg bg-primary text-primary-foreground hover:opacity-90 shadow-2xs transition-all"
+              >
+                <Play size={11} className="fill-current" />
+                <span>Play All</span>
+              </button>
+            )}
+
+            {/* Audio offline download */}
+            {onDownloadAudioOffline && (
+              <button
+                type="button"
+                onClick={onDownloadAudioOffline}
+                disabled={isDownloadingAudio}
+                title={
+                  isAudioOffline
+                    ? "Audio saved offline"
+                    : `Download ${audioSizeEstimate || "audio"} for offline listening (Wi-Fi suggested)`
+                }
                 className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg border transition-colors ${
-                  isOfflineCached
-                    ? "border-primary/40 bg-primary/10 text-primary"
+                  isAudioOffline
+                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    : isDownloadingAudio
+                    ? "border-primary/40 bg-primary/10 text-primary animate-pulse"
                     : "border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
                 <Download size={13} />
-                <span className="hidden sm:inline">
-                  {isOfflineCached ? "Saved Offline" : "Save Offline"}
+                <span>
+                  {isDownloadingAudio
+                    ? `Downloading ${downloadAudioProgress || 0}%`
+                    : isAudioOffline
+                    ? "Audio Offline ✓"
+                    : `Audio (${audioSizeEstimate || "offline"})`}
                 </span>
               </button>
             )}

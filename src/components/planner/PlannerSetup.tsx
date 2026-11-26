@@ -12,6 +12,7 @@ import {
   Layers,
   ChevronRight,
   HelpCircle,
+  Headphones,
 } from "lucide-react";
 import { SURAHS_META, JUZS_META } from "@/lib/mushaf/data";
 import { TOTAL_MUSHAF_PAGES, generateMushafUnits } from "@/lib/planner/mushaf-grid";
@@ -25,6 +26,7 @@ import {
 } from "@/lib/planner/storage";
 import { PlannerPlan, UnitRecord, LessonSize, StrengthRating } from "@/lib/planner/types";
 import { getPaceEstimate } from "@/lib/planner/pace";
+import { DEFAULT_RECITER, type Reciter } from "@/lib/quran/types";
 
 const LESSON_SIZES: Array<{ size: LessonSize; label: string; desc: string }> = [
   { size: 3, label: "3 Lines", desc: "Gentle pace · ~5–10 mins" },
@@ -71,8 +73,27 @@ export function PlannerSetup() {
     murajaah: "19:00",
   });
 
-  // Load draft from localStorage on mount
+  const [reciters, setReciters] = useState<Reciter[]>([]);
+  const [selectedReciterId, setSelectedReciterId] = useState<number>(DEFAULT_RECITER);
+
+  // Load draft & reciters on mount
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("qcs-quran-reciter");
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed > 0) setSelectedReciterId(parsed);
+      }
+    }
+
+    fetch("/api/quran/reciters")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data?.reciters || [];
+        if (Array.isArray(list) && list.length > 0) setReciters(list);
+      })
+      .catch(() => {});
+
     const draft = loadSetupDraft();
     if (draft) {
       setStep(draft.step || 1);
@@ -694,6 +715,35 @@ export function PlannerSetup() {
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>
+          </div>
+
+          {/* Preferred Reciter */}
+          <div className="p-4 rounded-xl border border-border bg-card space-y-2">
+            <label htmlFor="setup-reciter-select" className="text-xs font-bold text-foreground flex items-center gap-1.5">
+              <Headphones size={14} className="text-primary" /> Preferred Quran Reciter Voice
+            </label>
+            <select
+              id="setup-reciter-select"
+              value={selectedReciterId}
+              onChange={(e) => {
+                const id = Number(e.target.value);
+                setSelectedReciterId(id);
+                try {
+                  localStorage.setItem("qcs-quran-reciter", String(id));
+                } catch {}
+              }}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs sm:text-sm font-semibold text-foreground focus:ring-2 focus:ring-primary focus:outline-none cursor-pointer"
+            >
+              {reciters.length > 0 ? (
+                reciters.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name} {r.style ? `· ${r.style}` : ""}
+                  </option>
+                ))
+              ) : (
+                <option value={selectedReciterId}>Mishary Rashid Alafasy</option>
+              )}
+            </select>
           </div>
 
           {/* Plan Summary Card */}

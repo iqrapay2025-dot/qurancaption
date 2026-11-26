@@ -13,7 +13,10 @@
       "hadith_reference": "HR. al-Bukhari and Muslim",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-010.mp3",
+    "audioDuration": 10,
+    "openduaId": "entry-000010"
   },
   {
     "id": "general-2",
@@ -29,7 +32,10 @@
       "hadith_reference": "HR. at-Tirmidzi",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-011.mp3",
+    "audioDuration": 2,
+    "openduaId": "entry-000011"
   },
   {
     "id": "general-3",
@@ -46,7 +52,10 @@
       "sunnah_url": "https://sunnah.com/muslim:5376",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-009.mp3",
+    "audioDuration": 2,
+    "openduaId": "entry-000009"
   },
   {
     "id": "general-4",
@@ -62,7 +71,10 @@
       "hadith_reference": "HR. Abu Dawud",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-178-2.mp3",
+    "audioDuration": 4,
+    "openduaId": "entry-000178"
   },
   {
     "id": "general-5",
@@ -78,7 +90,10 @@
       "hadith_reference": "Shahih at-Tirmidzi",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-180.mp3",
+    "audioDuration": 15,
+    "openduaId": "entry-000180"
   },
   {
     "id": "general-6",
@@ -94,7 +109,10 @@
       "hadith_reference": "HR. Muslim",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-020.mp3",
+    "audioDuration": 33,
+    "openduaId": "entry-000020"
   },
   {
     "id": "general-7",
@@ -111,7 +129,10 @@
       "sunnah_url": "https://sunnah.com/muslim:713",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-021.mp3",
+    "audioDuration": 30,
+    "openduaId": "entry-000021"
   },
   {
     "id": "general-8",
@@ -127,7 +148,10 @@
       "hadith_reference": "HR. at-Tirmidzi and al-Baihaqi",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-009.mp3",
+    "audioDuration": 2,
+    "openduaId": "entry-000009"
   },
   {
     "id": "general-9",
@@ -143,7 +167,10 @@
       "hadith_reference": "HR. Muslim, at-Tirmidzi and an-Nasa'i",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-013.mp3",
+    "audioDuration": 19,
+    "openduaId": "entry-000013"
   },
   {
     "id": "general-10",
@@ -160,7 +187,10 @@
       "sunnah_url": "https://sunnah.com/abudawud:4",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-176.mp3",
+    "audioDuration": 14,
+    "openduaId": "entry-000176"
   },
   {
     "id": "general-11",
@@ -208,7 +238,10 @@
       "hadith_reference": "HR. Abu Dawud and at-Tirmidzi",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-016.mp3",
+    "audioDuration": 14,
+    "openduaId": "entry-000016"
   },
   {
     "id": "general-14",
@@ -224,7 +257,10 @@
       "hadith_reference": "HR. Abu Dawud, at-Tirmidzi, Ibn Majah and an-Nasa'i",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-017.mp3",
+    "audioDuration": 18,
+    "openduaId": "entry-000017"
   },
   {
     "id": "general-15",
@@ -240,7 +276,10 @@
       "hadith_reference": "HR. Muslim",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-207-1.mp3",
+    "audioDuration": 78,
+    "openduaId": "entry-000207"
   },
   {
     "id": "general-16",
@@ -257,7 +296,10 @@
       "sunnah_url": "https://sunnah.com/abudawud:2601",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-212.mp3",
+    "audioDuration": 9,
+    "openduaId": "entry-000212"
   },
   {
     "id": "general-17",
@@ -273,7 +315,10 @@
       "hadith_reference": "HR. at-Tirmidzi",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-213.mp3",
+    "audioDuration": 12,
+    "openduaId": "entry-000213"
   },
   {
     "id": "general-18",
@@ -289,7 +334,10 @@
       "hadith_reference": "HR. Ahmad, Abu Dawud, at-Tirmidzi and Al-Hakim",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-006.mp3",
+    "audioDuration": 19,
+    "openduaId": "entry-000006"
   },
   {
     "id": "general-19",
@@ -305,7 +353,10 @@
       "hadith_reference": "HR. all compilers of Sunan books, except Nasa'i",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-005.mp3",
+    "audioDuration": 14,
+    "openduaId": "entry-000005"
   },
   {
     "id": "general-20",
@@ -321,7 +372,10 @@
       "hadith_reference": "HR. Abu Dawud and at-Tirmidzi",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-206.mp3",
+    "audioDuration": 57,
+    "openduaId": "entry-000206"
   },
   {
     "id": "general-21",
@@ -338,7 +392,10 @@
       "sunnah_url": "https://sunnah.com/bukhari:1032",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-172.mp3",
+    "audioDuration": 5,
+    "openduaId": "entry-000172"
   },
   {
     "id": "general-22",
@@ -355,7 +412,10 @@
       "sunnah_url": "https://sunnah.com/bukhari:1014",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-174.mp3",
+    "audioDuration": 23,
+    "openduaId": "entry-000174"
   },
   {
     "id": "general-23",
@@ -372,7 +432,10 @@
       "sunnah_url": "https://sunnah.com/bukhari:846",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-173.mp3",
+    "audioDuration": 5,
+    "openduaId": "entry-000173"
   },
   {
     "id": "general-24",
@@ -388,7 +451,10 @@
       "hadith_reference": "HR. Abu Dawud and Ibn Majah",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-166.mp3",
+    "audioDuration": 13,
+    "openduaId": "entry-000166"
   },
   {
     "id": "general-25",
@@ -405,7 +471,10 @@
       "sunnah_url": "https://sunnah.com/hisn:79",
       "grading": "Authentic / Sahih"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-079.mp3",
+    "audioDuration": 50,
+    "openduaId": "entry-000079"
   },
   {
     "id": "general-26",
@@ -421,7 +490,10 @@
       "hadith_reference": "HR. Ibn Hibban",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-139.mp3",
+    "audioDuration": 13,
+    "openduaId": "entry-000139"
   },
   {
     "id": "general-27",
@@ -437,7 +509,10 @@
       "hadith_reference": "HR. Muslim",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-154.mp3",
+    "audioDuration": 20,
+    "openduaId": "entry-000154"
   },
   {
     "id": "general-28",
@@ -454,7 +529,10 @@
       "sunnah_url": "https://sunnah.com/tirmidhi:2563",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-136.mp3",
+    "audioDuration": 14,
+    "openduaId": "entry-000136"
   },
   {
     "id": "general-29",
@@ -471,15 +549,18 @@
       "sunnah_url": "https://sunnah.com/abudawud:1555",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-137.mp3",
+    "audioDuration": 21,
+    "openduaId": "entry-000137"
   },
   {
     "id": "general-30",
     "category": "general",
     "order": 30,
     "title": "Supplication After Sneezing",
-    "arabic": "الحَمْدُ للهِ",
-    "transliteration": "alhamdulillah",
+    "arabic": "الْحَمْدُ لِلَّهِ",
+    "transliteration": "Al-ḥamdu lillāh",
     "translation_en": "All praise is to Allah.",
     "repeat": 1,
     "source": {
@@ -487,7 +568,10 @@
       "hadith_reference": "HR. al-Bukhari",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-188-1.mp3",
+    "audioDuration": 2,
+    "openduaId": "entry-000188"
   },
   {
     "id": "general-31",
@@ -503,7 +587,10 @@
       "hadith_reference": "HR. al-Bukhari",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-188-2.mp3",
+    "audioDuration": 3,
+    "openduaId": "entry-000188"
   },
   {
     "id": "general-32",
@@ -519,7 +606,10 @@
       "hadith_reference": "HR. al-Bukhari",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-188-3.mp3",
+    "audioDuration": 5,
+    "openduaId": "entry-000188"
   },
   {
     "id": "general-33",
@@ -570,7 +660,10 @@
       "sunnah_url": "https://sunnah.com/tirmidhi:529",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-025.mp3",
+    "audioDuration": 29,
+    "openduaId": "entry-000025"
   },
   {
     "id": "general-36",
@@ -587,7 +680,13 @@
       "hadith_reference": "QS. Ibrahim: 41",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "quranAudio": {
+      "verses": [
+        "14:41"
+      ],
+      "label": "Surah Ibrahim (14:41)"
+    }
   },
   {
     "id": "general-37",
@@ -605,7 +704,10 @@
       "sunnah_url": "https://sunnah.com/bukhari:201",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-235.mp3",
+    "audioDuration": 14,
+    "openduaId": "entry-000235"
   },
   {
     "id": "general-38",
@@ -658,7 +760,13 @@
       "hadith_reference": "QS. Ali Imran: 8",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "quranAudio": {
+      "verses": [
+        "3:8"
+      ],
+      "label": "Surah Ali 'Imran (3:8)"
+    }
   },
   {
     "id": "general-41",
@@ -712,7 +820,10 @@
       "sunnah_url": "https://sunnah.com/abudawud:1555",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-137.mp3",
+    "audioDuration": 21,
+    "openduaId": "entry-000137"
   },
   {
     "id": "general-44",
@@ -730,6 +841,9 @@
       "sunnah_url": "https://sunnah.com/ibnmajah:3803",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-218-1.mp3",
+    "audioDuration": 8,
+    "openduaId": "entry-000218"
   }
 ]

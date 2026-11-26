@@ -841,6 +841,8 @@ const RECITER_CDN_PATHS: Record<number, { path: string; everyAyah: string }> = {
   9: { path: "yasser_ad-dussary", everyAyah: "Yasser_Ad-Dussary_128kbps" },
   10: { path: "sa3ood_al-shuraym", everyAyah: "Saood_ash-Shuraym_128kbps" },
   11: { path: "abdullah_al-juhanee", everyAyah: "Abdullah_Juhany_128kbps" },
+  12: { path: "bandar_baleela/complete", everyAyah: "" },
+  13: { path: "buajan", everyAyah: "" },
 };
 
 for (const add of EVERYAYAH_ADDITIONAL_RECITERS) {
@@ -863,11 +865,23 @@ export async function getAudio(surah: number, reciter: number) {
       const d = await ummah<any>(`/quran/audio/${surah}`, { reciter: normalizedReciter });
       const url = (u: unknown) => (typeof u === "string" && /^https:\/\//i.test(u) ? u : null);
       const surahUrl = url(d.full_surah_audio);
-      if (surahUrl && Array.isArray(d.ayah_by_ayah) && (d.reciter?.id === normalizedReciter || d.reciter?.id === reciter)) {
-        const files = (d.ayah_by_ayah as any[]).flatMap((a) => {
-          const u = url(a?.audio_url);
-          return u && typeof a.verse_key === "string" && a.verse_key.startsWith(`${surah}:`) ? [{ verseKey: a.verse_key as string, audioUrl: u }] : [];
-        });
+      if (surahUrl && (d.reciter?.id === normalizedReciter || d.reciter?.id === reciter)) {
+        let files: { verseKey: string; audioUrl: string }[] = [];
+        if (Array.isArray(d.ayah_by_ayah) && d.ayah_by_ayah.length > 0) {
+          files = (d.ayah_by_ayah as any[]).flatMap((a) => {
+            const u = url(a?.audio_url);
+            return u && typeof a.verse_key === "string" && a.verse_key.startsWith(`${surah}:`)
+              ? [{ verseKey: a.verse_key as string, audioUrl: u }]
+              : [];
+          });
+        }
+        if (files.length === 0) {
+          const verseCount = SURAH_VERSE_COUNTS[surah - 1] || 7;
+          files = Array.from({ length: verseCount }, (_, i) => ({
+            verseKey: `${surah}:${i + 1}`,
+            audioUrl: surahUrl,
+          }));
+        }
         return { reciterId: reciter, surah, audioUrl: surahUrl, files };
       }
     } catch (e) {
@@ -877,14 +891,19 @@ export async function getAudio(surah: number, reciter: number) {
     const cdn = RECITER_CDN_PATHS[normalizedReciter] || RECITER_CDN_PATHS[reciter];
     if (cdn) {
       const pad3 = String(surah).padStart(3, "0");
-      const surahUrl = `https://download.quranicaudio.com/quran/${cdn.path}/${pad3}.mp3`;
+      const surahUrl =
+        reciter === 13
+          ? `https://server8.mp3quran.net/buajan/${pad3}.mp3`
+          : `https://download.quranicaudio.com/quran/${cdn.path}/${pad3}.mp3`;
       const verseCount = SURAH_VERSE_COUNTS[surah - 1] || 7;
       const files = Array.from({ length: verseCount }, (_, i) => {
         const v = i + 1;
         const padV = String(v).padStart(3, "0");
         return {
           verseKey: `${surah}:${v}`,
-          audioUrl: `https://everyayah.com/data/${cdn.everyAyah}/${pad3}${padV}.mp3`,
+          audioUrl: cdn.everyAyah
+            ? `https://everyayah.com/data/${cdn.everyAyah}/${pad3}${padV}.mp3`
+            : surahUrl,
         };
       });
       return { reciterId: reciter, surah, audioUrl: surahUrl, files };

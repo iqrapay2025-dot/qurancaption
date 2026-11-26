@@ -14,7 +14,10 @@
       "sunnah_url": "https://sunnah.com/muslim:591",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-066.mp3",
+    "audioDuration": 23,
+    "openduaId": "entry-000066"
   },
   {
     "id": "after-salah-2",
@@ -31,7 +34,10 @@
       "sunnah_url": "https://sunnah.com/muslim:591",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-066.mp3",
+    "audioDuration": 23,
+    "openduaId": "entry-000066"
   },
   {
     "id": "after-salah-3",
@@ -48,7 +54,10 @@
       "sunnah_url": "https://sunnah.com/bukhari:844",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-067.mp3",
+    "audioDuration": 33,
+    "openduaId": "entry-000067"
   },
   {
     "id": "after-salah-4",
@@ -65,7 +74,10 @@
       "sunnah_url": "https://sunnah.com/muslim:594",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-068.mp3",
+    "audioDuration": 57,
+    "openduaId": "entry-000068"
   },
   {
     "id": "after-salah-5",
@@ -81,7 +93,10 @@
       "hadith_reference": "Fortress of the Muslim (Hisn al-Muslim)",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-069.mp3",
+    "audioDuration": 28,
+    "openduaId": "entry-000069"
   },
   {
     "id": "after-salah-6",
@@ -97,7 +112,10 @@
       "hadith_reference": "Fortress of the Muslim (Hisn al-Muslim)",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-069.mp3",
+    "audioDuration": 28,
+    "openduaId": "entry-000069"
   },
   {
     "id": "after-salah-7",
@@ -113,7 +131,10 @@
       "hadith_reference": "Fortress of the Muslim (Hisn al-Muslim)",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-069.mp3",
+    "audioDuration": 28,
+    "openduaId": "entry-000069"
   },
   {
     "id": "after-salah-8",
@@ -130,7 +151,10 @@
       "sunnah_url": "https://sunnah.com/muslim:5",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-069.mp3",
+    "audioDuration": 28,
+    "openduaId": "entry-000069"
   },
   {
     "id": "after-salah-9",
@@ -147,13 +171,16 @@
       "sunnah_url": "https://sunnah.com/hisn:75",
       "grading": "Authentic / Sahih"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-071.mp3",
+    "audioDuration": 65,
+    "openduaId": "entry-000071"
   },
   {
     "id": "after-salah-10",
     "category": "after-salah",
     "order": 10,
-    "title": "Al-Ikhlas",
+    "title": "Al-Mu'awwidhat (Surah Al-Ikhlas, Al-Falaq, An-Nas)",
     "arabic": "قُلْ هُوَ ٱللَّهُ أَحَدٌ (١) ٱللَّهُ ٱلصَّمَدُ (٢) لَمْ يَلِدْ وَلَمْ يُولَدْ (٣) وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ (٤)",
     "transliteration": "qul huwa allahu ahad (1) allahu samad (2) lam yalid wa lam yulad (3) wa lam yakun lahu kufuwan ahad (4)",
     "translation_en": "Say, \"He is Allah , [who is] One, (1) Allah , the Eternal Refuge. (2) He neither begets nor is born, (3) Nor is there to Him any equivalent.\" (4)",
@@ -164,7 +191,38 @@
       "sunnah_url": "https://sunnah.com/abudawud:1523",
       "grading": "Hasan"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-070.mp3",
+    "audioDuration": 89,
+    "openduaId": "entry-000070",
+    "subItemIds": [
+      "after-salah-10",
+      "after-salah-11",
+      "after-salah-12"
+    ],
+    "slides": [
+      {
+        "id": "after-salah-10",
+        "title": "1. Surah Al-Ikhlas (112)",
+        "arabic": "قُلْ هُوَ ٱللَّهُ أَحَدٌ (١) ٱللَّهُ ٱلصَّمَدُ (٢) لَمْ يَلِدْ وَلَمْ يُولَدْ (٣) وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ (٤)",
+        "transliteration": "qul huwa allahu ahad (1) allahu samad (2) lam yalid wa lam yulad (3) wa lam yakun lahu kufuwan ahad (4)",
+        "translation_en": "Say, \"He is Allah , [who is] One, (1) Allah , the Eternal Refuge. (2) He neither begets nor is born, (3) Nor is there to Him any equivalent.\" (4)"
+      },
+      {
+        "id": "after-salah-11",
+        "title": "2. Surah Al-Falaq (113)",
+        "arabic": "قُلْ أَعُوذُ بِرَبِّ ٱلْفَلَقِ (١) مِن شَرِّ مَا خَلَقَ (٢) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (٣) وَمِن شَرِّ ٱلنَّفَّٰثَٰتِ فِى ٱلْعُقَدِ (٤) وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (٥)",
+        "transliteration": "qul a'udhu birabbil-falaq (1) min sharri ma khalaq (2) wa min sharri ghasiqin idha waqab (3) wa min sharri naffathati fil-'uqad (4) wa min sharri hasidin idha hasad (5)",
+        "translation_en": "Say, \"I seek refuge in the Lord of daybreak (1) From the evil of that which He created (2) And from the evil of darkness when it settles (3) And from the evil of the blowers in knots (4) And from the evil of an envier when he envies.\" (5)"
+      },
+      {
+        "id": "after-salah-12",
+        "title": "3. Surah An-Nas (114)",
+        "arabic": "قُلْ أَعُوذُ بِرَبِّ ٱلنَّاسِ (١) مَلِكِ ٱلنَّاسِ (٢) إِلَٰهِ ٱلنَّاسِ (٣) مِن شَرِّ ٱلْوَسْوَاسِ ٱلْخَنَّاسِ (٤) ٱلَّذِى يُوَسْوِسُ فِى صُدُورِ ٱلنَّاسِ (٥) مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ (٦)",
+        "transliteration": "qul a'udhu birabbin-nas (1) malikin-nas (2) ilahin-nas (3) min sharri al-waswasi al-khannas (4) alladhi yuwaswisu fi sudurin-nas (5) mina al-jinnati wan-nas (6)",
+        "translation_en": "Say, \"I seek refuge in the Lord of mankind, (1) The King of mankind. (2) The God of mankind, (3) From the evil of the whisperer who withdraws, (4) Who whispers in the breasts of mankind, (5) Of the jinn and mankind.\" (6)"
+      }
+    ]
   },
   {
     "id": "after-salah-11",
@@ -181,7 +239,11 @@
       "sunnah_url": "https://sunnah.com/abudawud:1523",
       "grading": "Hasan"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-070.mp3",
+    "audioDuration": 89,
+    "openduaId": "entry-000070",
+    "inCarouselGroupOf": "after-salah-10"
   },
   {
     "id": "after-salah-12",
@@ -198,7 +260,11 @@
       "sunnah_url": "https://sunnah.com/abudawud:1523",
       "grading": "Hasan"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-070.mp3",
+    "audioDuration": 89,
+    "openduaId": "entry-000070",
+    "inCarouselGroupOf": "after-salah-10"
   },
   {
     "id": "after-salah-13",
@@ -215,6 +281,9 @@
       "sunnah_url": "https://sunnah.com/ibnmajah:925",
       "grading": "Sahih / Verified"
     },
-    "sourceDataset": "fitrahive/dua-dhikr"
+    "sourceDataset": "fitrahive/dua-dhikr",
+    "audioUrl": "/audio/opendua/OD-073.mp3",
+    "audioDuration": 18,
+    "openduaId": "entry-000073"
   }
 ]

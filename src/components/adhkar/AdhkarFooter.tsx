@@ -55,6 +55,31 @@ export function AdhkarFooter() {
           Coordinates are rounded to approximately 1.1km for privacy and never sent to external servers.
         </p>
 
+        {/* Audio Licensing & Attribution */}
+        <div className="pt-3 border-t border-border/50 text-[11px] text-muted-foreground/80 leading-relaxed space-y-1">
+          <p>
+            <strong>Audio Attribution:</strong> Recitation by <strong>Muhammad Jumah</strong> for{" "}
+            <a
+              href="https://opendua.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline font-semibold"
+            >
+              OpenDua
+            </a>
+            , licensed under{" "}
+            <a
+              href="https://opendua.hdfund.org/licence/audio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              CC BY 4.0
+            </a>
+            . Audio is matched to the text only where the Arabic is identical. Where Quran ayah audio is used, recitation is voiced by the selected reciter. This usage does not imply endorsement by OpenDua, Ihsan Labs, or the Human Development Fund.
+          </p>
+        </div>
+
         <div className="pt-3 border-t border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px]">
           <span>© {new Date().getFullYear()} Aayah Studio. Open Data & MIT Licensed content.</span>
           <span className="flex items-center gap-1">

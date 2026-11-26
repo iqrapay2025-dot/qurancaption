@@ -1,4 +1,4 @@
-export type AudioPlaybackSource = "global" | "reader" | "daily" | "practice" | "editor";
+export type AudioPlaybackSource = "global" | "reader" | "daily" | "practice" | "editor" | "adhkar";
 
 type Listener = (newSource: AudioPlaybackSource) => void;
 

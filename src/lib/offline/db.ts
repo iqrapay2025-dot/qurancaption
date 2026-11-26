@@ -4,7 +4,7 @@ import { getSurahMeta, SURAHS_META } from "@/lib/mushaf/data";
 import { mapLegacyReciterId } from "@/lib/listen/mp3quran";
 
 export const DB_NAME = "ayah_studio_offline_v1";
-export const DB_VERSION = 3;
+export const DB_VERSION = 5;
 
 export const STORES = {
   CONTENT: "surah_content",
@@ -12,6 +12,7 @@ export const STORES = {
   MUSHAF: "mushaf_pages",
   FULL_AUDIO: "listen_audio",
   ADHKAR: "adhkar_content",
+  ADHKAR_AUDIO: "adhkar_audio",
 } as const;
 
 export interface OfflineSurahContent {
@@ -55,6 +56,15 @@ export interface OfflineFullAudio {
   mimeType: string;
   downloadedAt: number;
   sizeBytes: number;
+}
+
+export interface OfflineAdhkarAudioRecord {
+  url: string; // audioUrl (e.g. "/audio/opendua/OD-001.mp3" or ayah audio url)
+  category: string;
+  blob: Blob;
+  mimeType: string;
+  sizeBytes: number;
+  downloadedAt: number;
 }
 
 export interface OfflineDownloadSummary {
@@ -101,10 +111,65 @@ export function openOfflineDb(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains(STORES.ADHKAR)) {
         db.createObjectStore(STORES.ADHKAR, { keyPath: "id" });
       }
+      if (!db.objectStoreNames.contains(STORES.ADHKAR_AUDIO)) {
+        const store = db.createObjectStore(STORES.ADHKAR_AUDIO, { keyPath: "url" });
+        store.createIndex("by_category", "category", { unique: false });
+      }
     };
 
+    request.onblocked = () => {
+      console.warn("IndexedDB upgrade blocked: another tab has an older version open.");
+    };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error || new Error("Failed to open offline database"));
+  });
+}
+
+/**
+ * Safely read all records from an IndexedDB store without crashing if the store is missing.
+ * Prevents transaction deadlocks, handles aborts, and includes a timeout safety guard.
+ */
+export async function getAllFromStore<T>(db: IDBDatabase, storeName: string): Promise<T[]> {
+  if (!db || !db.objectStoreNames || !db.objectStoreNames.contains(storeName)) {
+    return [];
+  }
+  return new Promise((resolve) => {
+    let resolved = false;
+    const finish = (result: T[]) => {
+      if (!resolved) {
+        resolved = true;
+        resolve(result);
+      }
+    };
+
+    // 2500ms safety timeout for mobile WebKit / low-memory background tabs
+    const timer = setTimeout(() => finish([]), 2500);
+
+    try {
+      const tx = db.transaction(storeName, "readonly");
+      tx.onabort = () => {
+        clearTimeout(timer);
+        finish([]);
+      };
+      tx.onerror = () => {
+        clearTimeout(timer);
+        finish([]);
+      };
+
+      const store = tx.objectStore(storeName);
+      const req = store.getAll();
+      req.onsuccess = () => {
+        clearTimeout(timer);
+        finish(req.result || []);
+      };
+      req.onerror = () => {
+        clearTimeout(timer);
+        finish([]);
+      };
+    } catch {
+      clearTimeout(timer);
+      finish([]);
+    }
   });
 }
 
@@ -351,41 +416,13 @@ export async function listOfflineDownloads(): Promise<OfflineDownloadSummary[]> 
   try {
     const db = await openOfflineDb();
 
-    // 1. Fetch all text content
-    const contents: OfflineSurahContent[] = await new Promise((resolve) => {
-      const tx = db.transaction(STORES.CONTENT, "readonly");
-      const store = tx.objectStore(STORES.CONTENT);
-      const req = store.getAll();
-      req.onsuccess = () => resolve(req.result || []);
-      req.onerror = () => resolve([]);
-    });
-
-    // 2. Fetch all verse-by-verse audio
-    const audios: OfflineSurahAudio[] = await new Promise((resolve) => {
-      const tx = db.transaction(STORES.AUDIO, "readonly");
-      const store = tx.objectStore(STORES.AUDIO);
-      const req = store.getAll();
-      req.onsuccess = () => resolve(req.result || []);
-      req.onerror = () => resolve([]);
-    });
-
-    // 3. Fetch all full surah recitations (from Listen player)
-    const fullAudios: OfflineFullAudio[] = await new Promise((resolve) => {
-      const tx = db.transaction(STORES.FULL_AUDIO, "readonly");
-      const store = tx.objectStore(STORES.FULL_AUDIO);
-      const req = store.getAll();
-      req.onsuccess = () => resolve(req.result || []);
-      req.onerror = () => resolve([]);
-    });
-
-    // 4. Fetch all Mushaf pages (KFGQPC Madani Mushaf)
-    const mushafPages: OfflineMushafPage[] = await new Promise((resolve) => {
-      const tx = db.transaction(STORES.MUSHAF, "readonly");
-      const store = tx.objectStore(STORES.MUSHAF);
-      const req = store.getAll();
-      req.onsuccess = () => resolve(req.result || []);
-      req.onerror = () => resolve([]);
-    });
+    // Fetch records in parallel safely without throwing if any store is missing or delayed
+    const [contents, audios, fullAudios, mushafPages] = await Promise.all([
+      getAllFromStore<OfflineSurahContent>(db, STORES.CONTENT),
+      getAllFromStore<OfflineSurahAudio>(db, STORES.AUDIO),
+      getAllFromStore<OfflineFullAudio>(db, STORES.FULL_AUDIO),
+      getAllFromStore<OfflineMushafPage>(db, STORES.MUSHAF),
+    ]);
 
     const map = new Map<number, OfflineDownloadSummary>();
 
@@ -695,63 +732,126 @@ export async function getOfflineFullAudio(
 ): Promise<{ audioUrl: string; sizeBytes: number; reciterName: string; reciterId: number } | null> {
   try {
     const db = await openOfflineDb();
-    return new Promise((resolve) => {
-      const tx = db.transaction(STORES.FULL_AUDIO, "readonly");
-      const store = tx.objectStore(STORES.FULL_AUDIO);
 
-      const candidateKeys: string[] = [];
-      if (reciterId) {
-        candidateKeys.push(`${surah}_${reciterId}`);
-        const mapped = mapLegacyReciterId(reciterId);
-        if (mapped !== reciterId) candidateKeys.push(`${surah}_${mapped}`);
-        if (reciterId === 123) candidateKeys.push(`${surah}_1`);
-        if (reciterId === 1) candidateKeys.push(`${surah}_123`);
+    const mapResult = (result: OfflineFullAudio) => {
+      const rawBlob = result.blob;
+      const safeBlob = rawBlob.type && rawBlob.type.startsWith("audio/")
+        ? rawBlob
+        : new Blob([rawBlob], { type: "audio/mpeg" });
+
+      return {
+        audioUrl: URL.createObjectURL(safeBlob),
+        sizeBytes: result.sizeBytes || safeBlob.size,
+        reciterName: result.reciterName || "Offline Reciter",
+        reciterId: result.reciterId || reciterId || 123,
+      };
+    };
+
+    const checkStoreAudio = (): Promise<{ audioUrl: string; sizeBytes: number; reciterName: string; reciterId: number } | null> => {
+      if (!db.objectStoreNames.contains(STORES.AUDIO)) {
+        return Promise.resolve(null);
       }
+      return new Promise((resolve) => {
+        try {
+          const audioTx = db.transaction(STORES.AUDIO, "readonly");
+          const audioStore = audioTx.objectStore(STORES.AUDIO);
+          const audioReq = audioStore.getAll();
+          audioReq.onsuccess = () => {
+            const audios = audioReq.result as OfflineSurahAudio[] | undefined;
+            const match = audios?.find((item) => item.surah === surah);
+            if (!match) return resolve(null);
 
-      const mapResult = (result: OfflineFullAudio) => {
-        const rawBlob = result.blob;
-        const safeBlob = rawBlob.type && rawBlob.type.startsWith("audio/")
-          ? rawBlob
-          : new Blob([rawBlob], { type: "audio/mpeg" });
-
-        return {
-          audioUrl: URL.createObjectURL(safeBlob),
-          sizeBytes: result.sizeBytes || safeBlob.size,
-          reciterName: result.reciterName || "Offline Reciter",
-          reciterId: result.reciterId || reciterId || 123,
-        };
-      };
-
-      const tryNextKey = (index: number) => {
-        if (index < candidateKeys.length) {
-          const req = store.get(candidateKeys[index]);
-          req.onsuccess = () => {
-            const result = req.result as OfflineFullAudio | undefined;
-            if (result && result.blob) {
-              resolve(mapResult(result));
-            } else {
-              tryNextKey(index + 1);
+            // If match has fullAudioBlob:
+            if (match.fullAudioBlob) {
+              const safeBlob = match.fullAudioBlob.type && match.fullAudioBlob.type.startsWith("audio/")
+                ? match.fullAudioBlob
+                : new Blob([match.fullAudioBlob], { type: "audio/mpeg" });
+              return resolve({
+                audioUrl: URL.createObjectURL(safeBlob),
+                sizeBytes: safeBlob.size,
+                reciterName: match.reciterName || "Offline Reciter",
+                reciterId: match.reciterId || reciterId || 1,
+              });
             }
-          };
-          req.onerror = () => tryNextKey(index + 1);
-        } else {
-          // If no candidate key matched, scan for ANY saved audio for this Surah
-          const allReq = store.getAll();
-          allReq.onsuccess = () => {
-            const all = allReq.result as OfflineFullAudio[] | undefined;
-            const match = all?.find((item) => item.surah === surah && item.blob);
-            if (match) {
-              resolve(mapResult(match));
-            } else {
-              resolve(null);
+
+            // If match has verse files, combine them into single continuous audio:
+            if (Array.isArray(match.files) && match.files.length > 0) {
+              const blobs = match.files.map((f) => f.blob).filter(Boolean);
+              if (blobs.length > 0) {
+                const combined = new Blob(blobs, { type: "audio/mpeg" });
+                return resolve({
+                  audioUrl: URL.createObjectURL(combined),
+                  sizeBytes: combined.size,
+                  reciterName: match.reciterName || "Offline Reciter",
+                  reciterId: match.reciterId || reciterId || 1,
+                });
+              }
             }
+
+            resolve(null);
           };
-          allReq.onerror = () => resolve(null);
+          audioReq.onerror = () => resolve(null);
+        } catch {
+          resolve(null);
         }
-      };
+      });
+    };
 
-      tryNextKey(0);
-    });
+    // 1. Try STORES.FULL_AUDIO first
+    if (db.objectStoreNames.contains(STORES.FULL_AUDIO)) {
+      const fullResult = await new Promise<{ audioUrl: string; sizeBytes: number; reciterName: string; reciterId: number } | null>((resolve) => {
+        try {
+          const tx = db.transaction(STORES.FULL_AUDIO, "readonly");
+          const store = tx.objectStore(STORES.FULL_AUDIO);
+
+          const candidateKeys: string[] = [];
+          if (reciterId) {
+            candidateKeys.push(`${surah}_${reciterId}`);
+            const mapped = mapLegacyReciterId(reciterId);
+            if (mapped !== reciterId) candidateKeys.push(`${surah}_${mapped}`);
+            if (reciterId === 123) candidateKeys.push(`${surah}_1`);
+            if (reciterId === 1) candidateKeys.push(`${surah}_123`);
+          }
+
+          const tryNextKey = (index: number) => {
+            if (index < candidateKeys.length) {
+              const req = store.get(candidateKeys[index]);
+              req.onsuccess = () => {
+                const result = req.result as OfflineFullAudio | undefined;
+                if (result && result.blob) {
+                  resolve(mapResult(result));
+                } else {
+                  tryNextKey(index + 1);
+                }
+              };
+              req.onerror = () => tryNextKey(index + 1);
+            } else {
+              // If no candidate key matched, scan for ANY saved audio for this Surah
+              const allReq = store.getAll();
+              allReq.onsuccess = () => {
+                const all = allReq.result as OfflineFullAudio[] | undefined;
+                const match = all?.find((item) => item.surah === surah && item.blob);
+                if (match) {
+                  resolve(mapResult(match));
+                } else {
+                  resolve(null);
+                }
+              };
+              allReq.onerror = () => resolve(null);
+            }
+          };
+
+          tryNextKey(0);
+        } catch {
+          resolve(null);
+        }
+      });
+
+      if (fullResult) return fullResult;
+    }
+
+    // 2. Fallback to STORES.AUDIO if not in STORES.FULL_AUDIO
+    return await checkStoreAudio();
   } catch {
     return null;
   }
@@ -762,41 +862,8 @@ export async function getOfflineFullAudio(
  */
 export async function hasOfflineFullAudio(surah: number, reciterId?: number): Promise<boolean> {
   try {
-    const db = await openOfflineDb();
-    return new Promise((resolve) => {
-      const tx = db.transaction(STORES.FULL_AUDIO, "readonly");
-      const store = tx.objectStore(STORES.FULL_AUDIO);
-
-      if (reciterId) {
-        const req = store.get(`${surah}_${reciterId}`);
-        req.onsuccess = () => {
-          if (req.result) return resolve(true);
-          const mapped = mapLegacyReciterId(reciterId);
-          if (mapped !== reciterId) {
-            const reqMapped = store.get(`${surah}_${mapped}`);
-            reqMapped.onsuccess = () => {
-              if (reqMapped.result) return resolve(true);
-              checkAny();
-            };
-            reqMapped.onerror = () => checkAny();
-          } else {
-            checkAny();
-          }
-        };
-        req.onerror = () => checkAny();
-      } else {
-        checkAny();
-      }
-
-      function checkAny() {
-        const allReq = store.getAll();
-        allReq.onsuccess = () => {
-          const all = allReq.result as OfflineFullAudio[] | undefined;
-          resolve(!!all?.some((item) => item.surah === surah && item.blob));
-        };
-        allReq.onerror = () => resolve(false);
-      }
-    });
+    const res = await getOfflineFullAudio(surah, reciterId);
+    return Boolean(res);
   } catch {
     return false;
   }
@@ -833,41 +900,19 @@ export async function getStorageUsageSummary(): Promise<{
   try {
     const db = await openOfflineDb();
 
-    // Sum CONTENT
-    const contents: OfflineSurahContent[] = await new Promise((r) => {
-      const tx = db.transaction(STORES.CONTENT, "readonly");
-      const req = tx.objectStore(STORES.CONTENT).getAll();
-      req.onsuccess = () => r(req.result || []);
-      req.onerror = () => r([]);
-    });
+    const [contents, audios, fullAudios, mushafPages, adhkarAudios] = await Promise.all([
+      getAllFromStore<OfflineSurahContent>(db, STORES.CONTENT),
+      getAllFromStore<OfflineSurahAudio>(db, STORES.AUDIO),
+      getAllFromStore<OfflineFullAudio>(db, STORES.FULL_AUDIO),
+      getAllFromStore<OfflineMushafPage>(db, STORES.MUSHAF),
+      getAllFromStore<OfflineAdhkarAudioRecord>(db, STORES.ADHKAR_AUDIO),
+    ]);
+
     const textBytes = contents.reduce((acc, c) => acc + (c.sizeBytes || 0), 0);
-
-    // Sum AUDIO (ayahs)
-    const audios: OfflineSurahAudio[] = await new Promise((r) => {
-      const tx = db.transaction(STORES.AUDIO, "readonly");
-      const req = tx.objectStore(STORES.AUDIO).getAll();
-      req.onsuccess = () => r(req.result || []);
-      req.onerror = () => r([]);
-    });
     let audioBytes = audios.reduce((acc, a) => acc + (a.totalBytes || 0), 0);
-
-    // Sum FULL_AUDIO
-    const fullAudios: OfflineFullAudio[] = await new Promise((r) => {
-      const tx = db.transaction(STORES.FULL_AUDIO, "readonly");
-      const req = tx.objectStore(STORES.FULL_AUDIO).getAll();
-      req.onsuccess = () => r(req.result || []);
-      req.onerror = () => r([]);
-    });
     audioBytes += fullAudios.reduce((acc, fa) => acc + (fa.sizeBytes || 0), 0);
-
-    // Sum MUSHAF
-    const mushafPages: OfflineMushafPage[] = await new Promise((r) => {
-      const tx = db.transaction(STORES.MUSHAF, "readonly");
-      const req = tx.objectStore(STORES.MUSHAF).getAll();
-      req.onsuccess = () => r(req.result || []);
-      req.onerror = () => r([]);
-    });
     const mushafBytes = mushafPages.reduce((acc, p) => acc + (p.sizeBytes || 0), 0);
+    const adhkarAudioBytes = adhkarAudios.reduce((acc, a) => acc + (a.sizeBytes || 0), 0);
 
     let availableBytes: number | undefined;
     if (typeof navigator !== "undefined" && navigator.storage && navigator.storage.estimate) {
@@ -880,9 +925,9 @@ export async function getStorageUsageSummary(): Promise<{
     }
 
     return {
-      totalBytes: textBytes + audioBytes + mushafBytes,
+      totalBytes: textBytes + audioBytes + mushafBytes + adhkarAudioBytes,
       textBytes,
-      audioBytes,
+      audioBytes: audioBytes + adhkarAudioBytes,
       mushafBytes,
       surahsCount: contents.length,
       mushafPagesCount: mushafPages.length,
@@ -979,4 +1024,109 @@ export async function deleteOfflineAdhkar(): Promise<void> {
       reject(e);
     }
   });
+}
+
+/**
+ * Save offline Adhkar audio records into IndexedDB.
+ */
+export async function saveOfflineAdhkarAudio(
+  records: OfflineAdhkarAudioRecord[]
+): Promise<number> {
+  const db = await openOfflineDb();
+  return new Promise((resolve, reject) => {
+    try {
+      if (!db.objectStoreNames.contains(STORES.ADHKAR_AUDIO)) {
+        resolve(0);
+        return;
+      }
+      const tx = db.transaction(STORES.ADHKAR_AUDIO, "readwrite");
+      const store = tx.objectStore(STORES.ADHKAR_AUDIO);
+      let totalBytes = 0;
+      for (const rec of records) {
+        store.put(rec);
+        totalBytes += rec.sizeBytes;
+      }
+      tx.oncomplete = () => resolve(totalBytes);
+      tx.onerror = () => reject(tx.error || new Error("Failed to save adhkar audio"));
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+/**
+ * Get an offline cached audio blob by URL.
+ */
+export async function getOfflineAdhkarAudioBlob(url: string): Promise<Blob | null> {
+  try {
+    const db = await openOfflineDb();
+    return new Promise((resolve) => {
+      if (!db.objectStoreNames.contains(STORES.ADHKAR_AUDIO)) {
+        resolve(null);
+        return;
+      }
+      const tx = db.transaction(STORES.ADHKAR_AUDIO, "readonly");
+      const store = tx.objectStore(STORES.ADHKAR_AUDIO);
+      const req = store.get(url);
+      req.onsuccess = () => {
+        const result = req.result as OfflineAdhkarAudioRecord | undefined;
+        resolve(result?.blob || null);
+      };
+      req.onerror = () => resolve(null);
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Check if audio for a specific category has been downloaded offline.
+ */
+export async function isAdhkarCategoryAudioOffline(category: string): Promise<boolean> {
+  try {
+    const db = await openOfflineDb();
+    return new Promise((resolve) => {
+      if (!db.objectStoreNames.contains(STORES.ADHKAR_AUDIO)) {
+        resolve(false);
+        return;
+      }
+      const tx = db.transaction(STORES.ADHKAR_AUDIO, "readonly");
+      const store = tx.objectStore(STORES.ADHKAR_AUDIO);
+      const index = store.index("by_category");
+      const req = index.count(IDBKeyRange.only(category));
+      req.onsuccess = () => resolve((req.result || 0) > 0);
+      req.onerror = () => resolve(false);
+    });
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Delete all offline audio files belonging to a specific category.
+ */
+export async function deleteOfflineAdhkarCategoryAudio(category: string): Promise<void> {
+  try {
+    const db = await openOfflineDb();
+    return new Promise((resolve, reject) => {
+      if (!db.objectStoreNames.contains(STORES.ADHKAR_AUDIO)) {
+        resolve();
+        return;
+      }
+      const tx = db.transaction(STORES.ADHKAR_AUDIO, "readwrite");
+      const store = tx.objectStore(STORES.ADHKAR_AUDIO);
+      const index = store.index("by_category");
+      const req = index.openCursor(IDBKeyRange.only(category));
+      req.onsuccess = (e) => {
+        const cursor = (e.target as IDBRequest<IDBCursorWithValue>).result;
+        if (cursor) {
+          cursor.delete();
+          cursor.continue();
+        } else {
+          resolve();
+        }
+      };
+      req.onerror = () => reject(req.error);
+    });
+  } catch {}
 }

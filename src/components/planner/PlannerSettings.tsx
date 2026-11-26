@@ -17,6 +17,7 @@ import {
   Check,
   Bell,
   RefreshCw,
+  Headphones,
 } from "lucide-react";
 import {
   loadPlan,
@@ -32,6 +33,7 @@ import {
 } from "@/lib/planner/reminders";
 import { PlannerPlan, LessonSize } from "@/lib/planner/types";
 import { getPaceEstimate } from "@/lib/planner/pace";
+import { DEFAULT_RECITER, type Reciter } from "@/lib/quran/types";
 
 export function PlannerSettings() {
   const router = useRouter();
@@ -42,9 +44,28 @@ export function PlannerSettings() {
   const [importStatus, setImportStatus] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  const [reciters, setReciters] = useState<Reciter[]>([]);
+  const [selectedReciterId, setSelectedReciterId] = useState<number>(DEFAULT_RECITER);
+
   useEffect(() => {
     setPlan(loadPlan());
     setReminders(loadPlannerReminderSettings());
+
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("qcs-quran-reciter");
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed > 0) setSelectedReciterId(parsed);
+      }
+    }
+
+    fetch("/api/quran/reciters")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data?.reciters || [];
+        if (Array.isArray(list) && list.length > 0) setReciters(list);
+      })
+      .catch(() => {});
   }, []);
 
   if (!plan) {
@@ -67,6 +88,9 @@ export function PlannerSettings() {
   const handleSaveSettings = () => {
     savePlan(plan);
     savePlannerReminderSettings(reminders);
+    try {
+      localStorage.setItem("qcs-quran-reciter", String(selectedReciterId));
+    } catch {}
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 2500);
   };
@@ -287,6 +311,40 @@ export function PlannerSettings() {
             >
               {plan.paused ? "Paused (Tap to Resume)" : "Active"}
             </button>
+          </div>
+
+          {/* Preferred Reciter */}
+          <div className="sm:col-span-2 p-4 rounded-xl border border-border bg-background space-y-2">
+            <div className="flex items-center justify-between">
+              <label htmlFor="settings-reciter-select" className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <Headphones size={14} className="text-primary" /> Preferred Quran Reciter Voice
+              </label>
+              <span className="text-[11px] text-muted-foreground font-medium">
+                Used for Sabaq &amp; Muraja&apos;ah practice recitation
+              </span>
+            </div>
+            <select
+              id="settings-reciter-select"
+              value={selectedReciterId}
+              onChange={(e) => {
+                const id = Number(e.target.value);
+                setSelectedReciterId(id);
+                try {
+                  localStorage.setItem("qcs-quran-reciter", String(id));
+                } catch {}
+              }}
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground font-semibold text-xs cursor-pointer focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+            >
+              {reciters.length > 0 ? (
+                reciters.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name} {r.style ? `· ${r.style}` : ""}
+                  </option>
+                ))
+              ) : (
+                <option value={selectedReciterId}>Mishary Rashid Alafasy</option>
+              )}
+            </select>
           </div>
         </div>
       </div>

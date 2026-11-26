@@ -25,10 +25,93 @@ export const DEFAULT_PREFERENCES: AdhkarPreferences = {
 
 const STORAGE_KEYS = {
   PREFS: "qcs-adhkar-prefs",
+  AUDIO_SETTINGS: "qcs-adhkar-audio-settings",
+  AUDIO_FEEDBACK: "qcs-adhkar-audio-feedback",
   COUNTERS: "qcs-adhkar-counters", // { [dateStr]: { [id]: number } }
   COMPLETIONS: "qcs-adhkar-completed", // { [dateStr]: string[] of ids or categories }
   STREAK: "qcs-adhkar-streak",
 };
+
+export interface AdhkarAudioSettings {
+  speed: 0.75 | 1 | 1.25 | 1.5;
+  repeat: 1 | 3 | 5;
+  listenAndRepeat: boolean;
+  autoCount: boolean;
+  autoAdvance?: boolean;
+  hasSeenTip: boolean;
+  firstPlayedAt?: number;
+  feedbackSubmitted?: boolean;
+}
+
+export const DEFAULT_AUDIO_SETTINGS: AdhkarAudioSettings = {
+  speed: 1,
+  repeat: 1,
+  listenAndRepeat: false,
+  autoCount: false,
+  autoAdvance: true,
+  hasSeenTip: false,
+};
+
+/**
+ * Load adhkar audio settings from localStorage.
+ */
+export function loadAdhkarAudioSettings(): AdhkarAudioSettings {
+  if (typeof window === "undefined") return DEFAULT_AUDIO_SETTINGS;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.AUDIO_SETTINGS);
+    if (!raw) return DEFAULT_AUDIO_SETTINGS;
+    return { ...DEFAULT_AUDIO_SETTINGS, ...JSON.parse(raw) };
+  } catch {
+    return DEFAULT_AUDIO_SETTINGS;
+  }
+}
+
+/**
+ * Save adhkar audio settings to localStorage.
+ */
+export function saveAdhkarAudioSettings(
+  settings: Partial<AdhkarAudioSettings>
+): AdhkarAudioSettings {
+  if (typeof window === "undefined") return DEFAULT_AUDIO_SETTINGS;
+  try {
+    const current = loadAdhkarAudioSettings();
+    const updated = { ...current, ...settings };
+    localStorage.setItem(STORAGE_KEYS.AUDIO_SETTINGS, JSON.stringify(updated));
+    return updated;
+  } catch {
+    return DEFAULT_AUDIO_SETTINGS;
+  }
+}
+
+export interface AudioFeedbackRecord {
+  rating: "Yes" | "Somewhat" | "No";
+  comment?: string;
+  submittedAt: number;
+}
+
+/**
+ * Save audio feedback.
+ */
+export function saveAudioFeedback(record: AudioFeedbackRecord): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEYS.AUDIO_FEEDBACK, JSON.stringify(record));
+    saveAdhkarAudioSettings({ feedbackSubmitted: true });
+  } catch {}
+}
+
+/**
+ * Get saved audio feedback if any.
+ */
+export function getAudioFeedback(): AudioFeedbackRecord | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.AUDIO_FEEDBACK);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Get current date key formatted YYYY-MM-DD in user's local timezone.

@@ -50,6 +50,9 @@ import { TodayDashboard } from "@/components/adhkar/TodayDashboard";
 import { ReminderBanner } from "@/components/adhkar/ReminderBanner";
 import { AdhkarFooter } from "@/components/adhkar/AdhkarFooter";
 import { DevTimeTravelTool } from "@/components/adhkar/DevTimeTravelTool";
+import { AdhkarAudioProvider, useAdhkarAudio } from "@/lib/adhkar/audio-context";
+import { AdhkarMiniPlayer } from "@/components/adhkar/AdhkarMiniPlayer";
+import { ReportAudioModal } from "@/components/adhkar/ReportAudioModal";
 import {
   loadPrayerSettings,
   savePrayerSettings,
@@ -79,7 +82,8 @@ function renderCategoryIcon(iconName: string) {
   }
 }
 
-export default function AdhkarHubPage() {
+function AdhkarHubContent() {
+  const { reportAudioItem, setReportAudioItem } = useAdhkarAudio();
   const [prefs, setPrefs] = useState<AdhkarPreferences>(DEFAULT_PREFERENCES);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -541,6 +545,15 @@ export default function AdhkarHubPage() {
       {/* Adhkar Footer (Milestone 6) */}
       <AdhkarFooter />
 
+      {/* Mini Audio Player */}
+      <AdhkarMiniPlayer />
+
+      {/* Report Audio Problem Modal */}
+      <ReportAudioModal
+        item={reportAudioItem}
+        onClose={() => setReportAudioItem(null)}
+      />
+
       {/* Dev Time Travel & Simulator Tool (Milestone 6) */}
       <DevTimeTravelTool
         onSimulateTime={(h, m) => {
@@ -551,5 +564,13 @@ export default function AdhkarHubPage() {
         }}
       />
     </div>
+  );
+}
+
+export default function AdhkarHubPage() {
+  return (
+    <AdhkarAudioProvider>
+      <AdhkarHubContent />
+    </AdhkarAudioProvider>
   );
 }

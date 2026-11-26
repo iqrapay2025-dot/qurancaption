@@ -14,6 +14,14 @@ export interface AdhkarSource {
   sunnah_url?: string;
 }
 
+export interface DhikrSlide {
+  id?: string;
+  title: string;
+  arabic: string;
+  transliteration?: string;
+  translation_en: string;
+}
+
 export interface AdhkarItem {
   id: string;
   category: AdhkarCategory;
@@ -26,6 +34,16 @@ export interface AdhkarItem {
   virtue?: string;
   source: AdhkarSource;
   sourceDataset: string;
+  audioUrl?: string;
+  audioDuration?: number;
+  openduaId?: string;
+  quranAudio?: {
+    verses: string[];
+    label: string;
+  };
+  slides?: DhikrSlide[];
+  inCarouselGroupOf?: string;
+  subItemIds?: string[];
 }
 
 export interface AdhkarCategoryMeta {

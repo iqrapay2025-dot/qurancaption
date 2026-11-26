@@ -15,6 +15,8 @@ import {
   Sun,
   ShieldCheck,
   CheckCircle2,
+  Volume2,
+  ExternalLink,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { useTheme } from "@/components/shared";
@@ -29,16 +31,26 @@ import {
   saveAdhkarPreferences,
   getDhikrRemaining,
   resetCategoryCounters,
+  decrementDhikr,
   saveOfflineAdhkar,
   isAdhkarOffline,
   DEFAULT_PREFERENCES,
   type AdhkarPreferences,
 } from "@/lib/adhkar/storage";
+import {
+  downloadCategoryAudio,
+  isAdhkarCategoryAudioOffline,
+  CATEGORY_AUDIO_SIZE_ESTIMATES,
+} from "@/lib/adhkar/audio-downloader";
+import { AdhkarAudioProvider, useAdhkarAudio } from "@/lib/adhkar/audio-context";
 import { DhikrCard } from "@/components/adhkar/DhikrCard";
 import { CategoryProgressBar } from "@/components/adhkar/CategoryProgressBar";
 import { AdhkarSettingsDrawer } from "@/components/adhkar/AdhkarSettingsDrawer";
 import { AdhkarFooter } from "@/components/adhkar/AdhkarFooter";
 import { ReminderBanner } from "@/components/adhkar/ReminderBanner";
+import { AdhkarMiniPlayer } from "@/components/adhkar/AdhkarMiniPlayer";
+import { AudioFeedbackPrompt } from "@/components/adhkar/AudioFeedbackPrompt";
+import { ReportAudioModal } from "@/components/adhkar/ReportAudioModal";
 
 function renderCategoryIcon(iconName: string) {
   switch (iconName) {
@@ -56,30 +68,30 @@ function renderCategoryIcon(iconName: string) {
   }
 }
 
-export default function AdhkarCategoryPage({
-  params,
+function CategoryPageContent({
+  categorySlug,
+  allItems,
 }: {
-  params: Promise<{ category: string }>;
+  categorySlug: AdhkarCategory;
+  allItems: AdhkarItem[];
 }) {
-  const resolvedParams = use(params);
-  const categorySlug = resolvedParams.category as AdhkarCategory;
   const meta = getCategoryMeta(categorySlug);
+  if (!meta) notFound();
 
-  if (!meta) {
-    notFound();
-  }
-
-  const allItems = useMemo(() => getAdhkarByCategory(categorySlug), [categorySlug]);
   const [searchQuery, setSearchQuery] = useState("");
   const [prefs, setPrefs] = useState<AdhkarPreferences>(DEFAULT_PREFERENCES);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [countsMap, setCountsMap] = useState<Record<string, number>>({});
   const [isOfflineCached, setIsOfflineCached] = useState(false);
+  const [isAudioOffline, setIsAudioOffline] = useState(false);
+  const [isDownloadingAudio, setIsDownloadingAudio] = useState(false);
+  const [audioDownloadProgress, setAudioDownloadProgress] = useState(0);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const themeHook = useTheme();
+  const { reportAudioItem, setReportAudioItem, playAll } = useAdhkarAudio();
 
-  // Load preferences and remaining counts for all items today
+  // Load preferences, remaining counts, and offline status on mount
   useEffect(() => {
     setPrefs(loadAdhkarPreferences());
     const map: Record<string, number> = {};
@@ -88,12 +100,20 @@ export default function AdhkarCategoryPage({
     }
     setCountsMap(map);
     isAdhkarOffline().then(setIsOfflineCached);
-  }, [allItems]);
+    isAdhkarCategoryAudioOffline(categorySlug).then(setIsAudioOffline);
+  }, [allItems, categorySlug]);
 
   const handleCountChange = (id: string, newRemaining: number) => {
+    const matchedItem = allItems.find((it) => it.id === id);
+    const updates: Record<string, number> = { [id]: newRemaining };
+    if (matchedItem?.subItemIds) {
+      for (const subId of matchedItem.subItemIds) {
+        updates[subId] = newRemaining;
+      }
+    }
     setCountsMap((prev) => ({
       ...prev,
-      [id]: newRemaining,
+      ...updates,
     }));
   };
 
@@ -113,9 +133,33 @@ export default function AdhkarCategoryPage({
     try {
       await saveOfflineAdhkar(allItems);
       setIsOfflineCached(true);
-      showToast("Adhkar saved locally for 100% offline access!");
+      showToast("Adhkar text saved locally for 100% offline access!");
     } catch {
       showToast("Could not save to offline storage");
+    }
+  };
+
+  const handleDownloadAudioOffline = async () => {
+    if (isDownloadingAudio) return;
+    const est = CATEGORY_AUDIO_SIZE_ESTIMATES[categorySlug]?.formatted || "3 MB";
+    showToast(`Downloading audio (${est}). Wi-Fi recommended.`);
+    setIsDownloadingAudio(true);
+    setAudioDownloadProgress(0);
+
+    try {
+      const result = await downloadCategoryAudio(
+        categorySlug,
+        allItems,
+        (p) => setAudioDownloadProgress(p.percent)
+      );
+      setIsAudioOffline(true);
+      showToast(`Saved ${result.savedCount} audio recitations offline!`);
+    } catch (e: any) {
+      if (e?.message !== "Download aborted") {
+        showToast("Audio download failed. Check your connection.");
+      }
+    } finally {
+      setIsDownloadingAudio(false);
     }
   };
 
@@ -126,7 +170,7 @@ export default function AdhkarCategoryPage({
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    setTimeout(() => setToastMessage(null), 3500);
   };
 
   // Filter items by search query
@@ -134,22 +178,35 @@ export default function AdhkarCategoryPage({
     return searchAdhkar(searchQuery, allItems);
   }, [searchQuery, allItems]);
 
-  // Calculate completed count
+  // Display items: filter out items grouped inside a carousel card (e.g. after-salah-11, 12 inside after-salah-10)
+  const displayItems = useMemo(() => {
+    return filteredItems.filter((item) => !item.inCarouselGroupOf);
+  }, [filteredItems]);
+
+  // Calculate completed count and total count for displayed cards
+  const visibleTotalCount = useMemo(() => {
+    return allItems.filter((item) => !item.inCarouselGroupOf).length;
+  }, [allItems]);
+
   const completedCount = useMemo(() => {
-    return allItems.filter((item) => (countsMap[item.id] ?? item.repeat) === 0).length;
+    return allItems
+      .filter((item) => !item.inCarouselGroupOf)
+      .filter((item) => (countsMap[item.id] ?? item.repeat) === 0).length;
   }, [allItems, countsMap]);
 
-  // Find next and previous category
+  // Next and previous category
   const currentIndex = ADHKAR_CATEGORIES.findIndex((c) => c.slug === categorySlug);
   const prevCat = currentIndex > 0 ? ADHKAR_CATEGORIES[currentIndex - 1] : null;
   const nextCat =
     currentIndex < ADHKAR_CATEGORIES.length - 1 ? ADHKAR_CATEGORIES[currentIndex + 1] : null;
 
+  const audioSizeEstimate = CATEGORY_AUDIO_SIZE_ESTIMATES[categorySlug]?.formatted;
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <SiteHeader />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
         {/* Navigation / Breadcrumb */}
         <div className="flex items-center justify-between mb-4">
           <Link
@@ -208,12 +265,21 @@ export default function AdhkarCategoryPage({
         <CategoryProgressBar
           meta={meta}
           completedCount={completedCount}
-          totalCount={allItems.length}
+          totalCount={visibleTotalCount}
           onOpenSettings={() => setSettingsOpen(true)}
           onResetCategory={handleResetCategory}
           onDownloadOffline={handleDownloadOffline}
           isOfflineCached={isOfflineCached}
+          audioSizeEstimate={audioSizeEstimate}
+          isDownloadingAudio={isDownloadingAudio}
+          downloadAudioProgress={audioDownloadProgress}
+          isAudioOffline={isAudioOffline}
+          onDownloadAudioOffline={handleDownloadAudioOffline}
+          onPlayAll={() => playAll(displayItems)}
         />
+
+        {/* 1-Week Audio Feedback Prompt if triggered */}
+        <AudioFeedbackPrompt />
 
         {/* Search Bar */}
         <div className="relative my-5">
@@ -230,9 +296,40 @@ export default function AdhkarCategoryPage({
           />
         </div>
 
+        {/* Audio Attribution Banner */}
+        <div className="mb-4 rounded-xl border border-border/70 bg-muted/20 p-3 text-[11px] text-muted-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Volume2 size={14} className="text-primary shrink-0" />
+            <span>
+              Recitations by <strong>Muhammad Jumah</strong> for{" "}
+              <a
+                href="https://opendua.org"
+                target="_blank"
+                rel="noreferrer"
+                className="text-primary hover:underline font-semibold"
+              >
+                OpenDua
+              </a>{" "}
+              (
+              <a
+                href="https://opendua.hdfund.org/licence/audio"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:underline"
+              >
+                CC BY 4.0
+              </a>
+              ). Matched only where Arabic text is identical.
+            </span>
+          </div>
+          <span className="text-[10px] text-muted-foreground/80 sm:text-right shrink-0">
+            Quranic ayahs use Quran ayah recitation.
+          </span>
+        </div>
+
         {/* Adhkar Cards List */}
         <div className="space-y-4">
-          {filteredItems.length === 0 ? (
+          {displayItems.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card p-12 text-center">
               <p className="text-sm text-muted-foreground">
                 No adhkar matched &ldquo;{searchQuery}&rdquo;.
@@ -246,13 +343,14 @@ export default function AdhkarCategoryPage({
               </button>
             </div>
           ) : (
-            filteredItems.map((item) => (
+            displayItems.map((item) => (
               <DhikrCard
                 key={item.id}
                 item={item}
                 remaining={countsMap[item.id] ?? item.repeat}
                 onCountChange={handleCountChange}
                 prefs={prefs}
+                allItems={displayItems}
               />
             ))
           )}
@@ -284,6 +382,15 @@ export default function AdhkarCategoryPage({
         </div>
       </main>
 
+      {/* Mini Player when scrolled away */}
+      <AdhkarMiniPlayer />
+
+      {/* Report Audio Modal */}
+      <ReportAudioModal
+        item={reportAudioItem}
+        onClose={() => setReportAudioItem(null)}
+      />
+
       {/* Settings Drawer */}
       <AdhkarSettingsDrawer
         isOpen={settingsOpen}
@@ -308,5 +415,27 @@ export default function AdhkarCategoryPage({
       {/* Adhkar Footer */}
       <AdhkarFooter />
     </div>
+  );
+}
+
+export default function AdhkarCategoryPage({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}) {
+  const resolvedParams = use(params);
+  const categorySlug = resolvedParams.category as AdhkarCategory;
+  const allItems = useMemo(() => getAdhkarByCategory(categorySlug), [categorySlug]);
+
+  const handleAutoCount = (id: string) => {
+    const item = allItems.find((it) => it.id === id);
+    if (!item) return;
+    decrementDhikr(id, item.repeat);
+  };
+
+  return (
+    <AdhkarAudioProvider onItemCounted={handleAutoCount}>
+      <CategoryPageContent categorySlug={categorySlug} allItems={allItems} />
+    </AdhkarAudioProvider>
   );
 }

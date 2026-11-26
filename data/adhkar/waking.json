@@ -16,7 +16,10 @@
       "grading": "Sahih",
       "narrator": "Hudhayfah & Abu Dharr"
     },
-    "sourceDataset": "Hisn al-Muslim / Bukhari 6312"
+    "sourceDataset": "Hisn al-Muslim / Bukhari 6312",
+    "audioUrl": "/audio/opendua/OD-001.mp3",
+    "audioDuration": 16,
+    "openduaId": "entry-000001"
   },
   {
     "id": "waking-2",
@@ -35,7 +38,10 @@
       "grading": "Hasan",
       "narrator": "Abu Hurairah"
     },
-    "sourceDataset": "Hisn al-Muslim / Tirmidhi 3401"
+    "sourceDataset": "Hisn al-Muslim / Tirmidhi 3401",
+    "audioUrl": "/audio/opendua/OD-003.mp3",
+    "audioDuration": 13,
+    "openduaId": "entry-000003"
   },
   {
     "id": "waking-3",
@@ -54,6 +60,9 @@
       "grading": "Sahih",
       "narrator": "'Ubadah ibn as-Samit"
     },
-    "sourceDataset": "Hisn al-Muslim / Bukhari 1154"
+    "sourceDataset": "Hisn al-Muslim / Bukhari 1154",
+    "audioUrl": "/audio/opendua/OD-002.mp3",
+    "audioDuration": 49,
+    "openduaId": "entry-000002"
   }
 ]
