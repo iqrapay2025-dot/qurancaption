@@ -8,16 +8,15 @@ const dirname = path.dirname(__filename)
 
 const isProd = process.env.NODE_ENV === 'production'
 
-// Fail the production build if the site URL is missing. It is baked in at
-// build time and feeds reset links, Paystack return URLs, sitemap and OG tags.
-if (isProd && !process.env.NEXT_PUBLIC_SITE_URL) {
-  throw new Error(
-    'NEXT_PUBLIC_SITE_URL is not set. Add it in Vercel (e.g. https://qurancaptionstudio.vercel.app, no trailing slash) and redeploy.',
-  )
-}
+// Derive site URL for sitemaps, metadata, and auth redirects.
+// Automatically falls back to Vercel production URL or default domain if unset.
+const rawSiteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined) ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+  'https://aayahstudio.vercel.app'
 
-const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aayahstudio.vercel.app'
-const siteUrl = rawSiteUrl.includes('qurancaptionstudio') ? 'https://aayahstudio.vercel.app' : rawSiteUrl
+const siteUrl = rawSiteUrl.replace(/\/$/, '')
 
 // Content-Security-Policy.
 // Notes:
