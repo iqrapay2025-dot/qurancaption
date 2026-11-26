@@ -19,10 +19,10 @@ import { UsageAutoTime } from './collections/UsageAutoTime'
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default buildConfig({
-  secret: process.env.PAYLOAD_SECRET || '',
+  secret: process.env.PAYLOAD_SECRET || 'aayah-studio-payload-secret-fallback-key-min-32-chars-long',
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL || process.env.NEON_DATABASE_URL,
+      connectionString: process.env.DATABASE_URL || process.env.NEON_DATABASE_URL || process.env.POSTGRES_URL,
       max: process.env.NODE_ENV === 'production' ? 4 : 10,
       idleTimeoutMillis: 10000,
       connectionTimeoutMillis: 5000,
