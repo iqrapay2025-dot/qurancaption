@@ -8,9 +8,13 @@ import {
   BookOpen,
   Volume2,
   CheckCircle2,
+  Play,
+  Pause,
   RotateCcw,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
+import { useGlobalAudio } from "@/components/audio/GlobalAudioProvider";
 import {
   listOfflineDownloads,
   deleteOfflineSurah,
@@ -20,19 +24,26 @@ import {
 } from "@/lib/offline/db";
 
 export function OfflineDownloadsView() {
+  const {
+    surah: currentSurah,
+    isPlaying: isAudioPlaying,
+    play: audioPlay,
+    pause: audioPause,
+    loadSurah: audioLoadSurah,
+  } = useGlobalAudio();
+
   const [downloads, setDownloads] = useState<OfflineDownloadSummary[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [confirmClear, setConfirmClear] = useState(false);
 
   const loadDownloads = useCallback(async () => {
-    setLoading(true);
     try {
       const list = await listOfflineDownloads();
       setDownloads(list);
     } catch {
       setDownloads([]);
     } finally {
-      setLoading(false);
+      setIsInitialLoading(false);
     }
   }, []);
 
@@ -57,10 +68,11 @@ export function OfflineDownloadsView() {
 
   const totalStorage = downloads.reduce((acc, d) => acc + d.totalBytes, 0);
 
-  if (loading) {
+  if (isInitialLoading) {
     return (
-      <div className="py-12 text-center text-sm text-muted-foreground">
-        Loading offline storage...
+      <div className="py-12 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
+        <Loader2 size={16} className="animate-spin text-primary" />
+        <span>Loading offline storage...</span>
       </div>
     );
   }
@@ -190,14 +202,47 @@ export function OfflineDownloadsView() {
                     <BookOpen size={13} /> Read
                   </Link>
                 )}
-                {item.hasAudio && (
-                  <Link
-                    href={`/listen?surah=${item.surah}&reciter=${item.reciterId || 1}`}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-sm border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-                  >
-                    <Volume2 size={13} /> Listen
-                  </Link>
-                )}
+                {item.hasAudio && (() => {
+                  const isThisSurah = currentSurah === item.surah;
+                  const isPlayingThis = isThisSurah && isAudioPlaying;
+
+                  const handleAudio = () => {
+                    if (isPlayingThis) {
+                      audioPause();
+                    } else if (isThisSurah) {
+                      audioPlay();
+                    } else {
+                      audioLoadSurah(item.surah, item.reciterId || 123, { autoplay: true });
+                    }
+                  };
+
+                  return (
+                    <button
+                      type="button"
+                      onClick={handleAudio}
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-semibold transition-all ${
+                        isPlayingThis
+                          ? "bg-primary text-primary-foreground shadow-xs"
+                          : isThisSurah
+                          ? "border border-primary/40 bg-primary/10 text-primary"
+                          : "border border-border bg-card text-foreground hover:bg-muted hover:border-primary/50"
+                      }`}
+                      title={isPlayingThis ? "Pause offline recitation" : "Play offline recitation"}
+                    >
+                      {isPlayingThis ? (
+                        <>
+                          <Pause size={13} className="fill-current" />
+                          <span>Pause</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play size={13} className="text-primary fill-primary" />
+                          <span>{isThisSurah ? "Resume" : "Play"}</span>
+                        </>
+                      )}
+                    </button>
+                  );
+                })()}
                 {item.hasMushaf && (
                   <Link
                     href={`/mushaf/${item.mushafPages?.[0] || 1}`}

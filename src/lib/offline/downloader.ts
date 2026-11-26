@@ -3,6 +3,7 @@ import { DEFAULT_TR1, type SurahAudio } from "@/lib/quran/types";
 import {
   saveOfflineSurahContent,
   saveOfflineSurahAudio,
+  saveOfflineFullAudio,
   type OfflineVerseAudioRecord,
 } from "./db";
 
@@ -93,15 +94,15 @@ export async function downloadSurahPackage(params: {
     let completedCount = 0;
     const totalCount = files.length;
 
-    // Optional: Also fetch full surah audio if available
+    // Optional: Also fetch full surah audio for unified player experience
     let fullAudioBlob: Blob | undefined;
     if (typeof audioData.audioUrl === "string" && audioData.audioUrl.startsWith("http")) {
-      fetch(audioData.audioUrl, { signal })
-        .then((r) => (r.ok ? r.blob() : undefined))
-        .then((b) => {
-          if (b) fullAudioBlob = b;
-        })
-        .catch(() => {});
+      try {
+        const fullRes = await fetch(audioData.audioUrl, { signal });
+        if (fullRes.ok) {
+          fullAudioBlob = await fullRes.blob();
+        }
+      } catch {}
     }
 
     // Download in chunks of 3
@@ -158,6 +159,12 @@ export async function downloadSurahPackage(params: {
       audioRecords,
       fullAudioBlob
     );
+
+    if (fullAudioBlob) {
+      try {
+        await saveOfflineFullAudio(surah, reciterId, reciterName, fullAudioBlob);
+      } catch {}
+    }
 
     onProgress?.({
       stage: "complete",

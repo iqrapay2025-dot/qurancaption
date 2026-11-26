@@ -144,6 +144,10 @@ export function useGlobalAudio() {
   return ctx;
 }
 
+export function useOptionalGlobalAudio() {
+  return useContext(GlobalAudioContext);
+}
+
 export function GlobalAudioProvider({ children }: { children: React.ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -177,6 +181,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
   isPlayingRef.current = isPlaying;
   const autoRetryCountRef = useRef<number>(0);
   const needsReloadRef = useRef<boolean>(false);
+  const loadedKeyRef = useRef<string>("");
 
   // Available reciters from MP3Quran catalog
   const availableReciters = useMemo(() => {
@@ -308,6 +313,12 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
 
   // Fetch audio url whenever surah or reciter changes
   const fetchAudio = useCallback(async (surahNum: number, reciterNum: number) => {
+    const targetKey = `${surahNum}_${reciterNum}`;
+    if (loadedKeyRef.current === targetKey && audioUrl) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -315,6 +326,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
       try {
         const fullOffline = await getOfflineFullAudio(surahNum, reciterNum);
         if (fullOffline?.audioUrl) {
+          loadedKeyRef.current = `${surahNum}_${fullOffline.reciterId || reciterNum}`;
           setAudioUrl(fullOffline.audioUrl);
           if (fullOffline.reciterId && fullOffline.reciterId !== reciterNum) {
             setReciterId(fullOffline.reciterId);
@@ -324,6 +336,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
         }
         const offline = await getOfflineSurahAudio(surahNum, reciterNum);
         if (offline?.fullAudioUrl) {
+          loadedKeyRef.current = `${surahNum}_${offline.reciterId || reciterNum}`;
           setAudioUrl(offline.fullAudioUrl);
           if (offline.reciterId && offline.reciterId !== reciterNum) {
             setReciterId(offline.reciterId);
@@ -351,6 +364,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
       }
       if (server) {
         const url = buildListenAudioUrl(server, surahNum);
+        loadedKeyRef.current = targetKey;
         setAudioUrl(url);
         setLoading(false);
         return;
@@ -362,6 +376,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
         const data = await res.json();
         const url = typeof data?.audioUrl === "string" ? data.audioUrl : null;
         if (url) {
+          loadedKeyRef.current = targetKey;
           setAudioUrl(url);
           setLoading(false);
           return;
@@ -376,7 +391,7 @@ export function GlobalAudioProvider({ children }: { children: React.ReactNode })
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [audioUrl]);
 
   useEffect(() => {
     fetchAudio(surah, reciterId);

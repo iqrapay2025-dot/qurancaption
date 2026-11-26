@@ -168,9 +168,9 @@ gtag('js', new Date());`,
             </div>
             <MiniPlayer />
             <PlannerReminderToast />
+            <BackToTop />
           </TourProvider>
         </GlobalAudioProvider>
-        <BackToTop />
         <BodyCustomCode html={customScripts?.bodyEnd} />
         <CookieSettingsBar />
         <CookieConsent />
