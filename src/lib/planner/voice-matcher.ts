@@ -1,6 +1,6 @@
 /**
  * Arabic Voice Recognition and Word Alignment Helper
- * Normalizes classical Arabic and spoken Arabic transcripts to evaluate recitation accuracy.
+ * Normalizes classical Quranic Arabic and spoken Arabic transcripts to evaluate recitation accuracy.
  * Identifies accurately recited words (green) and errors/skipped words (red text).
  */
 
@@ -23,12 +23,12 @@ export function normalizeArabicSpeech(input: string): string {
   if (!input) return "";
 
   return input
-    // Remove diacritics / harakat
+    // Remove diacritics / harakat including dagger alif (\u0670)
     .replace(/[\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED]/g, "")
-    // Remove tatweel (kashida)
+    // Remove tatweel (kashida \u0640)
     .replace(/\u0640/g, "")
-    // Normalize Alefs (أ, إ, آ, ٱ -> ا)
-    .replace(/[أإآٱ]/g, "ا")
+    // Normalize Alefs (أ, إ, آ, ٱ, ء -> ا)
+    .replace(/[أإآٱء]/g, "ا")
     // Normalize Yehs (ى -> ي)
     .replace(/ى/g, "ي")
     // Normalize Taa Marbuta (ة -> ه)
@@ -39,6 +39,21 @@ export function normalizeArabicSpeech(input: string): string {
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
+}
+
+/**
+ * Checks whether a spoken token matches a Quranic target word,
+ * accounting for classical orthography differences (e.g. الرحمن vs الرحمان, مالك vs ملك).
+ */
+export function isArabicWordMatch(spokenToken: string, targetWord: string): boolean {
+  const s = normalizeArabicSpeech(spokenToken);
+  const t = normalizeArabicSpeech(targetWord);
+  if (!s || !t) return false;
+  if (s === t) return true;
+  if (s.includes(t) || t.includes(s)) return true;
+  // Match ignoring internal alifs (e.g. الرحمن vs الرحمان, صرط vs صراط, ملك vs مالك)
+  if (s.replace(/ا/g, "") === t.replace(/ا/g, "")) return true;
+  return false;
 }
 
 /**
@@ -71,12 +86,7 @@ export function evaluateSpokenRecitation(
     let found = false;
     for (let sIdx = searchStartIndex; sIdx < spokenTokens.length; sIdx++) {
       const token = spokenTokens[sIdx];
-      // Exact match or substring / lemmatic match
-      if (
-        token === normTarget ||
-        token.includes(normTarget) ||
-        normTarget.includes(token)
-      ) {
+      if (isArabicWordMatch(token, normTarget)) {
         found = true;
         searchStartIndex = sIdx + 1;
         break;

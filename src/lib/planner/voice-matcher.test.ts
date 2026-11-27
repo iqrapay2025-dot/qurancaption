@@ -23,6 +23,18 @@ describe("Arabic Voice Normalization & Recitation Matcher", () => {
     expect(result.wordStatuses).toEqual(["matched", "matched", "matched", "matched"]);
   });
 
+  it("accurately matches classical Quranic orthography like dagger alifs with spoken words", () => {
+    // مَٰلِكِ يَوْمِ ٱلدِّينِ
+    const expected = ["مَٰلِكِ", "يَوْمِ", "ٱلدِّينِ"];
+    const spoken = "مالك يوم الدين";
+
+    const result = evaluateSpokenRecitation(spoken, expected);
+    expect(result.accuracyPercentage).toBe(100);
+    expect(result.matchedIndices).toEqual([0, 1, 2]);
+    expect(result.highestRecitedIndex).toBe(2);
+    expect(result.errorIndices).toEqual([]);
+  });
+
   it("identifies skipped or mispronounced words as errors (red text)", () => {
     const expected = ["الْحَمْدُ", "لِلَّهِ", "رَبِّ", "الْعَالَمِينَ"];
     // Spoken transcript omitted "رب"

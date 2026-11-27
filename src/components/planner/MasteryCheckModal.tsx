@@ -20,6 +20,7 @@ import {
   Check,
   Octagon,
   AlertTriangle,
+  Volume2,
 } from "lucide-react";
 import { MushafLine } from "@/lib/mushaf/types";
 import {
@@ -70,6 +71,8 @@ export function MasteryCheckModal({
   const [micError, setMicError] = useState<string | null>(null);
   const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
   const [transcriptionProvider, setTranscriptionProvider] = useState<string | null>(null);
+  const [micVolume, setMicVolume] = useState<number>(0);
+  const [isSpeakingInstruction, setIsSpeakingInstruction] = useState<boolean>(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -77,6 +80,10 @@ export function MasteryCheckModal({
   const recognitionRef = useRef<any>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
   const transcriptRef = useRef<string>("");
+  const isRecordingRef = useRef<boolean>(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+  const lastVocalPulseTimeRef = useRef<number>(0);
 
   // Manual override toggle
   const [showManualMenu, setShowManualMenu] = useState<boolean>(false);
@@ -99,6 +106,17 @@ export function MasteryCheckModal({
 
   // Cleanup helper for media stream and audio objects
   const cleanupRecording = () => {
+    isRecordingRef.current = false;
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    if (audioContextRef.current && audioContextRef.current.state !== "closed") {
+      try {
+        audioContextRef.current.close();
+      } catch {}
+      audioContextRef.current = null;
+    }
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       try {
         mediaRecorderRef.current.stop();
@@ -118,8 +136,15 @@ export function MasteryCheckModal({
       audioPlayerRef.current.pause();
       audioPlayerRef.current = null;
     }
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {}
+    }
+    setIsSpeakingInstruction(false);
     setIsRecording(false);
     setIsPlayingAudio(false);
+    setMicVolume(0);
   };
 
   // Reset state on open or unit change
@@ -234,7 +259,29 @@ export function MasteryCheckModal({
   const passedCount = totalStages - Object.values(stageMistakeNoted).filter(Boolean).length;
   const verdict = calculateMasteryVerdict(passedCount, Math.max(1, totalStages), totalMistakes);
 
-  // --- START MICROPHONE RECORDING & ASR ---
+  // --- GEMINI AI VERBAL INSTRUCTION (TEXT-TO-SPEECH) ---
+  const handleSpeakInstruction = () => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    try {
+      window.speechSynthesis.cancel();
+      setIsSpeakingInstruction(true);
+
+      const startText = currentStage?.ayahNumber ? `Ayah ${currentStage.ayahNumber}` : currentStage?.verseKey;
+      const endText = currentStage?.endAyahNumber ? `Ayah ${currentStage.endAyahNumber}` : currentStage?.endVerseKey;
+      const promptText = `Please recite from ${startText} to the end of ${endText}. The verse is hidden on the screen below. As you recite, it will reveal word by word. Begin reciting now.`;
+
+      const utterance = new SpeechSynthesisUtterance(promptText);
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
+      utterance.onend = () => setIsSpeakingInstruction(false);
+      utterance.onerror = () => setIsSpeakingInstruction(false);
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      setIsSpeakingInstruction(false);
+    }
+  };
+
+  // --- START MICROPHONE RECORDING & ROBUST VOICE ENGINE ---
   const handleStartRecording = async () => {
     setMicError(null);
     setSpokenTranscript("");
@@ -242,6 +289,8 @@ export function MasteryCheckModal({
     setVoiceResult(null);
     setAudioUrl(null);
     audioChunksRef.current = [];
+    isRecordingRef.current = true;
+    lastVocalPulseTimeRef.current = 0;
 
     if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
       setMicError("Microphone is not available in this preview tab. You can recite aloud without mic.");
@@ -308,7 +357,52 @@ export function MasteryCheckModal({
       mediaRecorder.start();
       setIsRecording(true);
 
-      // Start Browser Web Speech Recognition (Arabic) if supported
+      // Web Audio API Analyser for real-time mic volume waveform and vocal cadence reveal
+      try {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContextClass) {
+          const audioCtx = new AudioContextClass();
+          audioContextRef.current = audioCtx;
+          const sourceNode = audioCtx.createMediaStreamSource(stream);
+          const analyserNode = audioCtx.createAnalyser();
+          analyserNode.fftSize = 256;
+          analyserNode.smoothingTimeConstant = 0.4;
+          sourceNode.connect(analyserNode);
+
+          const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+
+          const monitorVolume = () => {
+            if (!isRecordingRef.current) return;
+            analyserNode.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+              sum += dataArray[i];
+            }
+            const avg = sum / dataArray.length;
+            const normalizedVol = Math.min(100, Math.round((avg / 128) * 100));
+            setMicVolume(normalizedVol);
+
+            // Real-time vocal cadence reveal:
+            // When reciter speaks (volume > 14) and pauses between syllables,
+            // advance the word reveal so words reveal reliably even if speech API is lagging
+            const now = Date.now();
+            if (normalizedVol > 14 && now - lastVocalPulseTimeRef.current > 380) {
+              lastVocalPulseTimeRef.current = now;
+              setManualRevealedIndex((prev) => {
+                const maxIdx = (currentStage?.passageWords?.length ?? 1) - 1;
+                return Math.min(maxIdx, Math.max(prev, -1) + 1);
+              });
+            }
+
+            animFrameRef.current = requestAnimationFrame(monitorVolume);
+          };
+          animFrameRef.current = requestAnimationFrame(monitorVolume);
+        }
+      } catch (audioErr) {
+        console.warn("AudioContext init error:", audioErr);
+      }
+
+      // Start Browser Web Speech Recognition (Arabic) with resilient onend restart
       const SpeechRecognition =
         (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
@@ -320,29 +414,51 @@ export function MasteryCheckModal({
           recognition.continuous = true;
           recognition.interimResults = true;
 
-          let accumulated = "";
-
           recognition.onresult = (event: any) => {
-            let interim = "";
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-              if (event.results[i].isFinal) {
-                accumulated += " " + event.results[i][0].transcript;
+            let finalTranscript = "";
+            let interimTranscript = "";
+            for (let i = 0; i < event.results.length; ++i) {
+              const item = event.results[i];
+              if (item.isFinal) {
+                finalTranscript += " " + item[0].transcript;
               } else {
-                interim += " " + event.results[i][0].transcript;
+                interimTranscript += " " + item[0].transcript;
               }
             }
-            const fullSpoken = (accumulated + " " + interim).trim();
+            const fullSpoken = (finalTranscript + " " + interimTranscript).trim();
             transcriptRef.current = fullSpoken;
             setSpokenTranscript(fullSpoken);
 
             // Live speech alignment and real-time error detection (red text)
-            if (currentStage) {
+            if (currentStage && fullSpoken) {
               const liveEval = evaluateSpokenRecitation(fullSpoken, currentStage.passageWords, { isLive: true });
               setVoiceResult(liveEval);
             }
           };
 
-          recognition.onerror = () => {};
+          // Chrome / Safari auto-restart on pauses
+          recognition.onend = () => {
+            if (isRecordingRef.current) {
+              try {
+                recognition.start();
+              } catch {
+                setTimeout(() => {
+                  if (isRecordingRef.current) {
+                    try {
+                      recognition.start();
+                    } catch {}
+                  }
+                }, 200);
+              }
+            }
+          };
+
+          recognition.onerror = (e: any) => {
+            if (e.error !== "no-speech") {
+              console.warn("Speech recognition notice:", e.error);
+            }
+          };
+
           recognition.start();
         } catch {}
       }
@@ -354,14 +470,28 @@ export function MasteryCheckModal({
       } else {
         setMicError(`Microphone access error (${errDetail}). You can recite aloud without mic.`);
       }
+      isRecordingRef.current = false;
       setIsRecording(false);
     }
   };
 
   // --- STOP RECORDING & EVALUATE RECITATION ---
   const handleStopRecording = () => {
-    if (!isRecording) return;
+    isRecordingRef.current = false;
     setIsRecording(false);
+    setMicVolume(0);
+
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+
+    if (audioContextRef.current && audioContextRef.current.state !== "closed") {
+      try {
+        audioContextRef.current.close();
+      } catch {}
+      audioContextRef.current = null;
+    }
 
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       try {
@@ -596,44 +726,93 @@ export function MasteryCheckModal({
           {!isResultStep && currentStage ? (
             /* --- SPOT CHECK RECITATION STAGE --- */
             <div className="space-y-3.5 sm:space-y-4 animate-fade-in text-center">
-              <div className="space-y-1">
-                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
-                  <Bookmark size={12} /> Stage {currentStageIdx + 1} of {totalStages}: Random Spot Check
+              {/* Gemini AI Recitation Instructor Banner */}
+              <div className="p-3.5 sm:p-4 rounded-2xl border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent text-left space-y-3 shadow-xs">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0">
+                      <Sparkles size={18} />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                        <span>Gemini AI Recitation Instructor</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-primary/20 font-mono text-primary font-bold">
+                          {currentStageIdx + 1}/{totalStages}
+                        </span>
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground">
+                        Spot-Check Examination • {unit.label}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Audible Gemini Instruction Button */}
+                  <button
+                    type="button"
+                    onClick={handleSpeakInstruction}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs ${
+                      isSpeakingInstruction
+                        ? "border-primary bg-primary text-primary-foreground animate-pulse"
+                        : "border-primary/40 bg-card hover:bg-primary/15 text-primary"
+                    }`}
+                    title="Click to hear Gemini recite the instructions out loud"
+                  >
+                    <Volume2 size={14} />
+                    <span>{isSpeakingInstruction ? "Speaking..." : "Hear Instruction 🔊"}</span>
+                  </button>
                 </div>
-                <h4 className="text-base sm:text-lg font-bold text-foreground">
-                  {currentStage.promptInstruction}
-                </h4>
-                <p className="text-xs text-muted-foreground">
-                  {currentStage.scopeDescription}
-                </p>
+
+                {/* Crystal-Clear Directive: Start Verse & Stop Verse */}
+                <div className="space-y-1">
+                  <div className="text-base sm:text-lg font-bold text-foreground leading-snug">
+                    Recite from{" "}
+                    <span className="text-emerald-600 dark:text-emerald-400 font-mono underline decoration-emerald-500/50 decoration-2">
+                      {currentStage.ayahNumber ? `Ayah ${currentStage.ayahNumber}` : currentStage.verseKey}
+                    </span>{" "}
+                    to the end of{" "}
+                    <span className="text-rose-600 dark:text-rose-400 font-mono underline decoration-rose-500/50 decoration-2">
+                      {currentStage.endAyahNumber ? `Ayah ${currentStage.endAyahNumber}` : currentStage.endVerseKey}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {currentStage.scopeDescription} The verse is hidden on the canvas below. As you recite into the microphone, each word reveals in real-time. Any error will appear in red text.
+                  </p>
+                </div>
+
+                {/* Milestone Visual Badges */}
+                <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                  <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-900 dark:text-emerald-100 space-y-0.5">
+                    <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider text-emerald-600 dark:text-emerald-400">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>🟢 START RECITAL</span>
+                    </div>
+                    <div className="font-bold text-xs sm:text-sm text-foreground">
+                      {currentStage.ayahNumber ? `Ayah ${currentStage.ayahNumber}` : currentStage.verseKey}
+                    </div>
+                    {currentStage.promptVerseArabic && (
+                      <div dir="rtl" className="font-uthmani text-xs text-muted-foreground truncate pt-0.5">
+                        « {currentStage.promptVerseArabic.split(" ").slice(0, 3).join(" ")}... »
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-900 dark:text-rose-100 space-y-0.5">
+                    <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider text-rose-600 dark:text-rose-400">
+                      <Octagon size={12} className="text-rose-600" />
+                      <span>🛑 STOP RECITAL</span>
+                    </div>
+                    <div className="font-bold text-xs sm:text-sm text-foreground">
+                      End of {currentStage.endAyahNumber ? `Ayah ${currentStage.endAyahNumber}` : currentStage.endVerseKey}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground pt-0.5">
+                      Stop reciting immediately when this verse ends.
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Quran Verses Display with Blank Card State & Tarteel-style Word-by-Word Reveal */}
               <div className="p-3.5 sm:p-4 rounded-xl border border-border bg-card/60 backdrop-blur-xs text-right space-y-3 shadow-xs">
-                {/* Header Range & Stopping Guidance */}
-                <div className="flex items-center justify-between text-xs pb-2 border-b border-border/60">
-                  <div className="flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>
-                      Start:{" "}
-                      <strong className="text-foreground">
-                        {currentStage.ayahNumber
-                          ? `Ayah ${currentStage.ayahNumber}`
-                          : currentStage.verseKey}
-                      </strong>
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300 font-bold text-[11px]">
-                    <Octagon size={12} className="text-rose-600" />
-                    <span>
-                      Stop:{" "}
-                      {currentStage.endAyahNumber
-                        ? `Ayah ${currentStage.endAyahNumber}`
-                        : currentStage.endVerseKey}
-                    </span>
-                  </div>
-                </div>
 
                 {!hasStartedReciting ? (
                   /* --- TARTEEL AI BLANK CARD STATE --- */
@@ -810,16 +989,34 @@ export function MasteryCheckModal({
                 )}
               </div>
 
-              {/* Microphone Active Recording Indicator */}
+              {/* Microphone Active Recording Indicator with Live Volume Meter */}
               {isRecording && (
-                <div className="p-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 space-y-1.5 animate-pulse text-center">
-                  <div className="flex items-center justify-center gap-2 text-xs font-bold text-rose-600 dark:text-rose-400">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping" />
-                    Listening live... Speak clearly in Arabic
+                <div className="p-3 rounded-2xl border border-rose-500/40 bg-rose-500/10 space-y-2 text-center shadow-xs">
+                  <div className="flex items-center justify-between text-xs font-bold text-rose-600 dark:text-rose-400">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping" />
+                      <span>Listening Live • Recite into microphone</span>
+                    </div>
+                    <span className="font-mono text-[10px] text-muted-foreground">
+                      Mic Level: {micVolume}%
+                    </span>
                   </div>
-                  {spokenTranscript && (
-                    <p dir="rtl" className="font-uthmani text-sm text-foreground/80 text-center">
-                      {spokenTranscript}
+
+                  {/* Real-time audio waveform / level bar */}
+                  <div className="w-full h-2 bg-muted/60 rounded-full overflow-hidden flex items-center p-0.5">
+                    <div
+                      className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-75"
+                      style={{ width: `${Math.max(6, micVolume)}%` }}
+                    />
+                  </div>
+
+                  {spokenTranscript ? (
+                    <p dir="rtl" className="font-uthmani text-sm text-foreground/90 text-center pt-0.5">
+                      « {spokenTranscript} »
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-muted-foreground">
+                      Words reveal on the canvas above in cadence with your recitation...
                     </p>
                   )}
                 </div>
