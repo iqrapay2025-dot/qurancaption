@@ -7,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function PlannerPage() {
-  return (
-    <div className="min-h-screen bg-background pb-16">
-      <PlannerToday />
-    </div>
-  );
+  return <PlannerToday />;
 }
