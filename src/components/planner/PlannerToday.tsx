@@ -18,9 +18,8 @@ import {
   Layers,
   ChevronRight,
   EyeOff,
-  Sparkles,
 } from "lucide-react";
-import { PlannerPlan, PlannerUnit, UnitRecord, DailySchedule, StrengthRating, SabaqCompletion } from "@/lib/planner/types";
+import { PlannerPlan, PlannerUnit, UnitRecord, DailySchedule, StrengthRating } from "@/lib/planner/types";
 import { getPaceEstimate } from "@/lib/planner/pace";
 import { generateMushafUnits } from "@/lib/planner/mushaf-grid";
 import { generateToday, togglePausePlan, skipDay, setBacklogSpread } from "@/lib/planner/scheduler";
@@ -33,10 +32,6 @@ import {
   calculatePlannerStats,
 } from "@/lib/planner/storage";
 import { PracticeModal } from "./PracticeModal";
-import { MasteryCheckModal } from "./MasteryCheckModal";
-import { MasteryVerdict } from "@/lib/planner/mastery-quiz";
-import { getOfflineMushafPage } from "@/lib/offline/db";
-import { MushafLine } from "@/lib/mushaf/types";
 
 export function PlannerToday() {
   const [plan, setPlan] = useState<PlannerPlan | null>(null);
@@ -58,35 +53,6 @@ export function PlannerToday() {
     unit: PlannerUnit;
     type: "sabaq" | "sabqi" | "manzil";
   } | null>(null);
-
-  // Mushaf lines for the unit currently being verified
-  const [verificationLines, setVerificationLines] = useState<MushafLine[]>([]);
-
-  useEffect(() => {
-    if (!ratingTarget?.unit) {
-      setVerificationLines([]);
-      return;
-    }
-    let active = true;
-    const pageNum = ratingTarget.unit.startPage;
-    getOfflineMushafPage(pageNum).then((offlineData) => {
-      if (!active) return;
-      if (offlineData?.lines) {
-        setVerificationLines(offlineData.lines);
-      } else {
-        fetch(`/api/quran/mushaf?page=${pageNum}`)
-          .then((res) => (res.ok ? res.json() : null))
-          .then((data) => {
-            if (!active) return;
-            setVerificationLines(data?.lines || []);
-          })
-          .catch(() => {});
-      }
-    });
-    return () => {
-      active = false;
-    };
-  }, [ratingTarget?.unit?.startPage]);
 
   // Load plan and records on mount
   useEffect(() => {
@@ -165,24 +131,6 @@ export function PlannerToday() {
     setRecords(updatedRecords);
     saveRecords(updatedRecords);
     setRatingTarget(null);
-  };
-
-  const handleMasteryComplete = (verdict: MasteryVerdict) => {
-    if (!ratingTarget || !ratingTarget.unit) return;
-    if (ratingTarget.type === "sabaq") {
-      handleSabaqChoice(verdict.sabaqResult);
-    } else {
-      handleRevisionRating(verdict.rating);
-    }
-  };
-
-  const handleManualOverride = (rating: StrengthRating | SabaqCompletion) => {
-    if (!ratingTarget || !ratingTarget.unit) return;
-    if (ratingTarget.type === "sabaq") {
-      handleSabaqChoice(rating as SabaqCompletion);
-    } else {
-      handleRevisionRating(rating as StrengthRating);
-    }
   };
 
   // If no plan, render empty state
@@ -391,8 +339,8 @@ export function PlannerToday() {
                         : "bg-emerald-600/10 text-emerald-600 hover:bg-emerald-600 hover:text-white"
                     }`}
                   >
-                    <Sparkles size={14} />
-                    {schedule.completedIds.includes(schedule.sabaq.id) ? "Mastered ✓" : "Verify Mastery"}
+                    <CheckCircle2 size={14} />
+                    {schedule.completedIds.includes(schedule.sabaq.id) ? "Done ✓" : "Mark Done"}
                   </button>
                 </div>
               </div>
@@ -468,8 +416,8 @@ export function PlannerToday() {
                             : "bg-sky-600/10 text-sky-600 hover:bg-sky-600 hover:text-white"
                         }`}
                       >
-                        <Sparkles size={13} />
-                        {isDone ? "Mastered ✓" : "Verify"}
+                        <CheckCircle2 size={13} />
+                        {isDone ? "Done ✓" : "Rate"}
                       </button>
                     </div>
                   </div>
@@ -552,8 +500,8 @@ export function PlannerToday() {
                             : "bg-purple-600/10 text-purple-600 hover:bg-purple-600 hover:text-white"
                         }`}
                       >
-                        <Sparkles size={13} />
-                        {isDone ? "Mastered ✓" : "Verify"}
+                        <CheckCircle2 size={13} />
+                        {isDone ? "Done ✓" : "Rate"}
                       </button>
                     </div>
                   </div>
@@ -568,17 +516,91 @@ export function PlannerToday() {
         </div>
       </div>
 
-      {/* System Mastery Verification Modal */}
-      {ratingTarget && (
-        <MasteryCheckModal
-          isOpen={Boolean(ratingTarget)}
-          unit={ratingTarget.unit}
-          unitType={ratingTarget.type}
-          pageLines={verificationLines}
-          onClose={() => setRatingTarget(null)}
-          onComplete={handleMasteryComplete}
-          onManualOverride={handleManualOverride}
-        />
+      {/* Sabaq Outcome Modal */}
+      {ratingTarget && ratingTarget.type === "sabaq" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
+            <h3 className="font-bold text-base text-foreground">Did you memorize today's lesson?</h3>
+            <p className="text-xs text-muted-foreground">
+              {ratingTarget.unit.label}
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => handleSabaqChoice("yes")}
+                className="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs"
+              >
+                Yes, memorized ✓
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSabaqChoice("partly")}
+                className="py-2.5 px-3 rounded-xl border border-border bg-background hover:bg-muted text-foreground font-semibold text-xs"
+              >
+                Partly (Repeat tomorrow)
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setRatingTarget(null)}
+              className="w-full text-center text-xs text-muted-foreground hover:text-foreground pt-1"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Revision Rating Modal (Sabqi / Manzil) */}
+      {ratingTarget && (ratingTarget.type === "sabqi" || ratingTarget.type === "manzil") && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
+            <h3 className="font-bold text-base text-foreground">How was your recitation?</h3>
+            <p className="text-xs text-muted-foreground">
+              {ratingTarget.unit.label}
+            </p>
+
+            <div className="grid grid-cols-3 gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => handleRevisionRating("strong")}
+                className="p-3 rounded-xl border border-emerald-600/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold text-xs text-center"
+              >
+                <div>Strong ⭐</div>
+                <span className="text-[10px] text-muted-foreground font-normal">Next in 4–10d</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleRevisionRating("okay")}
+                className="p-3 rounded-xl border border-sky-600/40 bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-sky-300 font-bold text-xs text-center"
+              >
+                <div>Okay 👍</div>
+                <span className="text-[10px] text-muted-foreground font-normal">Next in 2–4d</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleRevisionRating("weak")}
+                className="p-3 rounded-xl border border-rose-600/40 bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-300 font-bold text-xs text-center"
+              >
+                <div>Weak ⚠️</div>
+                <span className="text-[10px] text-muted-foreground font-normal">Due tomorrow</span>
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setRatingTarget(null)}
+              className="w-full text-center text-xs text-muted-foreground hover:text-foreground pt-1"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Practice / Listening Modal */}
@@ -586,16 +608,6 @@ export function PlannerToday() {
         unit={practiceUnit}
         isOpen={practiceUnit !== null}
         onClose={() => setPracticeUnit(null)}
-        onVerifyMastery={(u) => {
-          const type =
-            schedule?.sabaq?.id === u.id
-              ? "sabaq"
-              : schedule?.manzil?.some((m) => m.id === u.id)
-              ? "manzil"
-              : "sabqi";
-          setPracticeUnit(null);
-          setRatingTarget({ unit: u, type });
-        }}
       />
 
       {/* DEV TIME-TRAVEL TOOL (Only enabled in dev mode) */}

@@ -13,7 +13,6 @@ import {
   Volume2,
   Loader2,
   Headphones,
-  Sparkles,
 } from "lucide-react";
 import { PlannerUnit } from "@/lib/planner/types";
 import {
@@ -29,7 +28,6 @@ interface PracticeModalProps {
   unit: PlannerUnit | null;
   isOpen: boolean;
   onClose: () => void;
-  onVerifyMastery?: (unit: PlannerUnit) => void;
 }
 
 interface AudioTrack {
@@ -37,7 +35,7 @@ interface AudioTrack {
   audioUrl: string;
 }
 
-export function PracticeModal({ unit, isOpen, onClose, onVerifyMastery }: PracticeModalProps) {
+export function PracticeModal({ unit, isOpen, onClose }: PracticeModalProps) {
   const [repeatTarget, setRepeatTarget] = useState<number>(3);
   const [currentRepeat, setCurrentRepeat] = useState<number>(1);
   const [pauseSeconds, setPauseSeconds] = useState<number>(1);
@@ -748,27 +746,13 @@ export function PracticeModal({ unit, isOpen, onClose, onVerifyMastery }: Practi
             )}
           </button>
 
-          <div className="flex items-center gap-2">
-            {onVerifyMastery && unit && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onVerifyMastery(unit);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors"
-              >
-                <Sparkles size={13} /> Verify Mastery
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-1.5 rounded-lg bg-muted text-foreground hover:bg-muted/80 text-xs font-semibold transition-colors"
-            >
-              Done
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
+          >
+            Done
+          </button>
         </div>
       </div>
     </div>
