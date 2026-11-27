@@ -27,6 +27,7 @@ import {
 import { PlannerPlan, UnitRecord, LessonSize, StrengthRating } from "@/lib/planner/types";
 import { getPaceEstimate } from "@/lib/planner/pace";
 import { DEFAULT_RECITER, type Reciter } from "@/lib/quran/types";
+import { PlannerShell } from "./PlannerShell";
 
 const LESSON_SIZES: Array<{ size: LessonSize; label: string; desc: string }> = [
   { size: 3, label: "3 Lines", desc: "Gentle pace · ~5–10 mins" },
@@ -266,8 +267,9 @@ export function PlannerSetup() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
-      {/* Progress Stepper */}
+    <PlannerShell activeTab="setup">
+      <div className="space-y-6">
+        {/* Progress Stepper */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
@@ -825,6 +827,7 @@ export function PlannerSetup() {
           </button>
         )}
       </div>
-    </div>
+      </div>
+    </PlannerShell>
   );
 }

@@ -58,10 +58,12 @@ import {
   calculatePlannerStats,
 } from "@/lib/planner/storage";
 import { useSession } from "@/lib/app/client";
+import { Logo, ThemeToggle, useTheme } from "@/components/shared";
 import { PracticeModal } from "./PracticeModal";
 
 export function PlannerToday() {
   const { user } = useSession();
+  const { dark, toggle, themeMode, setThemeMode } = useTheme();
   const [plan, setPlan] = useState<PlannerPlan | null>(null);
   const [records, setRecords] = useState<Record<string, UnitRecord>>({});
   const [allUnits, setAllUnits] = useState<PlannerUnit[]>([]);
@@ -237,11 +239,11 @@ export function PlannerToday() {
           <div className="flex flex-col items-center gap-6">
             {/* Brand Logo Mark */}
             <Link
-              href="/planner"
-              className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#0a7e5c] to-[#12ab7e] flex items-center justify-center text-white font-black text-lg shadow-sm"
-              title="Aayah Studio Hifz"
+              href="/"
+              className="size-10 rounded-xl flex items-center justify-center hover:opacity-90 transition-opacity"
+              title="Aayah Studio"
             >
-              <span className="font-serif">آ</span>
+              <Logo iconOnly />
             </Link>
 
             {/* Vertical Icons Nav */}
@@ -288,8 +290,15 @@ export function PlannerToday() {
             </nav>
           </div>
 
-          {/* Bottom Profile / Dev Tool */}
-          <div className="flex flex-col items-center gap-2">
+          {/* Bottom Dock Actions: Theme Toggle & Profile / Dev Tool */}
+          <div className="flex flex-col items-center gap-2.5">
+            <ThemeToggle
+              dark={dark}
+              toggle={toggle}
+              themeMode={themeMode}
+              setThemeMode={setThemeMode}
+            />
+
             <button
               type="button"
               onClick={() => {
@@ -305,6 +314,19 @@ export function PlannerToday() {
             </button>
           </div>
         </aside>
+
+        {/* Mobile Header Bar (md:hidden) */}
+        <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white/95 dark:bg-[#15241f] border-b border-slate-200/70 dark:border-slate-800">
+          <Link href="/" className="flex items-center gap-2">
+            <Logo compact />
+          </Link>
+          <ThemeToggle
+            dark={dark}
+            toggle={toggle}
+            themeMode={themeMode}
+            setThemeMode={setThemeMode}
+          />
+        </div>
 
         {/* Main Content Area */}
         <main className="flex-1 p-4 sm:p-7 md:p-9 space-y-6 overflow-y-auto max-w-full pb-20 md:pb-8">
@@ -375,7 +397,7 @@ export function PlannerToday() {
               </p>
             </div>
 
-            {/* Quick Header Pills */}
+            {/* Quick Header Pills & Theme Toggle */}
             <div className="flex items-center gap-2 flex-wrap">
               {stats && (
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-xs font-bold shadow-xs">
@@ -389,6 +411,16 @@ export function PlannerToday() {
                 <span>
                   {completedCount}/{totalTasksCount} Completed
                 </span>
+              </div>
+
+              {/* Theme Toggle (Light / Dark / System) */}
+              <div className="shrink-0 ml-1">
+                <ThemeToggle
+                  dark={dark}
+                  toggle={toggle}
+                  themeMode={themeMode}
+                  setThemeMode={setThemeMode}
+                />
               </div>
             </div>
           </header>

@@ -34,6 +34,7 @@ import {
 import { PlannerPlan, LessonSize } from "@/lib/planner/types";
 import { getPaceEstimate } from "@/lib/planner/pace";
 import { DEFAULT_RECITER, type Reciter } from "@/lib/quran/types";
+import { PlannerShell } from "./PlannerShell";
 
 export function PlannerSettings() {
   const router = useRouter();
@@ -142,7 +143,8 @@ export function PlannerSettings() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 sm:py-10 space-y-8">
+    <PlannerShell activeTab="settings" sabaqStartPage={plan?.startPoint.page || 1}>
+      <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-border">
         <div>
@@ -513,6 +515,7 @@ export function PlannerSettings() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </PlannerShell>
   );
 }

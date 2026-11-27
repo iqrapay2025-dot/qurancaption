@@ -9,9 +9,9 @@ export default function PlannerLayout({
   return (
     <>
       <SiteHeader />
-      <main className="min-h-screen bg-background">
+      <div className="min-h-screen bg-[#bcd5ca] dark:bg-[#101c17] transition-colors">
         {children}
-      </main>
+      </div>
     </>
   );
 }

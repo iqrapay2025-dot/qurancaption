@@ -3,7 +3,7 @@
 import { Moon, Sun, Laptop } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-export function Logo({ onClick, compact }: { onClick?: () => void; compact?: boolean }) {
+export function Logo({ onClick, compact, iconOnly }: { onClick?: () => void; compact?: boolean; iconOnly?: boolean }) {
   return (
     <Wrapper onClick={onClick}>
       <div className="relative shrink-0 flex items-center justify-center size-8 sm:size-9">
@@ -32,9 +32,11 @@ export function Logo({ onClick, compact }: { onClick?: () => void; compact?: boo
           />
         </picture>
       </div>
-      <span className={`font-display text-lg font-bold tracking-tight whitespace-nowrap ${compact ? "hidden md:inline" : ""}`}>
-        <span className="text-gold">Aayah</span> Studio
-      </span>
+      {!iconOnly && (
+        <span className={`font-display text-lg font-bold tracking-tight whitespace-nowrap ${compact ? "hidden md:inline" : ""}`}>
+          <span className="text-gold">Aayah</span> Studio
+        </span>
+      )}
     </Wrapper>
   );
 }
@@ -119,10 +121,13 @@ export function ThemeToggle({
 }) {
   const handleClick = () => {
     if (setThemeMode && themeMode) {
-      // Cycle: light -> dark -> system -> light
-      if (themeMode === "light") setThemeMode("dark");
-      else if (themeMode === "dark") setThemeMode("system");
-      else setThemeMode("light");
+      if (themeMode === "system") {
+        setThemeMode(dark ? "light" : "dark");
+      } else if (themeMode === "light") {
+        setThemeMode("dark");
+      } else {
+        setThemeMode("light");
+      }
     } else {
       toggle();
     }

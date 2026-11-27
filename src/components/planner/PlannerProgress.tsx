@@ -18,6 +18,7 @@ import { TOTAL_MUSHAF_PAGES, generateMushafUnits } from "@/lib/planner/mushaf-gr
 import { JUZS_META } from "@/lib/mushaf/data";
 import { loadPlan, loadRecords, calculatePlannerStats } from "@/lib/planner/storage";
 import { PlannerPlan, PlannerUnit, UnitRecord, PlannerProgressStats } from "@/lib/planner/types";
+import { PlannerShell } from "./PlannerShell";
 
 export function PlannerProgress() {
   const [plan, setPlan] = useState<PlannerPlan | null>(null);
@@ -85,9 +86,10 @@ export function PlannerProgress() {
     : 0;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 sm:py-10 space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+    <PlannerShell activeTab="progress" sabaqStartPage={plan?.startPoint.page || 1}>
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/70 dark:border-slate-800">
         <div>
           <div className="flex items-center gap-2">
             <Link
@@ -302,6 +304,7 @@ export function PlannerProgress() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </PlannerShell>
   );
 }
