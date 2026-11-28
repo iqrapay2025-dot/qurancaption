@@ -42,6 +42,8 @@
 *.m4a                filter=lfs diff=lfs merge=lfs -text
 *.wma                filter=lfs diff=lfs merge=lfs -text
 *.aiff               filter=lfs diff=lfs merge=lfs -text
+# Audio: public/audio assets are standard git binaries (NOT LFS, required for Vercel/Next.js asset serving)
+public/audio/**      -filter binary
 
 # ---------------------------------------------------------------------------
 # 3D & Game Assets
