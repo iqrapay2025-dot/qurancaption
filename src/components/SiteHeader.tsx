@@ -2,17 +2,21 @@
 
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown, BookOpen, Headphones, Compass, Bookmark, HelpCircle, UserRound, HardDrive, Sunrise, Sunset, Clock, Moon, Hand, Calendar } from "lucide-react";
 import { DuaHandsIcon } from "./icons/DuaHandsIcon";
 import { Logo, ThemeToggle, useTheme } from "./shared";
 import AccountMenu from "./AccountMenu";
-import type { AppUser } from "@/lib/app/client";
+import { useSession, type AppUser } from "@/lib/app/client";
+import type { AuthMode } from "./AuthDialog";
 import { NAV_ITEMS, isActive } from "@/lib/nav";
 import { getActiveDonateUrl } from "@/lib/donate";
 import { ToursMenu } from "./tour/ToursMenu";
 import { InstallAppButton } from "./InstallAppButton";
 import { PrayerTimesHeaderChip } from "./prayer-times/PrayerTimesHeaderChip";
+
+const AuthDialog = dynamic(() => import("./AuthDialog"), { ssr: false });
 
 type SiteHeaderProps = {
   onStart?: () => void;
@@ -69,6 +73,9 @@ export function SiteHeader({
   dark: propDark,
   toggleTheme: propToggle,
 }: SiteHeaderProps) {
+  const session = useSession();
+  const [authModal, setAuthModal] = useState<AuthMode | null>(null);
+  const activeUser = user !== null ? user : session.user;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileOpenSections, setMobileOpenSections] = useState<Record<string, boolean>>({});
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -169,27 +176,30 @@ export function SiteHeader({
 
   const handleLogin = () => {
     if (onLogin) onLogin();
-    else window.location.href = "/#/editor";
+    else setAuthModal("login");
   };
 
   const handleSignup = () => {
     if (onSignup) onSignup();
-    else window.location.href = "/#/editor";
+    else setAuthModal("signup");
   };
 
   const handleProjects = () => {
     if (onProjects) onProjects();
-    else window.location.href = "/#/editor";
+    else window.location.href = "/#/projects";
   };
 
   const handleSettings = () => {
     if (onSettings) onSettings();
-    else window.location.href = "/#/editor";
+    else window.location.href = "/#/settings";
   };
 
-  const handleSignOut = () => {
-    if (onSignOut) onSignOut();
-    else window.location.href = "/";
+  const handleSignOut = async () => {
+    if (onSignOut) {
+      onSignOut();
+    } else {
+      await session.signOut();
+    }
   };
 
   return (
@@ -417,7 +427,7 @@ export function SiteHeader({
 
           {/* Auth buttons / Account menu (Visible on all screens) */}
           <div data-tour="header-auth" className="flex items-center gap-1.5 sm:gap-2">
-            {!user ? (
+            {!activeUser ? (
               <>
                 {/* Mobile User Icon Button */}
                 <button
@@ -448,7 +458,7 @@ export function SiteHeader({
               </>
             ) : (
               <AccountMenu
-                user={user}
+                user={activeUser}
                 onLogin={handleLogin}
                 onProjects={handleProjects}
                 onSettings={handleSettings}
@@ -653,6 +663,18 @@ export function SiteHeader({
             </div>
           </div>
         </nav>
+      )}
+
+      {authModal && (
+        <AuthDialog
+          mode={authModal}
+          onClose={() => setAuthModal(null)}
+          onAuthed={(u) => {
+            session.setUser(u);
+            session.refresh();
+            setAuthModal(null);
+          }}
+        />
       )}
     </header>
   );

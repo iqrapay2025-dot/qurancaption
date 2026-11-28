@@ -58,6 +58,7 @@ import {
   calculatePlannerStats,
 } from "@/lib/planner/storage";
 import { useSession } from "@/lib/app/client";
+import { PlannerShell } from "./PlannerShell";
 import { Logo, ThemeToggle, useTheme } from "@/components/shared";
 import { PracticeModal } from "./PracticeModal";
 
@@ -199,28 +200,30 @@ export function PlannerToday() {
   // If no plan, render setup onboarding prompt
   if (!plan) {
     return (
-      <div className="min-h-screen bg-[#b9d5c8] dark:bg-[#14231e] p-4 sm:p-8 flex items-center justify-center">
-        <div className="w-full max-w-lg rounded-[28px] sm:rounded-[32px] bg-white dark:bg-[#15231e] p-6 sm:p-8 shadow-2xl border border-white/60 text-center space-y-6">
-          <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
-            <BookOpen size={32} />
+      <PlannerShell activeTab="today">
+        <div className="flex-1 flex items-center justify-center py-6 sm:py-12">
+          <div className="w-full max-w-lg rounded-[28px] sm:rounded-[32px] bg-white dark:bg-[#15231e] p-6 sm:p-8 shadow-2xl border border-white/60 dark:border-white/10 text-center space-y-6">
+            <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
+              <BookOpen size={32} />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-foreground">
+                Hifz & Muraja'ah Planner
+              </h1>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Organize your daily Quran memorization into Sabaq (new lesson),
+                Sabqi (recent revision), and Manzil (cycle revision).
+              </p>
+            </div>
+            <Link
+              href="/planner/setup"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0c8a66] hover:bg-[#097455] text-white font-bold text-sm shadow-md transition-all"
+            >
+              Create Your Plan <ChevronRight size={16} />
+            </Link>
           </div>
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-foreground">
-              Hifz & Muraja'ah Planner
-            </h1>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Organize your daily Quran memorization into Sabaq (new lesson),
-              Sabqi (recent revision), and Manzil (cycle revision).
-            </p>
-          </div>
-          <Link
-            href="/planner/setup"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0c8a66] hover:bg-[#097455] text-white font-bold text-sm shadow-md transition-all"
-          >
-            Create Your Plan <ChevronRight size={16} />
-          </Link>
         </div>
-      </div>
+      </PlannerShell>
     );
   }
 
@@ -230,108 +233,10 @@ export function PlannerToday() {
     (schedule?.sabaq ? 1 : 0) + (schedule?.sabqi.length || 0) + (schedule?.manzil.length || 0);
 
   return (
-    <div className="min-h-screen bg-[#bcd5ca] dark:bg-[#101c17] p-2 sm:p-4 md:p-8 flex items-center justify-center overflow-x-hidden">
-      {/* Outer Dashboard Window Container */}
-      <div className="w-full max-w-6xl rounded-2xl sm:rounded-3xl md:rounded-[36px] bg-[#f8faf9] dark:bg-[#121c18] shadow-2xl border border-white/80 dark:border-white/10 overflow-hidden flex flex-col md:flex-row min-h-[640px] md:min-h-[680px]">
-        
-        {/* Left Vertical Dock / Icon Rail (Desktop only: md:flex) */}
-        <aside className="hidden md:flex w-20 bg-white/95 dark:bg-[#15241f] border-r border-slate-200/70 dark:border-slate-800/80 flex-col items-center justify-between py-7 shrink-0">
-          <div className="flex flex-col items-center gap-6">
-            {/* Brand Logo Mark */}
-            <Link
-              href="/"
-              className="size-10 rounded-xl flex items-center justify-center hover:opacity-90 transition-opacity"
-              title="Aayah Studio"
-            >
-              <Logo iconOnly />
-            </Link>
-
-            {/* Vertical Icons Nav */}
-            <nav className="flex flex-col items-center gap-3">
-              <Link
-                href="/planner"
-                className="w-10 h-10 rounded-xl bg-[#e6f4ee] dark:bg-[#1c382e] text-[#0c8a66] dark:text-[#52d3a7] flex items-center justify-center shadow-xs transition-colors"
-                title="Today's Schedule"
-              >
-                <LayoutGrid size={18} />
-              </Link>
-
-              <Link
-                href={`/mushaf/${schedule?.sabaq?.startPage || 1}`}
-                className="w-10 h-10 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 flex items-center justify-center transition-colors"
-                title="Open Mushaf"
-              >
-                <BookOpen size={18} />
-              </Link>
-
-              <Link
-                href="/planner/progress"
-                className="w-10 h-10 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 flex items-center justify-center transition-colors"
-                title="604-Page Progress Grid"
-              >
-                <BarChart3 size={18} />
-              </Link>
-
-              <Link
-                href="/planner/settings"
-                className="w-10 h-10 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 flex items-center justify-center transition-colors"
-                title="Planner Settings & Schedule"
-              >
-                <Settings size={18} />
-              </Link>
-
-              <Link
-                href="/adhkar"
-                className="w-10 h-10 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/50 flex items-center justify-center transition-colors"
-                title="Adhkar & Duas"
-              >
-                <Headphones size={18} />
-              </Link>
-            </nav>
-          </div>
-
-          {/* Bottom Dock Actions: Theme Toggle & Profile / Dev Tool */}
-          <div className="flex flex-col items-center gap-2.5">
-            <ThemeToggle
-              dark={dark}
-              toggle={toggle}
-              themeMode={themeMode}
-              setThemeMode={setThemeMode}
-            />
-
-            <button
-              type="button"
-              onClick={() => {
-                const next = prompt("Enter simulated date (YYYY-MM-DD):", currentDate);
-                if (next && /^\d{4}-\d{2}-\d{2}$/.test(next)) {
-                  setCurrentDate(next);
-                }
-              }}
-              className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 transition-colors"
-              title="Profile / Simulated Date"
-            >
-              <User size={16} />
-            </button>
-          </div>
-        </aside>
-
-        {/* Mobile Header Bar (md:hidden) */}
-        <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white/95 dark:bg-[#15241f] border-b border-slate-200/70 dark:border-slate-800">
-          <Link href="/" className="flex items-center gap-2">
-            <Logo compact />
-          </Link>
-          <ThemeToggle
-            dark={dark}
-            toggle={toggle}
-            themeMode={themeMode}
-            setThemeMode={setThemeMode}
-          />
-        </div>
-
-        {/* Main Content Area */}
-        <main className="flex-1 p-4 sm:p-7 md:p-9 space-y-6 overflow-y-auto max-w-full pb-20 md:pb-8">
-          {/* Greeting Header & Status Row */}
-          <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-slate-200/60 dark:border-slate-800/80">
+    <PlannerShell activeTab="today" sabaqStartPage={schedule?.sabaq?.startPage || 1}>
+      <div className="space-y-6">
+        {/* Greeting Header & Status Row */}
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1 border-b border-slate-200/60 dark:border-slate-800/80">
             <div>
               {/* Dynamic Name Header with Inline Edit Pencil */}
               {isEditingName ? (
@@ -1150,54 +1055,7 @@ export function PlannerToday() {
                 })}
             </div>
           </section>
-        </main>
-      </div>
-
-      {/* MOBILE BOTTOM NAVIGATION BAR (md:hidden - fixed bottom for thumb-friendly native mobile UX) */}
-      <nav
-        aria-label="Mobile Navigation"
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#15231e]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 py-2 px-3 flex items-center justify-around shadow-lg"
-      >
-        <Link
-          href="/planner"
-          className="flex flex-col items-center gap-0.5 text-xs font-bold text-[#0c8a66] dark:text-[#52d3a7]"
-        >
-          <LayoutGrid size={18} />
-          <span className="text-[10px]">Today</span>
-        </Link>
-
-        <Link
-          href={`/mushaf/${schedule?.sabaq?.startPage || 1}`}
-          className="flex flex-col items-center gap-0.5 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
-        >
-          <BookOpen size={18} />
-          <span className="text-[10px]">Mushaf</span>
-        </Link>
-
-        <Link
-          href="/planner/progress"
-          className="flex flex-col items-center gap-0.5 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
-        >
-          <BarChart3 size={18} />
-          <span className="text-[10px]">Matrix</span>
-        </Link>
-
-        <Link
-          href="/adhkar"
-          className="flex flex-col items-center gap-0.5 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
-        >
-          <Headphones size={18} />
-          <span className="text-[10px]">Adhkar</span>
-        </Link>
-
-        <Link
-          href="/planner/settings"
-          className="flex flex-col items-center gap-0.5 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
-        >
-          <Settings size={18} />
-          <span className="text-[10px]">Pace</span>
-        </Link>
-      </nav>
+        </div>
 
       {/* SABAQ OUTCOME MODAL */}
       {ratingTarget && ratingTarget.type === "sabaq" && (
@@ -1300,6 +1158,6 @@ export function PlannerToday() {
         isOpen={practiceUnit !== null}
         onClose={() => setPracticeUnit(null)}
       />
-    </div>
+    </PlannerShell>
   );
 }

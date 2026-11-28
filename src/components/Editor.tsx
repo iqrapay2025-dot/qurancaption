@@ -167,6 +167,13 @@ export default function Editor({ projectId, user, sessionReady, requestAuth, req
 }) {
   const [project, setProject] = useState("Quran recitation");
   const [exporting, setExporting] = useState(false);
+  const [guestExports, setGuestExports] = useState(0);
+
+  useEffect(() => {
+    try {
+      setGuestExports(Number(localStorage.getItem(EXPORT_KEY) ?? 0));
+    } catch {}
+  }, [exporting, user]);
   const [tab, setTab] = useState<"preview" | "controls" | "verses">("preview");
   const [helpOpen, setHelpOpen] = useState(false);
   const helpDialogRef = useRef<HTMLDialogElement>(null);
@@ -546,12 +553,19 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
   const tryExport = () => {
     if (!exportTimingsReady) return;
     if (tooLong) return requestUpgrade({ code: "verse_limit" });
-    if (user || Number(localStorage.getItem(EXPORT_KEY) ?? 0) < 1) return setExporting(true);
-    requestAuth({ mode: "signup", reason: "Your free export is used. Create a free account to keep exporting and to save your projects.", after: () => setExporting(true) });
+    const count = Number(localStorage.getItem(EXPORT_KEY) ?? 0);
+    if (user || count < 1) return setExporting(true);
+    requestAuth({
+      mode: "signup",
+      reason: "You've used your 1 free guest export. Sign up for free to keep exporting captions and save your projects!",
+      after: () => setExporting(true),
+    });
   };
   const onExported = () => {
     if (user) return;
-    localStorage.setItem(EXPORT_KEY, String(Number(localStorage.getItem(EXPORT_KEY) ?? 0) + 1));
+    const nextCount = Number(localStorage.getItem(EXPORT_KEY) ?? 0) + 1;
+    localStorage.setItem(EXPORT_KEY, String(nextCount));
+    setGuestExports(nextCount);
     setPostExport(true);
   };
   const closeExport = () => {
@@ -819,6 +833,22 @@ const [autoTimeUsage, setAutoTimeUsage] = useState<{ used: number; limit: number
           >
             <CircleHelp size={17} aria-hidden="true" />
           </button>
+          {!user && (
+            <span
+              className={`hidden sm:inline-flex items-center text-[11px] font-semibold px-2 py-1 rounded-full border ${
+                guestExports < 1
+                  ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
+                  : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
+              }`}
+              title={
+                guestExports < 1
+                  ? "1 free guest export remaining"
+                  : "1 free export used. Sign up for unlimited exports."
+              }
+            >
+              {guestExports < 1 ? "1 Free Export" : "Sign up to export"}
+            </span>
+          )}
           <button
             data-tour="editor-export-button"
             onClick={tryExport}
